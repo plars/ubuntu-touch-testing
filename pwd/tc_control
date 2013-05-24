@@ -1,13 +1,13 @@
 description: pwd works
 dependencies: none
 action: |
-  1. pwd
+  1. cd to /tmp and verify which is the current directory
 expected_results: |
-  1. Command executes without error
+  1. Current directory is /tmp
 type: userland
 timeout: 60
-command: pwd
+command: cd /tmp ; pwd ; test `pwd` == "/tmp"
 run_as: phablet
 #build_cmd:
 #tc_setup:
-#tc_cleanup:
+tc_cleanup: cd 
