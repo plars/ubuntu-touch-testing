@@ -9,5 +9,5 @@ timeout: 60
 command: cd /tmp ; pwd ; test `pwd` == "/tmp"
 run_as: phablet
 #build_cmd:
-#tc_setup:
-tc_cleanup: cd 
+tc_setup: pushd .
+tc_cleanup: popd
