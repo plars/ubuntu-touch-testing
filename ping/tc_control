@@ -1,0 +1,13 @@
+description: ping -c 5 www.ubuntu.com
+dependencies: None
+action: |
+  1. ping -c 5 www.ubuntu.com
+expected_results: |
+  1. ping ends without an error
+type: userland
+timeout: 60
+command: ping -c 5 www.ubuntu.com 
+run_as: phablet
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

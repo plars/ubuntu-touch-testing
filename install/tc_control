@@ -1,0 +1,13 @@
+description: apt-get install works
+dependencies: openssh-server
+action: |
+  1. apt-get install openssh-server
+expected_results: |
+  1. apt-get install can install openssh-server and ends with exit code 0
+type: userland
+timeout: 120
+command: apt-get install openssh-server
+run_as: root
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

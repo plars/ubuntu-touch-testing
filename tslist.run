@@ -1,0 +1,9 @@
+- test: pwd
+- test: uname
+- test: vmstat
+- test: netstat
+- test: ifconfig
+- test: route
+- test: ping
+- test: update
+- test: install

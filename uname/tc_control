@@ -1,0 +1,13 @@
+description: uname shows an ubuntu-phablet image installed
+dependencies: CHANGE_ME
+action: |
+  1. uname -a|grep ubuntu-phablet
+expected_results: |
+  1. ubuntu-phablet is installed as expected
+type: userland
+timeout: 60
+command: uname -a | grep ubuntu-phablet
+run_as: phablet
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

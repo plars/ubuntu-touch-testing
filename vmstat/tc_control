@@ -1,0 +1,13 @@
+description: Execute vmstat and capture output
+dependencies: none
+action: |
+  1. vmstat
+expected_results: |
+  1. vmstat finishes without an error
+type: userland
+timeout: 60
+command: vmstat
+run_as: phablet
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

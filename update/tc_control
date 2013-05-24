@@ -1,0 +1,13 @@
+description: apt-get update works
+dependencies: apt
+action: |
+  1. apt-get update
+expected_results: |
+  1. apt-get update works
+type: userland
+timeout: 120
+command: apt-get update
+run_as: root
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

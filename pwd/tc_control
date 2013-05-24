@@ -1,0 +1,13 @@
+description: pwd works
+dependencies: none
+action: |
+  1. pwd
+expected_results: |
+  1. Command executes without error
+type: userland
+timeout: 60
+command: pwd
+run_as: phablet
+#build_cmd:
+#tc_setup:
+#tc_cleanup:
