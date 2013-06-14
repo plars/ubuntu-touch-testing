@@ -2,4 +2,4 @@
 testsuites:
   - name: smoke_touch
     fetch_method: bzr  # one of 'bzr', 'bzr-export', 'dev', 'git'
-    fetch_location: lp:~gema/junk/smoke-touch
+    fetch_location: lp:ubuntu-test-cases/touch
