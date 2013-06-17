@@ -6,8 +6,5 @@ expected_results: |
   1. Current directory is /tmp
 type: userland
 timeout: 60
-command: cd /tmp ; pwd ; test `pwd` == "/tmp"
+command: ./test.sh
 run_as: phablet
-#build_cmd:
-tc_setup: pushd .
-tc_cleanup: popd
