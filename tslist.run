@@ -7,3 +7,4 @@
 - test: ping
 - test: update
 - test: install
+- test: unity8

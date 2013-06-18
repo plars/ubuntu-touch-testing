@@ -1,0 +1,10 @@
+description: check for unity8 process
+dependencies: None
+action: |
+  1. pgrep unity8
+expected_results: |
+  1. pgrep exits with 0, indicating it found a matching process
+type: userland
+timeout: 60
+command: /usr/bin/pgrep unity8
+run_as: phablet
