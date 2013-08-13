@@ -1,0 +1,10 @@
+description: check if system settles to idle average > 99.25%
+dependencies: none
+action: |
+  1. run systemsettle.sh to wait for system to become idle
+expected_results: |
+  1. run systemsettle.sh succeeds
+type: userland
+timeout: 720
+command: ./systemsettle.sh 99.25
+run_as: root
