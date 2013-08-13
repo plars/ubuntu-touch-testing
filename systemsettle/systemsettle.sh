@@ -2,6 +2,8 @@
 
 calc () { awk "BEGIN{ print $* }" ;}
 
+cleanup () { rm -f $top_log $vmstat_log $vmstat_log.reduced; }
+
 if test -z "$1"; then
    echo "ERROR: you need to provide the average idle value"
    echo "Usage: systemsettle.sh <avg-idle>"
@@ -43,6 +45,7 @@ echo
 echo "  + cmd: \'vmstat $vmstat_wait $vmstat_repeat\' ignoring first $vmstat_ignore (tail: $vmstat_tail)"
 echo
 
+trap cleanup EXIT INT QUIT ILL KILL SEGV TERM
 vmstat_log=`mktemp -t`
 top_log=`mktemp -t`
 
