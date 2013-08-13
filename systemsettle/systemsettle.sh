@@ -1,8 +1,28 @@
 #!/bin/bash
 
+set -e
+
+# default exit code storage
+dump_error=1
+
 calc () { awk "BEGIN{ print $* }" ;}
 
-cleanup () { rm -f $top_log $vmstat_log $vmstat_log.reduced; }
+cleanup () {
+  if ! test "$dump_error" = 0; then
+    echo "System failed to settle to target idle level ($idle_avg_min)"
+    echo "   + check out the following top log taken at each retry:"
+
+    # dumb toplog indented
+    while read line; do
+      echo "  $line"
+    done < $top_log
+
+    echo
+    # dont rerun this logic in case we get multiple signals
+    dump_error=0
+  fi
+  rm -f $top_log $vmstat_log $vmstat_log.reduced
+}
 
 if test -z "$1"; then
    echo "ERROR: you need to provide the average idle value"
@@ -87,19 +107,11 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
 done
 
 if test `calc $idle_avg '<' $idle_avg_min` = 1; then
-  echo "System failed to settle to target idle level ($idle_avg_min)"
-  echo "   + check out the following top log taken at each retry:"
-
-  # dumb toplog indented
-  while read line; do
-    echo "  $line"
-  done < $top_log
-
-  echo
-  echo "system did not settle. FAILED."
+  echo "system not settled. FAIL"
   exit 1
 else
   echo "system settled. SUCCESS"
+  dump_error=0
   exit 0
 fi
 
