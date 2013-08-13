@@ -1,9 +1,9 @@
 description: check if system settles to idle average > 99.25%
 dependencies: none
 action: |
-  1. run systemsettle.sh to wait for system to become idle
+  1. Take CPU load samples for 10 minutes and fail if average idle never goes above 99.25% percent
 expected_results: |
-  1. run systemsettle.sh succeeds
+  1. When doing nothing, system calms down to at least 99.25% idle level
 type: userland
 timeout: 720
 command: ./systemsettle.sh 99.25 run-forever
