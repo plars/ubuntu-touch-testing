@@ -1,6 +1,7 @@
 - test: pwd
 - test: uname
 - test: vmstat
+- test: systemsettle
 - test: netstat
 - test: ifconfig
 - test: route
