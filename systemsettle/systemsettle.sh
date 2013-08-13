@@ -6,9 +6,14 @@ cleanup () { rm -f $top_log $vmstat_log $vmstat_log.reduced; }
 
 if test -z "$1"; then
    echo "ERROR: you need to provide the average idle value"
-   echo "Usage: systemsettle.sh <avg-idle>"
+   echo "Usage: systemsettle.sh <avg-idle> [run-forever]"
    echo "       - e.g. systemsettle.sh 99.25"
+   echo "       - e.g. systemsettle.sh 99.25 run-forever"
    exit 129
+fi
+
+if test "$2" = "run-forever"; then
+  settle_prefix='-'
 fi
 
 # minimum average idle level required to succeed
@@ -49,7 +54,7 @@ trap cleanup EXIT INT QUIT ILL KILL SEGV TERM
 vmstat_log=`mktemp -t`
 top_log=`mktemp -t`
 
-while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_count" -lt "$settle_max"; do
+while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_count" -lt "$settle_max"; do
   echo Starting settle run $settle_count:
 
   # get vmstat
@@ -84,7 +89,12 @@ done
 if test `calc $idle_avg '<' $idle_avg_min` = 1; then
   echo "System failed to settle to target idle level ($idle_avg_min)"
   echo "   + check out the following top log taken at each retry:"
-  cat $top_log
+
+  # dumb toplog indented
+  while read line; do
+    echo "  $line"
+  done < $top_log
+
   echo
   echo "system did not settle. FAILED."
   exit 1
