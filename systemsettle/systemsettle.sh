@@ -12,7 +12,7 @@ if test -z "$1"; then
 fi
 
 # minimum average idle level required to succeed
-quiesce_min=$1
+idle_avg_min=$1
 
 # how many total attempts to settle the system
 settle_max=10
@@ -37,7 +37,7 @@ fi
 # set and calc more runtime values
 vmstat_tail=`calc $vmstat_repeat - $vmstat_ignore`
 settle_count=0
-quiesce_level=0
+idle_avg=0
 
 echo "System Settle run - quiesce the system"
 echo "--------------------------------------"
@@ -49,7 +49,7 @@ trap cleanup EXIT INT QUIT ILL KILL SEGV TERM
 vmstat_log=`mktemp -t`
 top_log=`mktemp -t`
 
-while test `calc $quiesce_level '<' $quiesce_min` = 1 -a "$settle_count" -lt "$settle_max"; do
+while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_count" -lt "$settle_max"; do
   echo Starting settle run $settle_count:
 
   # get vmstat
@@ -71,18 +71,18 @@ while test `calc $quiesce_level '<' $quiesce_min` = 1 -a "$settle_count" -lt "$s
      count=`calc $count + 1`
   done < $vmstat_log.reduced
 
-  quiesce_level=`calc $sum.0 / $count.0`
+  idle_avg=`calc $sum.0 / $count.0`
   settle_count=`calc $settle_count + 1`
 
   echo
   echo "Measurement:"
-  echo "  + idle level: $quiesce_level"
+  echo "  + idle level: $idle_avg"
   echo "  + idle sum: $sum / count: $count"
   echo
 done
 
-if test `calc $quiesce_level '<' $quiesce_min` = 1; then
-  echo "System failed to settle to target idle level ($quiesce_min)"
+if test `calc $idle_avg '<' $idle_avg_min` = 1; then
+  echo "System failed to settle to target idle level ($idle_avg_min)"
   echo "   + check out the following top log taken at each retry:"
   cat $top_log
   echo
