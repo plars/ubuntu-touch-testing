@@ -24,30 +24,48 @@ cleanup () {
   rm -f $top_log $vmstat_log $vmstat_log.reduced
 }
 
-if test -z "$1"; then
-   echo "ERROR: you need to provide the average idle value"
-   echo "Usage: systemsettle.sh <avg-idle> [run-forever]"
-   echo "       - e.g. systemsettle.sh 99.25"
-   echo "       - e.g. systemsettle.sh 99.25 run-forever"
+function show_usage() {
+   echo "Usage:"
+   echo " $0 [options]"
+   echo "Options:"
+   echo " -r  run forever without exiting"
+   echo " -p  minimum idle percent to wait for (Default: 99)"
+   echo " -c  number of times to run vmstat at each iteration (Default: 10)"
+   echo " -d  seconds to delay between each vmstat iteration (Default: 6)"
+   echo " -i  vmstat measurements to ignore from each loop (Default: 1)"
+   echo " -m  maximum loops of vmstat before giving up if minimum idle"
+   echo "     percent is not reached (Default: 1)"
    exit 129
-fi
+}
 
-if test "$2" = "run-forever"; then
-  settle_prefix='-'
-fi
+while getopts "h?rp:c:d:i:m:" opt; do
+    case "$opt" in
+        h|\?) show_usage
+              ;;
+        r)    settle_prefix='-'
+              ;;
+        p)    idle_avg_min=$OPTARG
+              ;;
+        c)    vmstat_repeat=$OPTARG
+              ;;
+        d)    vmstat_wait=$OPTARG
+              ;;
+        i)    vmstat_ignore=$OPTARG
+              ;;
+        m)    settle_max=$OPTARG
+              ;;
+    esac
+done
 
 # minimum average idle level required to succeed
-idle_avg_min=$1
-
-# how many total attempts to settle the system
-settle_max=10
-
+idle_avg_min=${idle_avg_min:-99}
 # measurement details: vmstat $vmstat_wait $vmstat_repeat
-vmstat_wait=6
-vmstat_repeat=10
-
+vmstat_repeat=${vmstat_repeat:-10}
+vmstat_wait=${vmstat_wait:-6}
 # how many samples to ignore
-vmstat_ignore=1
+vmstat_ignore=${vmstat_ignore:-1}
+# how many total attempts to settle the system
+settle_max=${settle_max:-10}
 
 # set and calc more runtime values
 vmstat_tail=`calc $vmstat_repeat - $vmstat_ignore`
