@@ -105,7 +105,7 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
      count=`calc $count + 1`
   done < $vmstat_log.reduced
 
-  idle_avg=`calc $sum.0 / $count.0`
+  idle_avg=`calc $sum / $count`
   settle_count=`calc $settle_count + 1`
 
   echo
