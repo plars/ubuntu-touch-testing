@@ -87,7 +87,7 @@ vmstat_log=`mktemp -t`
 top_log=`mktemp -t`
 
 while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_count" -lt "$settle_max"; do
-  echo Starting settle run $settle_count:
+  echo -n "Starting system idle measurement (run: $settle_count) ... "
 
   # get vmstat
   echo "TOP DUMP (after settle run: $settle_count)" >> $top_log
@@ -108,6 +108,7 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   idle_avg=`calc $sum / $count`
   settle_count=`calc $settle_count + 1`
 
+  echo " DONE."
   echo
   echo "Measurement:"
   echo "  + idle level: $idle_avg"
