@@ -73,7 +73,6 @@ idle_avg=0
 echo "System Settle run - quiesce the system"
 echo "--------------------------------------"
 echo
-echo "  cmd            = 'top -b -d $top_wait -n $top_repeat' ignoring first $top_ignore (tail: $top_tail)"
 echo "  idle_avg_min   = '$idle_avg_min'"
 echo "  top_repeat  = '$top_repeat'"
 echo "  top_wait    = '$top_wait'"
