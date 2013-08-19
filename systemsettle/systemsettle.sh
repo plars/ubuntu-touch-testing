@@ -75,7 +75,7 @@ idle_avg=0
 echo "System Settle run - quiesce the system"
 echo "--------------------------------------"
 echo
-echo "  + cmd: \'vmstat $vmstat_wait $vmstat_repeat\' ignoring first $vmstat_ignore (tail: $vmstat_tail)"
+echo "  + cmd: \'top -b -d $vmstat_wait -n $vmstat_repeat\' ignoring first $vmstat_ignore (tail: $vmstat_tail)"
 echo
 
 trap cleanup EXIT INT QUIT ILL KILL SEGV TERM
@@ -86,20 +86,17 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   echo Starting settle run $settle_count:
 
   # get vmstat
-  vmstat $vmstat_wait $vmstat_repeat | tee $vmstat_log
-  cat $vmstat_log | tail -n $vmstat_tail > $vmstat_log.reduced
-
-  # log top output for potential debugging
   echo "TOP DUMP (after settle run: $settle_count)" >> $top_log
   echo "========================" >> $top_log
-  top -n 1 -b >> $top_log
+  top -b -d $vmstat_wait -n $vmstat_repeat >> $top_log
+  cat $top_log | grep '.Cpu.*' | tail -n $vmstat_tail > $vmstat_log.reduced
   echo >> $top_log
 
   # calc average of idle field for this measurement
   sum=0
   count=0
   while read line; do
-     idle=`echo $line | sed -e 's/\s\s*/ /g' | cut -d ' ' -f 15`
+     idle=`echo $line | sed -e 's/.* \([0-9\.]*\) id.*/\1/'`
      sum=`calc $sum + $idle`
      count=`calc $count + 1`
   done < $vmstat_log.reduced
