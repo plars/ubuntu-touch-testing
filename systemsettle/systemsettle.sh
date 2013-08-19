@@ -9,15 +9,13 @@ calc () { awk "BEGIN{ print $* }" ;}
 
 cleanup () {
   if ! test "$dump_error" = 0; then
-    echo "System failed to settle to target idle level ($idle_avg_min)"
-    echo "   + check out the following top log taken at each retry:"
+    echo "Check out the following top log taken at each retry:"
 
+    echo
     # dumb toplog indented
     while read line; do
       echo "  $line"
     done < $top_log
-
-    echo
     # dont rerun this logic in case we get multiple signals
     dump_error=0
   fi
@@ -75,7 +73,13 @@ idle_avg=0
 echo "System Settle run - quiesce the system"
 echo "--------------------------------------"
 echo
-echo "  + cmd: \'top -b -d $vmstat_wait -n $vmstat_repeat\' ignoring first $vmstat_ignore (tail: $vmstat_tail)"
+echo "  cmd            = 'top -b -d $vmstat_wait -n $vmstat_repeat' ignoring first $vmstat_ignore (tail: $vmstat_tail)"
+echo "  idle_avg_min   = '$idle_avg_min'"
+echo "  vmstat_repeat  = '$vmstat_repeat'"
+echo "  vmstat_wait    = '$vmstat_wait'"
+echo "  vmstat_ignore  = '$vmstat_ignore'"
+echo "  settle_max     = '$settle_max'"
+echo "  run_forever    = '$settle_prefix' (- = yes)"
 echo
 
 trap cleanup EXIT INT QUIT ILL KILL SEGV TERM
@@ -116,7 +120,6 @@ if test `calc $idle_avg '<' $idle_avg_min` = 1; then
   exit 1
 else
   echo "system settled. SUCCESS"
-  dump_error=0
   exit 0
 fi
 
