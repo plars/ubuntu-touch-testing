@@ -6,7 +6,7 @@ expected_results: |
   1. ping ends without an error
 type: userland
 timeout: 60
-command: ping -c 5 ubuntu.com
+command: ping -c 5 10.97.0.1
 run_as: phablet
 #build_cmd:
 #tc_setup:
