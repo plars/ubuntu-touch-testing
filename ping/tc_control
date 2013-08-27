@@ -1,12 +1,12 @@
-description: ping -c 5 ubuntu.com
+description: ping -c 5 $gateway
 dependencies: None
 action: |
-  1. ping -c 5 ubuntu.com
+  1. ping -c 5 $gateway
 expected_results: |
   1. ping ends without an error
 type: userland
 timeout: 60
-command: ping -c 5 10.97.0.1
+command: ping -c 5 $(ip route show | awk '/default via/ { print $3 }')
 run_as: phablet
 #build_cmd:
 #tc_setup:
