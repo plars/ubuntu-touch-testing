@@ -1,12 +1,12 @@
 description: route shows wlan0 routes
 dependencies: none
 action: |
-  1. route | grep wlan0
+  1. route -n | grep wlan0
 expected_results: |
   1. route shows wlan0 routes
 type: userland
 timeout: 60
-command: route | grep wlan0
+command: route -n | grep wlan0
 run_as: phablet
 #build_cmd:
 #tc_setup:
