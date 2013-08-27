@@ -5,7 +5,7 @@ action: |
 expected_results: |
   1. apt-get update works
 type: userland
-timeout: 120
+timeout: 300
 command: apt-get update
 run_as: root
 #build_cmd:
