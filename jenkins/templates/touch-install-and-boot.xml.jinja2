@@ -19,9 +19,9 @@ export TOUCH_IMAGE=--ubuntu-bootstrap
 #### DISABLED FOR TESTING
 #Wait for images to actually show up on cdimage
 #sleep 300
-${BZRDIR}/jenkins/provision.sh
+${BZRDIR}/scripts/provision.sh
 
-touch-runlists/jenkins/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists/runlists/touch-smoke-boot.run
+${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~cjohnston/ubuntu-test-cases/convergence/tests/touch-smoke-boot.run
       </command>
 {% endblock %}
 

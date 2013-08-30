@@ -10,7 +10,7 @@
 {% block shellcmds %}
       <command>rm -rf *
 {% include "touch-setup.xml.jinja2" %}
-touch-runlists/jenkins/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists/runlists/touch-smoke-default.run
+${BZRDIR}/tests/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~cjohnston/ubuntu-test-runlists/convergence/tests/touch-smoke-default.run
 </command>
 {% endblock %}
 
