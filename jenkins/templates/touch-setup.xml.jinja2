@@ -1,0 +1,5 @@
+BRANCH=&quot;lp:~cjohnston/ubuntu-test-cases/convergence&quot;
+BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+bzr branch ${BRANCH} ${BZRDIR}
+
+export ANDROID_SERIAL=$(${BZRDIR}/scripts/get-adb-id {{name}})

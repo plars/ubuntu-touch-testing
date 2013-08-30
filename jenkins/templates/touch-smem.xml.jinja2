@@ -9,8 +9,8 @@
 
 {% block shellcmds %}
       <command>rm -rf *
-bzr branch lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
-ANDROID_SERIAL=`touch-runlists/jenkins/get-adb-id {{name}}`
+{% include "touch-setup.xml.jinja2" %}
+
 touch-runlists/jenkins/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -p /tmp/results -r lp:~ubuntu-test-case-dev/ubuntu-test-cases/qa-baseline-testing/runlists/smem.run
 </command>
 {% endblock %}

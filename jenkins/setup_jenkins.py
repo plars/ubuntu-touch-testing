@@ -120,6 +120,8 @@ def _get_parser():
     parser.add_argument("-n", "--name", action='append',
                         help=("Device names where the job should be executed."
                               " Can be used more than once."))
+    parser.add_argument("--host", default='phoenix',
+                        help=("Host name where the jobs should be executed."))
     parser.add_argument("-s", "--series", default=DEV_SERIES,
                         help=("series of Ubuntu to download "
                               "(default=%(default)s)"))
@@ -173,6 +175,7 @@ def _publish(instance, env, args, template, jobname, **params):
 def _configure_job(instance, env, args, device, test):
     tmpl_name = 'touch-{}.xml.jinja2'.format(test.name)
     params = {
+        'host': args.host,
         'name': device,
         'publish': args.publish
     }
@@ -190,6 +193,7 @@ def _configure_master(instance, env, args, device, projects):
         trigger_url = fmt.format(device_type)
 
     params = {
+        'host': args.host,
         'name': device,
         'publish': args.publish,
         'projects': projects,

@@ -9,12 +9,7 @@
 
 {% block shellcmds %}
       <command>rm -rf *
-bzr branch lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
-export ANDROID_SERIAL=$(touch-runlists/jenkins/get-adb-id {{name}})
-
-BRANCH=&quot;lp:ubuntu-test-cases/smoke-touch-apps&quot;
-BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
-bzr branch ${BRANCH} ${BZRDIR}
+{% include "touch-setup.xml.jinja2" %}
 
 ./touch-runlists/jenkins/run-touch-upgrade.sh
 </command>

@@ -9,9 +9,10 @@
 
 {% block shellcmds %}
       <command>rm -rf *
+{% include "touch-setup.xml.jinja2" %}
+
 bzr branch lp:~ubuntu-test-case-dev/ubuntu-test-cases/qa-baseline-testing
-bzr branch lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
-ANDROID_SERIAL=`touch-runlists/jenkins/get-adb-id {{name}}`
+
 qa-baseline-testing/jenkins/run-touch-eventstat.sh -s $ANDROID_SERIAL</command>
 {% endblock %}
 

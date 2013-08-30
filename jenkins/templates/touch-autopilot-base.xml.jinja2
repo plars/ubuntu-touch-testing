@@ -10,19 +10,11 @@
 {% block shellcmds %}
       <command>set -e
 rm -rf *
-
-# determine the ADB ID
-bzr export touch-runlists lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists/jenkins
-
-export ANDROID_SERIAL=$(touch-runlists/get-adb-id {{name}})
+{% include "touch-setup.xml.jinja2" %}
 
 {% block apptest %}{% endblock %}
 
-BRANCH=&quot;lp:ubuntu-test-cases/smoke-touch-apps&quot;
-BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
-bzr branch ${BRANCH} ${BZRDIR}
-
-${BZRDIR}/jenkins/jenkins.sh
+${BZRDIR}/scripts/jenkins.sh
       </command>
 {% endblock %}
 
