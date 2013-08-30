@@ -1,0 +1,1 @@
+ts_setup: PKGS=notes-app-autopilot prepare-autopilot-test.sh

@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list share_app
+  test_cmd: autopilot-run share_app.tests.{}
+

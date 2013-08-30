@@ -1,0 +1,7 @@
+---
+# The discovery command is run from a directory containing the whole suite
+# The test command is run from a sub directory in that
+# We need to run each command in the directory that contains ubuntu_test_cases
+# so that autopilot can find our python modules
+- discovery_cmd: cd memevent; autopilot-list ubuntu_test_cases.memory_usage_measurement
+  test_cmd: cd ..; autopilot-run ubuntu_test_cases.memory_usage_measurement.tests.{}

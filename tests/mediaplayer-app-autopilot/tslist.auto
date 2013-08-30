@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list mediaplayer_app
+  test_cmd: autopilot-run mediaplayer_app.tests.{}
+

@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list ubuntu_calculator_app
+  test_cmd: autopilot-run ubuntu_calculator_app.tests.{}
+

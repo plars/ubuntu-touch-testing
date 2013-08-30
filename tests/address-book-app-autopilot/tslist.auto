@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list address_book_app
+  test_cmd: autopilot-run address_book_app.tests.{}
+

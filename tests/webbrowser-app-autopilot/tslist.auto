@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list webbrowser_app
+  test_cmd: autopilot-run webbrowser_app.tests.{}
+

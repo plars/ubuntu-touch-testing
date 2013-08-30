@@ -1,0 +1,15 @@
+---
+testsuites:
+  - name: settle-before
+    fetch_method: dev
+    fetch_location: ../systemsettle
+    include_tests:
+      - systemsettle-before
+  - name: ubuntu-terminal-app-autopilot
+    fetch_method: dev
+    fetch_location: ./
+  - name: settle-after
+    fetch_method: dev
+    fetch_location: ../systemsettle
+    include_tests:
+      - systemsettle-after

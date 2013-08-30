@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: phone-app-connected-autopilot
+    fetch_method: dev
+    fetch_location: ./

@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list notes_app
+  test_cmd: autopilot-run notes_app.tests.{}
+

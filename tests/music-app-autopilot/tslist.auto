@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list music_app
+  test_cmd: autopilot-run music_app.tests.{}
+
