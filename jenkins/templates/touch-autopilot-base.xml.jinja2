@@ -1,0 +1,31 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>30</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>set -e
+rm -rf *
+
+# determine the ADB ID
+bzr export touch-runlists lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists/jenkins
+
+export ANDROID_SERIAL=$(touch-runlists/get-adb-id {{name}})
+
+{% block apptest %}{% endblock %}
+
+BRANCH=&quot;lp:ubuntu-test-cases/smoke-touch-apps&quot;
+BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+bzr branch ${BRANCH} ${BZRDIR}
+
+${BZRDIR}/jenkins/jenkins.sh
+      </command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*, **/jenkins.sh</artifacts>
+{% endblock %}

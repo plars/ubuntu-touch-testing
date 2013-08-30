@@ -1,0 +1,4 @@
+testsuites:
+  - name: image
+    fetch_method: bzr-export
+    fetch_location: lp:~ubuntu-test-case-dev/ubuntu-test-cases/package-checks/image

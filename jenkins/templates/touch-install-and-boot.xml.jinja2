@@ -1,0 +1,43 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>30</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>set -e
+rm -rf *
+
+# determine the ADB ID
+bzr branch lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
+export ANDROID_SERIAL=$(touch-runlists/jenkins/get-adb-id {{name}})
+
+{% if system_image %}
+export TOUCH_IMAGE=--ubuntu-bootstrap
+{% endif %}
+
+BRANCH=&quot;lp:ubuntu-test-cases/smoke-touch-apps&quot;
+BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+bzr branch ${BRANCH} ${BZRDIR}
+
+#Wait for images to actually show up on cdimage
+sleep 300
+${BZRDIR}/jenkins/provision.sh
+
+touch-runlists/jenkins/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists/runlists/touch-smoke-boot.run
+      </command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*</artifacts>
+{% endblock %}
+{% block descriptionsetter %}
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>Download directory set to /home/ubuntu/Downloads/phablet-flash/ubuntu-touch/([0-9]+.*)</regexp>
+      <regexpForFailed>Download directory set to /home/ubuntu/Downloads/phablet-flash/ubuntu-touch/([0-9]+.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+{% endblock %}

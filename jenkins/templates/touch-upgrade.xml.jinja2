@@ -1,0 +1,33 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>30</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>rm -rf *
+bzr branch lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
+export ANDROID_SERIAL=$(touch-runlists/jenkins/get-adb-id {{name}})
+
+BRANCH=&quot;lp:ubuntu-test-cases/smoke-touch-apps&quot;
+BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+bzr branch ${BRANCH} ${BZRDIR}
+
+./touch-runlists/jenkins/run-touch-upgrade.sh
+</command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*, **/jenkins.sh</artifacts>
+{% endblock %}
+
+{% block descriptionsetter %}
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>^UPGRADED TO VERSION: (.*)</regexp>
+      <regexpForFailed>^UPGRADED TO VERSION: (.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+{% endblock %}

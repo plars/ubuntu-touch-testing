@@ -1,0 +1,20 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>30</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>rm -rf *
+bzr branch lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
+ANDROID_SERIAL=`touch-runlists/jenkins/get-adb-id {{name}}`
+touch-runlists/jenkins/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists/runlists/touch-smoke-sdk.run
+</command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*</artifacts>
+{% endblock %}
