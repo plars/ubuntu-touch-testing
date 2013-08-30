@@ -27,7 +27,7 @@ cleanup() {
 
 test_from_target() {
 	# push the runlist over to the test
-	adb push ${BASEDIR} ${TESTSUITE_TARGET_BASE} &> /dev/null
+	adb push ${BASEDIR}/tests ${TESTSUITE_TARGET_BASE} &> /dev/null
 	${UTAH_PHABLET_CMD} \
 		-s ${ANDROID_SERIAL} \
 		--results-dir ${RESDIR} \
