@@ -17,7 +17,7 @@ UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.p
 
 ANDROID_SERIAL="${ANDROID_SERIAL-015d1884b20c1c0f}"  #doanac's nexus7 at home
 
-TESTSUITE_HOST=$(readlink -f ${BASEDIR}/${APP})
+TESTSUITE_HOST=$(readlink -f ${BASEDIR}/tests/${APP})
 TESTSUITE_TARGET_BASE=/tmp/tests
 TESTSUITE_TARGET=${TESTSUITE_TARGET_BASE}/$(basename ${TESTSUITE_HOST})
 
@@ -46,7 +46,7 @@ test_from_host() {
 	# see unity8-autopilot/ts_control for example
 	export TARGET_PREFIX=adb-shell
 
-	sudo TARGET_PREFIX=$TARGET_PREFIX PATH=$PATH ${UTAH_PHABLET_CMD} \
+	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
 		-s ${ANDROID_SERIAL} \
 		--from-host \
 		--results-dir ${RESDIR} \

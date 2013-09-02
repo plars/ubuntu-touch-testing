@@ -3,7 +3,7 @@
 # Set $RUNLIST to the runlist you wish to run
 set -x
 
-BRANCH=lp:~canonical-platform-qa/ubuntu-test-runlists/touch-runlists
+BRANCH=lp:ubuntu-test-cases/touch
 WORKSPACE=/home/phablet/workspace
 RESDIR=`pwd`/clientlogs
 UTAHFILE=${RESDIR}/utah.yaml

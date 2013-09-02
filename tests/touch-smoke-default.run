@@ -1,4 +1,0 @@
-testsuites:
-  - name: touch
-    fetch_method: bzr-export
-    fetch_location: lp:ubuntu-test-cases/touch

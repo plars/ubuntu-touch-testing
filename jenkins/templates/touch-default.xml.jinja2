@@ -1,21 +1,6 @@
-{% extends "touch-base.xml.jinja2" %}
+{% extends "touch-autopilot-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
 
-{% block triggers %}
-  <triggers class="vector"/>
+{% block apptest %}
+export APP=&quot;default&quot;
 {% endblock %}
-{% block timeout %}
-  <timeoutMinutes>30</timeoutMinutes>
-{% endblock timeout %}
-
-{% block shellcmds %}
-      <command>rm -rf *
-{% include "touch-setup.xml.jinja2" %}
-
-${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:~cjohnston/ubuntu-test-runlists/convergence/tests/touch-smoke-default.run
-</command>
-{% endblock %}
-
-{% block artifacts %}
-      <artifacts>clientlogs/*</artifacts>
-{% endblock %}
-

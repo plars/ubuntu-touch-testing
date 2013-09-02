@@ -1,5 +1,5 @@
 ---
 testsuites:
   - name: smoke_touch
-    fetch_method: bzr  # one of 'bzr', 'bzr-export', 'dev', 'git'
-    fetch_location: lp:ubuntu-test-cases/touch
+    fetch_method: dev
+    fetch_location: ./
