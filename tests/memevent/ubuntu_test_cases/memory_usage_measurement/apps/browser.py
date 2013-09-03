@@ -2,7 +2,8 @@
 
 from testtools.matchers import Contains, Equals
 
-from webbrowser_app.emulators.main_window import MainWindow as BrowserWindow
+from ubuntuuitoolkit.emulators import UbuntuUIToolkitEmulatorBase
+from webbrowser_app.emulators.browser import Browser
 
 from ubuntu_test_cases.memory_usage_measurement.apps import App
 from ubuntu_test_cases.memory_usage_measurement.matchers import (
@@ -19,10 +20,10 @@ class BrowserApp(App):
 
     def assert_chrome_eventually_hidden(self):
         """Make sure chrome is eventually hidden."""
-        view = self.window.get_qml_view()
-        chrome = self.window.get_chrome()
-        self.tc.assertThat(lambda: chrome.globalRect[1],
-                           Eventually(Equals(view.y + view.height)))
+
+        toolbar = self.window.get_toolbar()
+        self.tc.assertThat(toolbar.opened, Eventually(Equals(False)))
+        self.tc.assertThat(toolbar.animating, Eventually(Equals(False)))
 
     def assert_page_eventually_loaded(self, url):
         """Make sure page is eventually loaded."""
@@ -67,7 +68,7 @@ class BrowserApp(App):
 
         """
         self.ensure_chrome_is_hidden()
-        self.reveal_chrome()
+        self.window.open_toolbar()
         self.clear_address_bar()
         self.type_in_address_bar(url)
         self.keyboard.press_and_release("Enter")
@@ -80,21 +81,13 @@ class BrowserApp(App):
             ('--desktop_file_hint='
              '/usr/share/applications/webbrowser-app.desktop'),
         ]
-        self.app = self.tc.launch_test_application(*args, app_type='qt')
-        self.window = BrowserWindow(self.app)
-        self.tc.assertThat(self.window.get_qml_view().visible,
-                           Eventually(Equals(True)))
-
-    def reveal_chrome(self):
-        """Reveal chrome."""
-        panel = self.window.get_panel()
-        distance = self.window.get_chrome().height
-        view = self.window.get_qml_view()
-        x_line = int(view.x + view.width * 0.5)
-        start_y = int(view.y + view.height - 1)
-        stop_y = int(start_y - distance)
-        self.pointer.drag(x_line, start_y, x_line, stop_y)
-        self.tc.assertThat(panel.state, Eventually(Equals('spread')))
+        self.app = self.tc.launch_test_application(
+            *args,
+            app_type='qt',
+            emulator_base=UbuntuUIToolkitEmulatorBase
+        )
+        self.window = self.app.select_single(Browser)
+        self.window.visible.wait_for(True)
 
     def type_in_address_bar(self, text):
         """Type text in address bar.

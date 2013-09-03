@@ -16,9 +16,8 @@ rm -rf *
 {% if system_image %}
 export TOUCH_IMAGE=--ubuntu-bootstrap
 {% endif %}
-#### DISABLED FOR TESTING
 #Wait for images to actually show up on cdimage
-#sleep 300
+sleep 300
 ${BZRDIR}/scripts/provision.sh
 
 ${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:ubuntu-test-cases/touch/tests/touch-smoke-boot.run
