@@ -1,0 +1,3 @@
+NOTE: This test is intended to be run by UTAH from the host.
+method. This is different from other tests in this repository and should
+not be run with jenkins.sh
