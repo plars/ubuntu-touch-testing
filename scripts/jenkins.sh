@@ -51,7 +51,7 @@ test_from_host() {
 		--from-host \
 		--results-dir ${RESDIR} \
 		--skip-install --skip-network --skip-utah \
-                --pull /var/crash \
+		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
 		-l ${TESTSUITE_HOST}/master.run
 }
@@ -63,8 +63,8 @@ main() {
 	# print the build date so the jenkins job can use it as the
 	# build description
 	adb -s ${ANDROID_SERIAL} pull /var/log/installer/media-info ${RESDIR}
-	BUILDID=`cat ${RESDIR}/media-info | awk '{ print $(NF)}' | sed -e 's/(//' -e 's/)//'`
-	echo "= TOUCH BUILD DATE:$BUILDID"
+	BUILDID=$(adb -s ${ANDROID_SERIAL} shell cat /home/phablet/.ci-version)
+	echo "= TOUCH IMAGE VERSION:$BUILDID"
 
 	adb shell "top -n1 -b" > ${RESDIR}/top.log
 
@@ -91,7 +91,7 @@ main() {
 		echo "launching test from the host...."
 		test_from_host
 	fi
-        adb shell 'rm -f /var/crash/*'
+	adb shell 'rm -f /var/crash/*'
 
 	if ! `grep "^errors: [!0]" < $UTAHFILE >/dev/null` ; then
 		echo "errors found"
