@@ -27,10 +27,3 @@ ${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:ubuntu-test
 {% block artifacts %}
       <artifacts>clientlogs/*</artifacts>
 {% endblock %}
-{% block descriptionsetter %}
-    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
-      <regexp>Download directory set to /home/ubuntu/Downloads/phablet-flash/ubuntu-touch/([0-9]+.*)</regexp>
-      <regexpForFailed>Download directory set to /home/ubuntu/Downloads/phablet-flash/ubuntu-touch/([0-9]+.*)</regexpForFailed>
-      <setForMatrix>false</setForMatrix>
-    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
-{% endblock %}

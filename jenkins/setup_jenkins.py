@@ -189,7 +189,7 @@ def _configure_master(instance, env, args, device, projects):
     trigger_url = ('http://cdimage.ubuntu.com/ubuntu-touch/daily-preinstalled/'
                    'pending/MD5SUMS')
     if SYSTEM_IMAGE:
-        fmt = 'http://system-image.ubuntu.com/daily/{}/index.json'
+        fmt = 'http://system-image.ubuntu.com/daily-proposed/{}/index.json'
         trigger_url = fmt.format(device_type)
 
     params = {

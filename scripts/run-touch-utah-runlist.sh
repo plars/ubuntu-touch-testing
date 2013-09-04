@@ -46,8 +46,8 @@ fi
 rm -rf ${RESDIR}
 mkdir -p ${RESDIR}
 adb -s ${ANDROID_SERIAL} pull /var/log/installer/media-info ${RESDIR}
-BUILDID=`cat ${RESDIR}/media-info | awk '{ print $(NF)}' | sed -e 's/(//' -e 's/)//'`
-echo "= TOUCH BUILD DATE:$BUILDID"
+BUILDID=$(adb -s ${ANDROID_SERIAL} shell cat /home/phablet/.ci-version)
+echo "= TOUCH IMAGE VERSION:$BUILDID"
 
 ${UTAH_PHABLET_CMD} \
     -s ${ANDROID_SERIAL} \
