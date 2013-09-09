@@ -1,0 +1,54 @@
+{% extends "touch-base.xml.jinja2" %}
+{% block triggers %}
+  <triggers class="vector">
+    <com.redfin.hudson.UrlChangeTrigger>
+      <spec></spec>
+      <url>{{trigger_url}}</url>
+    </com.redfin.hudson.UrlChangeTrigger>
+  </triggers>
+{% endblock %}
+{% block shellblock %}{% endblock %}
+{% block extrasteps %}
+{% for project in projects %}
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder>
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <configs class="java.util.Collections$EmptyList"/>
+          <projects>{{project}}</projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+          <block>
+{% if "install-and-boot" in project %}
+            <buildStepFailureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+            </buildStepFailureThreshold>
+{% endif %}
+            <unstableThreshold>
+              <name>UNSTABLE</name>
+              <ordinal>1</ordinal>
+              <color>YELLOW</color>
+            </unstableThreshold>
+{% if "install-and-boot" in project or "default" in project %}
+            <failureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+            </failureThreshold>
+{% endif %}
+          </block>
+          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
+{% endfor %}
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>300</timeoutMinutes>
+{% endblock timeout %}
+{% block artifactblock %}{% endblock %}
+{% block descriptionsetter %}{% endblock %}
+{% block buildpublisher %}{% endblock %}
+{% block mailer %}{% endblock %}
+{% block locks %}{% endblock %}

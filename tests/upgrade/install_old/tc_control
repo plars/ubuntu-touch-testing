@@ -1,0 +1,9 @@
+description: sets up a previous days build on the target
+dependencies: n/a
+action: |
+  1. install an older system image
+expected_results: |
+  1. an older system image will be installed
+type: userland
+timeout: 1800
+command: ./run.sh

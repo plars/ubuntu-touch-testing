@@ -1,0 +1,4 @@
+#!/bin/sh
+
+curdir=$(pwd)
+sudo -i -u phablet bash -ic "PYTHONPATH=$curdir autopilot run -v $*"

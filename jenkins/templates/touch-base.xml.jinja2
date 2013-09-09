@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>
+&lt;pre&gt;
+#NOTE: Automatically created from a script as part of daily smoke testing&#xd;
+  lp:ubuntu-test-cases/touch&#xd;
+&lt;/pre&gt;
+  </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    <hudson.plugins.build__publisher.ExternalProjectProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>{{ host }}</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+{% block triggers %}{% endblock %}
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+{% block shellblock %}
+    <hudson.tasks.Shell>
+{% block shellcmds %}{% endblock %}
+    </hudson.tasks.Shell>
+{% endblock %}
+{% block extrasteps %}{% endblock %}
+  </builders>
+  <publishers>
+{% block artifactblock %}
+    <hudson.tasks.ArtifactArchiver>
+{% block artifacts %}{% endblock %}
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+{% endblock %}
+{% block descriptionsetter %}
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexp>
+      <regexpForFailed>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+{% endblock %}
+{% block mailer %}
+    <hudson.tasks.Mailer>
+      <recipients>paul.larson@canonical.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+{% endblock %}
+{% if publish %}
+{% block buildpublisher %}
+    <hudson.plugins.build__publisher.BuildPublisher>
+      <publishUnstableBuilds>true</publishUnstableBuilds>
+      <publishFailedBuilds>true</publishFailedBuilds>
+      <postActions class="vector"/>
+    </hudson.plugins.build__publisher.BuildPublisher>
+{% endblock %}
+{% endif %}
+{% block buildtrigger %}{% endblock %}
+  </publishers>
+  <buildWrappers>
+      <hudson.plugins.build__timeout.BuildTimeoutWrapper>
+          {% block timeout %}{% endblock %}
+      <failBuild>true</failBuild>
+      <writingDescription>false</writingDescription>
+      <timeoutPercentage>0</timeoutPercentage>
+      <timeoutType>absolute</timeoutType>
+      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+{% block locks %}
+    <hudson.plugins.locksandlatches.LockWrapper>
+      <locks>
+        <hudson.plugins.locksandlatches.LockWrapper_-LockWaitConfig>
+            <name>{{name}}</name>
+        </hudson.plugins.locksandlatches.LockWrapper_-LockWaitConfig>
+      </locks>
+    </hudson.plugins.locksandlatches.LockWrapper>
+{% endblock %}
+  </buildWrappers>
+</project>

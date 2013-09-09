@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list friends_app
+  test_cmd: autopilot-run friends_app.tests.{}
+

@@ -1,0 +1,23 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>30</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>set -e
+rm -rf *
+{% include "touch-setup.xml.jinja2" %}
+
+{% block apptest %}{% endblock %}
+
+${BZRDIR}/scripts/jenkins.sh
+      </command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*, **/jenkins.sh</artifacts>
+{% endblock %}

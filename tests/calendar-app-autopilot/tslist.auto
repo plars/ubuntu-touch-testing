@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list calendar_app
+  test_cmd: autopilot-run calendar_app.tests.{}
+

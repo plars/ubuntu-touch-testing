@@ -1,0 +1,20 @@
+{% extends "touch-base.xml.jinja2" %}
+
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>60</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>rm -rf *
+{% include "touch-setup.xml.jinja2" %}
+
+${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -p /tmp/results -r lp:~ubuntu-test-case-dev/ubuntu-test-cases/qa-baseline-testing/runlists/smem.run
+</command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*,results/**/*</artifacts>
+{% endblock %}

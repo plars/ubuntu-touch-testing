@@ -1,0 +1,1 @@
+ts_setup: PKGS=mediaplayer-app-autopilot prepare-autopilot-test.sh

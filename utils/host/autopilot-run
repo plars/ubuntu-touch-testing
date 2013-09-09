@@ -1,0 +1,3 @@
+#!/bin/sh
+
+adb-shell sudo -i -u phablet bash -ic \"PYTHONPATH=/home/phablet/autopilot autopilot run -v $*\"

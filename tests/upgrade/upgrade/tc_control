@@ -1,0 +1,9 @@
+description: performs an upgrade using system-image-cli
+dependencies: a touch read-only image
+action: |
+  1. execute upgrade
+expected_results: |
+  1. it will reboot into recovery, upgrade, and boot up
+type: userland
+timeout: 1800
+command: ./upgrade.sh

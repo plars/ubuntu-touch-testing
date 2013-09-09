@@ -1,0 +1,1 @@
+ts_setup: PKGS=ubuntu-weather-app-autopilot prepare-autopilot-test.sh

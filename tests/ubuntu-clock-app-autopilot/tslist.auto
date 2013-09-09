@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list ubuntu_clock_app
+  test_cmd: autopilot-run ubuntu_clock_app.tests.{}
+

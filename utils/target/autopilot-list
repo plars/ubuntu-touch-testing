@@ -1,0 +1,13 @@
+#!/bin/sh
+
+app=$1
+pat=${2:-$app}
+rep=${3:-$app.tests.}
+
+if [ -z "$app" ] ; then
+	echo "USAGE: $0 <app> [pattern] [replace]"
+	exit 1
+fi
+
+curdir=$(pwd)
+sudo -i -u phablet bash -ic "PYTHONPATH=$curdir autopilot list $app" | grep $pat | sed -e "s/^.*${rep}//"

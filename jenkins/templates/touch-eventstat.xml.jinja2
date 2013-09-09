@@ -1,0 +1,21 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>45</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>rm -rf *
+{% include "touch-setup.xml.jinja2" %}
+
+bzr branch lp:~ubuntu-test-case-dev/ubuntu-test-cases/qa-baseline-testing
+
+qa-baseline-testing/jenkins/run-touch-eventstat.sh -s $ANDROID_SERIAL</command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>results/**/*</artifacts>
+{% endblock %}

@@ -1,0 +1,6 @@
+testsuites:
+  - name: usit
+    fetch_method: bzr-export
+    fetch_location: lp:ubuntu-test-cases/desktop/testsuites/usit
+    include_tests:
+      - read_write

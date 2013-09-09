@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list camera_app
+  test_cmd: autopilot-run camera_app.tests.{}
+

@@ -1,0 +1,28 @@
+{% extends "touch-base.xml.jinja2" %}
+<?xml version='1.0' encoding='UTF-8'?>
+{% block triggers %}
+  <triggers class="vector"/>
+{% endblock %}
+{% block timeout %}
+  <timeoutMinutes>30</timeoutMinutes>
+{% endblock timeout %}
+
+{% block shellcmds %}
+      <command>rm -rf *
+{% include "touch-setup.xml.jinja2" %}
+
+${BZRDIR}/scrips/run-touch-upgrade.sh
+</command>
+{% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*, **/jenkins.sh</artifacts>
+{% endblock %}
+
+{% block descriptionsetter %}
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>^UPGRADED TO VERSION: (.*)</regexp>
+      <regexpForFailed>^UPGRADED TO VERSION: (.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+{% endblock %}
