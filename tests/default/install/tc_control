@@ -6,8 +6,7 @@ expected_results: |
   1. apt-get install can install a package and ends with exit code 0
 type: userland
 timeout: 120
-command: apt-get install -y curl
-run_as: root
+command: $TARGET_PREFIX apt-get install -y curl
 #build_cmd:
 #tc_setup:
-tc_cleanup: apt-get remove -y curl
+tc_cleanup: $TARGET_PREFIX apt-get remove -y curl
