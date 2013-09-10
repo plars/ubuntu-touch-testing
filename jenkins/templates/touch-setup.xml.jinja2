@@ -1,5 +1,6 @@
 BRANCH=&quot;lp:ubuntu-test-cases/touch&quot;
 BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+BZRDIR=$(readlink -f $BZRDIR)
 bzr branch ${BRANCH} ${BZRDIR}
 
 export ANDROID_SERIAL=$(${BZRDIR}/scripts/get-adb-id {{name}})

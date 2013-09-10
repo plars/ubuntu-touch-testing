@@ -10,6 +10,7 @@
 {% block shellcmds %}
       <command>set -e
 rm -rf *
+mkdir clientlogs
 
 {% include "touch-setup.xml.jinja2" %}
 
@@ -20,7 +21,7 @@ export TOUCH_IMAGE=--ubuntu-bootstrap
 sleep 300
 ${BZRDIR}/scripts/provision.sh
 
-sudo ANDROID_SERIAL=$ANDROID_SERIAL PATH=`pwd`/utils/host:$PATH UTAH_LOGGER=stdout utah -d -r ./tests/install-and-boot/master.run -o `pwd`/clientlogs/utah.yaml
+sudo ANDROID_SERIAL=$ANDROID_SERIAL PATH=${BZRDIR}/utils/host:$PATH UTAH_LOGGER=stdout utah -d -r ${BZRDIR}/tests/install-and-boot/master.run -o `pwd`/clientlogs/utah.yaml
       </command>
 {% endblock %}
 
