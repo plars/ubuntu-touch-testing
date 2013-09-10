@@ -1,0 +1,1 @@
+ts_setup: BZR_HOME=/dev/null bzr export image lp:qa-regression-testing/tests/image

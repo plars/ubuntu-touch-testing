@@ -1,4 +1,0 @@
-testsuites:
-  - name: sdk
-    fetch_method: bzr-export
-    fetch_location: lp:~ubuntu-test-case-dev/ubuntu-test-cases/package-checks/sdk
