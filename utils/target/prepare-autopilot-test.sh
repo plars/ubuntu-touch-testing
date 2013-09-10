@@ -13,5 +13,5 @@ if [ -n "$PKGS" ] ; then
 		echo "setup not needed"
 	fi
 fi
-[ -z $NO_UNLOCK ] && unlock_screen.sh
+[ -z $NO_UNLOCK ] && /home/phablet/bin/unlock_screen.sh
 exit 0
