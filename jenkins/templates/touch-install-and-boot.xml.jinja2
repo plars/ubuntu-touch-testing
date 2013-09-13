@@ -21,7 +21,7 @@ export TOUCH_IMAGE=--ubuntu-bootstrap
 sleep 300
 ${BZRDIR}/scripts/provision.sh
 
-sudo ANDROID_SERIAL=$ANDROID_SERIAL PATH=${BZRDIR}/utils/host:$PATH UTAH_LOGGER=stdout utah -d -r ${BZRDIR}/tests/install-and-boot/master.run -o `pwd`/clientlogs/utah.yaml
+APP="install-and-boot" FROM_HOST=1 ${BZRDIR}/scripts/jenkins.sh
       </command>
 {% endblock %}
 
