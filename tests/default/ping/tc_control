@@ -6,7 +6,7 @@ expected_results: |
   1. ping ends without an error
 type: userland
 timeout: 60
-command: $TARGET_PREFIX ping -c 5 $(ip route show | awk '/default via/ { print $3 }')
+command: ./pingtest.sh
 #build_cmd:
 #tc_setup:
 #tc_cleanup:
