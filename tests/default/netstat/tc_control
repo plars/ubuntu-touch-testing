@@ -1,4 +1,4 @@
-description: netstat -l lists all the services 
+description: netstat -l lists all the services
 dependencies: none
 action: |
   1. netstat -l
@@ -6,8 +6,7 @@ expected_results: |
   1. netstat shows output and exists cleanly
 type: userland
 timeout: 60
-command: netstat -l
-run_as: phablet
+command: $TARGET_PREFIX netstat -l
 #build_cmd:
 #tc_setup:
 #tc_cleanup:

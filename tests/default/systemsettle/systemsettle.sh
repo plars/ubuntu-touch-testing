@@ -1,26 +1,18 @@
 #!/bin/bash
 
+# Configuration variables:
+#  TARGET_PREFIX - Allows this to be run from the host, by providings something
+#                  like TARGET_PREFIX="adb shell"
+#  UTAH_PROBE_DIR - optionally where to save log files so utah will grab them
+
 set -e
+
+[ -z $UTAH_PROBE_DIR ] && UTAH_PROBE_DIR="/tmp"
 
 # default exit code storage
 dump_error=1
 
 calc () { awk "BEGIN{ print $* }" ;}
-
-cleanup () {
-  if ! test "$dump_error" = 0; then
-    echo "Check out the following top log taken at each retry:"
-
-    echo
-    # dumb toplog indented
-    while read line; do
-      echo "  $line"
-    done < $top_log
-    # dont rerun this logic in case we get multiple signals
-    dump_error=0
-  fi
-  rm -f $top_log $top_log.reduced
-}
 
 function show_usage() {
    echo "Usage:"
@@ -33,10 +25,11 @@ function show_usage() {
    echo " -i  top measurements to ignore from each loop (Default: 1)"
    echo " -m  maximum loops of top before giving up if minimum idle"
    echo "     percent is not reached (Default: 10)"
+   echo " -l  label to include for the top_log file"
    exit 129
 }
 
-while getopts "h?rp:c:d:i:m:" opt; do
+while getopts "h?rp:c:d:i:m:l:" opt; do
     case "$opt" in
         h|\?) show_usage
               ;;
@@ -52,6 +45,8 @@ while getopts "h?rp:c:d:i:m:" opt; do
               ;;
         m)    settle_max=$OPTARG
               ;;
+        l)    top_log_label=$OPTARG
+              ;;
     esac
 done
 
@@ -64,6 +59,8 @@ top_wait=${top_wait:-6}
 top_ignore=${top_ignore:-1}
 # how many total attempts to settle the system
 settle_max=${settle_max:-10}
+
+top_log="$UTAH_PROBE_DIR/top$top_log_label.log"
 
 # set and calc more runtime values
 top_tail=`calc $top_repeat - $top_ignore`
@@ -79,10 +76,9 @@ echo "  top_wait    = '$top_wait'"
 echo "  top_ignore  = '$top_ignore'"
 echo "  settle_max     = '$settle_max'"
 echo "  run_forever    = '$settle_prefix' (- = yes)"
+echo "  log files   = $top_log $top_log.reduced"
+echo "  target prefix = $TARGET_PREFIX"
 echo
-
-trap cleanup EXIT INT QUIT ILL KILL SEGV TERM
-top_log=`mktemp -t`
 
 while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_count" -lt "$settle_max"; do
   echo -n "Starting system idle measurement (run: $settle_count) ... "
@@ -90,7 +86,7 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   # get top
   echo "TOP DUMP (after settle run: $settle_count)" >> $top_log
   echo "========================" >> $top_log
-  top -b -d $top_wait -n $top_repeat >> $top_log
+  ${TARGET_PREFIX} top -b -d $top_wait -n $top_repeat >> $top_log
   cat $top_log | grep '.Cpu.*' | tail -n $top_tail > $top_log.reduced
   echo >> $top_log
 
