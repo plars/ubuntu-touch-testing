@@ -1,0 +1,9 @@
+description: run qa-regression-testing check-apparmor test
+dependencies: ufw, apparmor, iptables, bzr
+action: |
+  1. run check-apparmor
+expected_results: |
+  1. test returns 0
+type: userland
+timeout: 120
+command: ./check-apparmor.sh

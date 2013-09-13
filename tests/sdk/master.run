@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: sdk
+    fetch_method: dev
+    fetch_location: ./
