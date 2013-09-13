@@ -7,4 +7,3 @@ expected_results: |
 type: userland
 timeout: 60
 command: ./test.sh
-run_as: phablet

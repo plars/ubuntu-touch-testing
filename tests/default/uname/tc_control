@@ -6,8 +6,7 @@ expected_results: |
   1. ubuntu-phablet is installed as expected
 type: userland
 timeout: 60
-command: uname -a | grep ubuntu-phablet
-run_as: phablet
+command: $TARGET_PREFIX uname -a | grep ubuntu-phablet
 #build_cmd:
 #tc_setup:
 #tc_cleanup:

@@ -1,4 +1,6 @@
 #!/bin/sh
 
+UTAH_PROBE_DIR="${UTAH_PROBE_DIR-/var/cache/utah-probes}"
+
 curdir=$(pwd)
-sudo -i -u phablet bash -ic "PYTHONPATH=$curdir autopilot run -v $*"
+sudo -i -u phablet bash -ic "UTAH_PROBE_DIR=$UTAH_PROBE_DIR PYTHONPATH=$curdir autopilot run -v $*"

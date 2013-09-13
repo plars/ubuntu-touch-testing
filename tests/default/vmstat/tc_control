@@ -6,8 +6,7 @@ expected_results: |
   1. vmstat finishes without an error
 type: userland
 timeout: 60
-command: vmstat
-run_as: phablet
+command: $TARGET_PREFIX vmstat
 #build_cmd:
 #tc_setup:
 #tc_cleanup:

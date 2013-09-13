@@ -1,0 +1,9 @@
+description: run qa-regression-testing check-ufw test
+dependencies: ufw, apparmor, iptables, bzr
+action: |
+  1. run check-ufw
+expected_results: |
+  1. test returns 0
+type: userland
+timeout: 120
+command: ./check-ufw.sh

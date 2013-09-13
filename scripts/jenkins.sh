@@ -28,6 +28,12 @@ cleanup() {
 test_from_target() {
 	# push the runlist over to the test
 	adb push ${BASEDIR}/tests ${TESTSUITE_TARGET_BASE} &> /dev/null
+
+	# provisioning puts scripts under /home/phablet/bin which is writeable
+	# all types of images. that's not in the PATH and we are running tests
+	# here in a way that requires a writeable system so:
+	adb shell cp /home/phablet/bin/* /usr/local/bin/
+
 	${UTAH_PHABLET_CMD} \
 		-s ${ANDROID_SERIAL} \
 		--results-dir ${RESDIR} \

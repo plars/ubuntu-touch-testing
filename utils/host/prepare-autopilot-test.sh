@@ -2,4 +2,4 @@
 
 set -e
 
-adb-shell PKGS=\"$PKGS\" prepare-autopilot-test.sh
+adb-shell PKGS=\"$PKGS\" /home/phablet/bin/prepare-autopilot-test.sh

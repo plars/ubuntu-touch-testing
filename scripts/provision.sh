@@ -25,16 +25,16 @@ ${UTAH_PHABLET_CMD} -s ${ANDROID_SERIAL} --results-dir ${RESDIR} --network-file=
 # mark the version we installed in /home/phablet/.ci-version
 if [ -n "$TOUCH_IMAGE" ]; then
     DEVICE_TYPE=$(adb -s ${ANDROID_SERIAL} shell "getprop ro.cm.device" |tr -d '\r')
-    bzr export utils lp:~ubuntu-system-image/ubuntu-system-image/server/utils
-    IMAGEVER=$(utils/check-latest ${DEVICE_TYPE} |sed -n 's/Current full image: \([0-9]*\).*ubuntu=\([0-9\.]*\),.*=\([0-9\.]*\))/\1:\2:\3/p')
-    rm -rf utils
+    bzr export si-utils lp:~ubuntu-system-image/ubuntu-system-image/server/utils
+    IMAGEVER=$(si-utils/check-latest ${DEVICE_TYPE} |sed -n 's/Current full image: \([0-9]*\).*ubuntu=\([0-9\.]*\),.*=\([0-9\.]*\))/\1:\2:\3/p')
+    rm -rf si-utils
 else
     IMAGEVER=$(adb -s ${ANDROID_SERIAL} shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
 adb -s ${ANDROID_SERIAL} shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
 
 # get our target-based utilities into our PATH
-adb -s ${ANDROID_SERIAL} push ${BASEDIR}/../utils/target /usr/local/bin/
+adb -s ${ANDROID_SERIAL} push ${BASEDIR}/../utils/target /home/phablet/bin
 
 # ensure the "edges intro" is disabled so that it doesn't cause noise
 # in the system

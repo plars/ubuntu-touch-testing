@@ -6,8 +6,7 @@ expected_results: |
   1. apt-get update works
 type: userland
 timeout: 300
-command: apt-get update
-run_as: root
+command: $TARGET_PREFIX apt-get update
 #build_cmd:
 #tc_setup:
 #tc_cleanup:

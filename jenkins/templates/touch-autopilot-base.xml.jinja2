@@ -14,7 +14,7 @@ rm -rf *
 
 {% block apptest %}{% endblock %}
 
-${BZRDIR}/scripts/jenkins.sh
+FROM_HOST=1 ${BZRDIR}/scripts/jenkins.sh
       </command>
 {% endblock %}
 
