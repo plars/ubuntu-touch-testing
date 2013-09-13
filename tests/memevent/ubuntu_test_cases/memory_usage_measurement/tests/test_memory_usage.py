@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 
 from autopilot.testcase import AutopilotTestCase
 
@@ -72,7 +73,8 @@ class MemoryUsageTests(AutopilotTestCase):
 
     def _write_report(self):
         """Write report to to results directory."""
-        report_filename = '/var/cache/utah-probes/memory_usage.json'
+        probes_dir = os.environ.get('UTAH_PROBE_DIR', '/tmp')
+        report_filename = os.path.join(probes_dir, 'memory_usage.json')
         with open(report_filename, 'w') as report_file:
             json.dump(self.smem.report, report_file,
                       indent=4, sort_keys=True)
