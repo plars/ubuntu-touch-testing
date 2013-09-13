@@ -1,4 +1,4 @@
-BRANCH=&quot;lp:ubuntu-test-cases/touch&quot;
+BRANCH=&quot;{{branch}}&quot;
 BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
 BZRDIR=$(readlink -f $BZRDIR)
 bzr branch ${BRANCH} ${BZRDIR}

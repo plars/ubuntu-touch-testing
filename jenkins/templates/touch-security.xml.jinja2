@@ -11,7 +11,7 @@
         <command>rm -rf *
 {% include "touch-setup.xml.jinja2" %}
 
-${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r lp:ubuntu-test-cases/touch/tests/touch-smoke-security.run
+${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -r {{branch}}/tests/touch-smoke-security.run
 </command>
 {% endblock %}
 

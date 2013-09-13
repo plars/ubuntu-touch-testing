@@ -109,10 +109,12 @@ def _get_parser():
                         help="Dry run mode. Don't execute jenkins commands.")
     parser.add_argument("-u", "--username",
                         help="username to use when logging into Jenkins.")
-    parser.add_argument("-P", "--publish", action="store_true",
-                        help="Publish at the end of the job")
     parser.add_argument("-p", "--password",
                         help="username to use when logging into Jenkins")
+    parser.add_argument("-b", "--branch", default="lp:ubuntu-test-cases/touch",
+                        help="The branch this is located. default=%(default)s")
+    parser.add_argument("-P", "--publish", action="store_true",
+                        help="Publish at the end of the job")
     parser.add_argument("--prefix",
                         help="Prefix to add to the beginning of the job name")
     parser.add_argument("-j", "--jenkins", default="http://10.98.0.1:8080/",
@@ -177,7 +179,8 @@ def _configure_job(instance, env, args, device, test):
     params = {
         'host': args.host,
         'name': device,
-        'publish': args.publish
+        'publish': args.publish,
+        'branch': args.branch,
     }
     params['system_image'] = True if SYSTEM_IMAGE else False
     jobname = _get_job_name(args, device, test)
@@ -196,6 +199,7 @@ def _configure_master(instance, env, args, device, projects):
         'host': args.host,
         'name': device,
         'publish': args.publish,
+        'branch': args.branch,
         'projects': projects,
         'trigger_url': trigger_url
     }
