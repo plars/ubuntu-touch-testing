@@ -54,7 +54,6 @@ TESTS = [
     _test('dialer-app-autopilot'),
     _test('messaging-app-autopilot'),
     _test('address-book-app-autopilot'),
-    _test('phone-app-connected-autopilot', restrict_to=['maguro-02']),
     _test('share-app-autopilot'),
     _test('calendar-app-autopilot'),
     _test('music-app-autopilot'),
