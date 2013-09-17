@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list connected_tests test_communication_panel
-  test_cmd: autopilot-run connected_tests.tests.{}
-
