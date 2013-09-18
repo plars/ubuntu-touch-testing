@@ -15,11 +15,22 @@ RESDIR=`pwd`/clientlogs
 UTAHFILE=${RESDIR}/utah.yaml
 UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 
-ANDROID_SERIAL="${ANDROID_SERIAL-015d1884b20c1c0f}"  #doanac's nexus7 at home
 
-TESTSUITE_HOST=$(readlink -f ${BASEDIR}/tests/${APP})
-TESTSUITE_TARGET_BASE=/tmp/tests
-TESTSUITE_TARGET=${TESTSUITE_TARGET_BASE}/$(basename ${TESTSUITE_HOST})
+usage() {
+	cat <<EOF
+usage: $0 -s ANDROID_SERIAL -a APP [-T] [-Q]
+
+Provisions the given device with the latest build
+
+OPTIONS:
+  -h	Show this message
+  -s    Specify the serial of the device to install
+  -a    The application under the "tests" directory to test
+  -T    Run the utah test from the target instead of the host
+  -Q    "Quick" don't do a reboot of the device before running the test
+
+EOF
+}
 
 cleanup() {
 	set +e
@@ -90,7 +101,7 @@ main() {
 		echo "SKIPPING phone reboot..."
 	fi
 
-	if [ -z $FROM_HOST ] ; then
+	if [ ! -z $FROM_TARGET ] ; then
 		echo "launching test on the target...."
 		test_from_target
 	else
@@ -112,6 +123,42 @@ main() {
 	egrep '^(errors|failures|passes|fetch_errors):' $UTAHFILE
 	exit $EXITCODE
 }
+
+while getopts s:a:TQh opt; do
+    case $opt in
+    h)
+        usage
+        exit 0
+        ;;
+    s)
+        ANDROID_SERIAL=$OPTARG
+        ;;
+    a)
+        APP=$OPTARG
+        ;;
+    Q)
+        QUICK=1
+        ;;
+    T)
+        FROM_TARGET=1
+        ;;
+  esac
+done
+
+if [ -z $ANDROID_SERIAL ] ; then
+    echo "ERROR: No android serial specified"
+    usage
+    exit 1
+fi
+if [ -z $APP ] ; then
+    echo "ERROR: No app specified"
+    usage
+    exit 1
+fi
+
+TESTSUITE_HOST=$(readlink -f ${BASEDIR}/tests/${APP})
+TESTSUITE_TARGET_BASE=/tmp/tests
+TESTSUITE_TARGET=${TESTSUITE_TARGET_BASE}/$(basename ${TESTSUITE_HOST})
 
 trap cleanup TERM INT EXIT
 main

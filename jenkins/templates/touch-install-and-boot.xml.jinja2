@@ -21,7 +21,7 @@ IMAGE_OPT=-D
 sleep 300
 ${BZRDIR}/scripts/provision.sh -s $ANDROID_SERIAL $IMAGE_OPT
 
-APP="install-and-boot" FROM_HOST=1 ${BZRDIR}/scripts/jenkins.sh
+${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a install-and-boot
       </command>
 {% endblock %}
 
