@@ -14,12 +14,12 @@ mkdir clientlogs
 
 {% include "touch-setup.xml.jinja2" %}
 
-{% if system_image %}
-export TOUCH_IMAGE=--ubuntu-bootstrap
+{% if not system_image %}
+IMAGE_OPT=-D
 {% endif %}
 #Wait for images to actually show up on cdimage
 sleep 300
-${BZRDIR}/scripts/provision.sh
+${BZRDIR}/scripts/provision.sh -s $ANDROID_SERIAL $IMAGE_OPT
 
 APP="install-and-boot" FROM_HOST=1 ${BZRDIR}/scripts/jenkins.sh
       </command>

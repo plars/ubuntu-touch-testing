@@ -1,29 +1,65 @@
 #!/bin/bash
 
 ## This is the script jenkins should run to provision a device in the lab
-## Intersting environment variables that must be set:
-##  ANDROID_SERIAL - specify another android device
-##  NETWORK_FILE - an alternative network file if you aren't in the lab
-##  TOUCH_IMAGE=--ubuntu-bootstrap   (provision with read-only system image)
 
 set -e
-set -x
 
 BASEDIR=$(dirname $(readlink -f $0))
 
 RESDIR=`pwd`/clientlogs
-UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 
-ANDROID_SERIAL="${ANDROID_SERIAL-015d1884b20c1c0f}"  #doanac's nexus7 at home
+UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
+IMAGE_OPT="--ubuntu-bootstrap"
+
+usage() {
+cat <<EOF
+usage: $0 -s ANDROID_SERIAL [-n NETWORK_FILE] [-D]
+
+Provisions the given device with the latest build
+
+OPTIONS:
+  -h	Show this message
+  -s    Specify the serial of the device to install
+  -n    Select network file
+  -D    Use a "cdimage-touch" ie developer image rather than an ubuntu-system
+
+EOF
+}
+
+while getopts s:n:Dh opt; do
+    case $opt in
+    h)
+        usage
+        exit 0
+        ;;
+    n)
+        NETWORK_FILE=$OPTARG
+        ;;
+    s)
+        ANDROID_SERIAL=$OPTARG
+        ;;
+    D)
+        IMAGE_OPT=""
+        ;;
+  esac
+done
+
+if [ -z $ANDROID_SERIAL ] ; then
+    echo "ERROR: No android serial specified"
+    usage
+    exit 1
+fi
+
+set -x
 rm -rf clientlogs
 mkdir clientlogs
 
-${UTAH_PHABLET_CMD} -s ${ANDROID_SERIAL} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${TOUCH_IMAGE}
+${UTAH_PHABLET_CMD} -s ${ANDROID_SERIAL} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${IMAGE_OPT}
 
 # mark the version we installed in /home/phablet/.ci-version
-if [ -n "$TOUCH_IMAGE" ]; then
+if [ -n "$IMAGE_OPT" ] ; then
     DEVICE_TYPE=$(adb -s ${ANDROID_SERIAL} shell "getprop ro.cm.device" |tr -d '\r')
     bzr export si-utils lp:~ubuntu-system-image/ubuntu-system-image/server/utils
     IMAGEVER=$(si-utils/check-latest ${DEVICE_TYPE} |sed -n 's/Current full image: \([0-9]*\).*ubuntu=\([0-9\.]*\),.*=\([0-9\.]*\))/\1:\2:\3/p')
