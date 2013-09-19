@@ -66,9 +66,8 @@ ${UTAH_PHABLET_CMD} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${IMA
 # mark the version we installed in /home/phablet/.ci-version
 if [ -n "$IMAGE_OPT" ] ; then
     DEVICE_TYPE=$(adb shell "getprop ro.cm.device" |tr -d '\r')
-    bzr export si-utils lp:~ubuntu-system-image/ubuntu-system-image/server/utils
-    IMAGEVER=$(si-utils/check-latest ${DEVICE_TYPE} |sed -n 's/Current full image: \([0-9]*\).*ubuntu=\([0-9\.]*\),.*=\([0-9\.]*\))/\1:\2:\3/p')
-    rm -rf si-utils
+    # adb shell messes up \n's with \r\n's so do the whole of the regex on the target
+    IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
 else
     IMAGEVER=$(adb shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
