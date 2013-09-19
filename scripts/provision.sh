@@ -72,6 +72,7 @@ else
     IMAGEVER=$(adb shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
 adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
+adb shell "echo $(uuidgen) > /home/phablet/.ci-uuid"
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
