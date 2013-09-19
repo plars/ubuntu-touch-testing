@@ -68,11 +68,20 @@ if [ -n "$IMAGE_OPT" ] ; then
     DEVICE_TYPE=$(adb shell "getprop ro.cm.device" |tr -d '\r')
     # adb shell messes up \n's with \r\n's so do the whole of the regex on the target
     IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
+    CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+    REV=$(echo $IMAGEVER | cut -d: -f1)
+    IMAGE_OPT="${IMAGE_OPT} --revision $REV"
+    IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
 else
     IMAGEVER=$(adb shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
 adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
-adb shell "echo $(uuidgen) > /home/phablet/.ci-uuid"
+uuidgen > clientlogs/.ci-uuid
+adb push clientlogs/.ci-uuid /home/phablet/
+cat >clientlogs/.ci-utah-args <<EOF
+$IMAGE_OPT
+EOF
+adb push clientlogs/.ci-utah-args /home/phablet/.ci-utah-args
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
