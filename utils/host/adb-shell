@@ -10,7 +10,7 @@ set -eu
 pat='ADB_RC=([[:digit:]]+)'
 
 {
-	adb -s $ANDROID_SERIAL shell "$* ; echo ADB_RC=\$?"
+	adb shell "$* ; echo ADB_RC=\$?"
 } | while read line; do
 	echo $line
 	if [[ $line =~ $pat ]] ; then

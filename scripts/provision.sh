@@ -15,7 +15,7 @@ IMAGE_OPT="--ubuntu-bootstrap"
 
 usage() {
 cat <<EOF
-usage: $0 -s ANDROID_SERIAL [-n NETWORK_FILE] [-D]
+usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-D]
 
 Provisions the given device with the latest build
 
@@ -38,7 +38,7 @@ while getopts s:n:Dh opt; do
         NETWORK_FILE=$OPTARG
         ;;
     s)
-        ANDROID_SERIAL=$OPTARG
+	export ANDROID_SERIAL=$OPTARG
         ;;
     D)
         IMAGE_OPT=""
@@ -47,31 +47,36 @@ while getopts s:n:Dh opt; do
 done
 
 if [ -z $ANDROID_SERIAL ] ; then
-    echo "ERROR: No android serial specified"
-    usage
-    exit 1
+    # ensure we only have one device attached
+    lines=$(adb devices | wc -l)
+    if [ $lines -gt 3 ] ; then
+        echo "ERROR: More than one device attached, please use -s option"
+	echo
+        usage
+        exit 1
+    fi
 fi
 
 set -x
 rm -rf clientlogs
 mkdir clientlogs
 
-${UTAH_PHABLET_CMD} -s ${ANDROID_SERIAL} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${IMAGE_OPT}
+${UTAH_PHABLET_CMD} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${IMAGE_OPT}
 
 # mark the version we installed in /home/phablet/.ci-version
 if [ -n "$IMAGE_OPT" ] ; then
-    DEVICE_TYPE=$(adb -s ${ANDROID_SERIAL} shell "getprop ro.cm.device" |tr -d '\r')
+    DEVICE_TYPE=$(adb shell "getprop ro.cm.device" |tr -d '\r')
     bzr export si-utils lp:~ubuntu-system-image/ubuntu-system-image/server/utils
     IMAGEVER=$(si-utils/check-latest ${DEVICE_TYPE} |sed -n 's/Current full image: \([0-9]*\).*ubuntu=\([0-9\.]*\),.*=\([0-9\.]*\))/\1:\2:\3/p')
     rm -rf si-utils
 else
-    IMAGEVER=$(adb -s ${ANDROID_SERIAL} shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
+    IMAGEVER=$(adb shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
-adb -s ${ANDROID_SERIAL} shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
+adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
 
 # get our target-based utilities into our PATH
-adb -s ${ANDROID_SERIAL} push ${BASEDIR}/../utils/target /home/phablet/bin
+adb push ${BASEDIR}/../utils/target /home/phablet/bin
 
 # ensure the "edges intro" is disabled so that it doesn't cause noise
 # in the system
-adb -s ${ANDROID_SERIAL} shell dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false
+adb shell dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false
