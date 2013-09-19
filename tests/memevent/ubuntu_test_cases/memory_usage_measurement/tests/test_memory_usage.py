@@ -35,7 +35,7 @@ class MemoryUsageTests(AutopilotTestCase):
             self.smem.pids.append(browser.app.pid)
 
         with self.smem.probe('Browser finished loading'):
-            url = 'http://www.cnnmobile.com/'
+            url = 'http://acid3.acidtests.org/'
             browser.go_to_url(url)
             browser.assert_page_eventually_loaded(url)
 
