@@ -1,11 +1,6 @@
 #!/bin/bash
 
 ## This is the script jenkins should run to execute various touch applications
-## Intersting environment variables that must be set:
-##  ANDROID_SERIAL - specify another android device
-##  APP - the name of the app to test, ie share_app_autopilot
-##  QUICK - if set, skips the reboot and wait-for-network logic
-##  FROM_HOST - if set, runs the test from the host instead of the target
 
 set -e
 
@@ -15,11 +10,22 @@ RESDIR=`pwd`/clientlogs
 UTAHFILE=${RESDIR}/utah.yaml
 UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 
-ANDROID_SERIAL="${ANDROID_SERIAL-015d1884b20c1c0f}"  #doanac's nexus7 at home
 
-TESTSUITE_HOST=$(readlink -f ${BASEDIR}/tests/${APP})
-TESTSUITE_TARGET_BASE=/tmp/tests
-TESTSUITE_TARGET=${TESTSUITE_TARGET_BASE}/$(basename ${TESTSUITE_HOST})
+usage() {
+	cat <<EOF
+usage: $0 -a APP [-s ANDROID_SERIAL] [-T] [-Q]
+
+Provisions the given device with the latest build
+
+OPTIONS:
+  -h	Show this message
+  -s    Specify the serial of the device to install
+  -a    The application under the "tests" directory to test
+  -T    Run the utah test from the target instead of the host
+  -Q    "Quick" don't do a reboot of the device before running the test
+
+EOF
+}
 
 cleanup() {
 	set +e
@@ -35,7 +41,6 @@ test_from_target() {
 	adb shell cp /home/phablet/bin/* /usr/local/bin/
 
 	${UTAH_PHABLET_CMD} \
-		-s ${ANDROID_SERIAL} \
 		--results-dir ${RESDIR} \
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
@@ -44,16 +49,16 @@ test_from_target() {
 }
 
 test_from_host() {
-	export ANDROID_SERIAL   # need for utils/hosts scripts
-
 	export PATH=${BASEDIR}/utils/host:${PATH}
 
 	# allow for certain commands to run from host/target
 	# see unity8-autopilot/ts_control for example
 	export TARGET_PREFIX=adb-shell
 
+	[ -z $ANDROID_SERIAL ] || ADBOPTS="-s $ANDROID_SERIAL"
+
 	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
-		-s ${ANDROID_SERIAL} \
+		${ADBOPTS} \
 		--from-host \
 		--results-dir ${RESDIR} \
 		--skip-install --skip-network --skip-utah \
@@ -68,8 +73,8 @@ main() {
 
 	# print the build date so the jenkins job can use it as the
 	# build description
-	adb -s ${ANDROID_SERIAL} pull /var/log/installer/media-info ${RESDIR}
-	BUILDID=$(adb -s ${ANDROID_SERIAL} shell cat /home/phablet/.ci-version)
+	adb pull /var/log/installer/media-info ${RESDIR}
+	BUILDID=$(adb shell cat /home/phablet/.ci-version)
 	echo "= TOUCH IMAGE VERSION:$BUILDID"
 
 	adb shell "top -n1 -b" > ${RESDIR}/top.log
@@ -78,19 +83,19 @@ main() {
 	adb shell 'rm -f /var/crash/*'
 	if [ -z $QUICK ] ; then
 		# get the phone in sane place
-		adb -s ${ANDROID_SERIAL} reboot
+		adb reboot
 		# sometimes reboot doesn't happen fast enough, so add a little
 		# delay to help ensure its actually rebooted and we didn't just
 		# connect back to the device before it rebooted
-		adb -s ${ANDROID_SERIAL} wait-for-device
+		adb wait-for-device
 		sleep 5
-		adb -s ${ANDROID_SERIAL} wait-for-device
-		phablet-network -s ${ANDROID_SERIAL} --skip-setup
+		adb wait-for-device
+		phablet-network --skip-setup
 	else
 		echo "SKIPPING phone reboot..."
 	fi
 
-	if [ -z $FROM_HOST ] ; then
+	if [ ! -z $FROM_TARGET ] ; then
 		echo "launching test on the target...."
 		test_from_target
 	else
@@ -112,6 +117,47 @@ main() {
 	egrep '^(errors|failures|passes|fetch_errors):' $UTAHFILE
 	exit $EXITCODE
 }
+
+while getopts s:a:TQh opt; do
+    case $opt in
+    h)
+        usage
+        exit 0
+        ;;
+    s)
+        export ANDROID_SERIAL=$OPTARG
+        ;;
+    a)
+        APP=$OPTARG
+        ;;
+    Q)
+        QUICK=1
+        ;;
+    T)
+        FROM_TARGET=1
+        ;;
+  esac
+done
+
+if [ -z $ANDROID_SERIAL ] ; then
+    # ensure we only have one device attached
+    lines=$(adb devices | wc -l)
+    if [ $lines -gt 3 ] ; then
+        echo "ERROR: More than one device attached, please use -s option"
+	echo
+        usage
+        exit 1
+    fi
+fi
+if [ -z $APP ] ; then
+    echo "ERROR: No app specified"
+    usage
+    exit 1
+fi
+
+TESTSUITE_HOST=$(readlink -f ${BASEDIR}/tests/${APP})
+TESTSUITE_TARGET_BASE=/tmp/tests
+TESTSUITE_TARGET=${TESTSUITE_TARGET_BASE}/$(basename ${TESTSUITE_HOST})
 
 trap cleanup TERM INT EXIT
 main
