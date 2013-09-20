@@ -106,7 +106,7 @@ main() {
 		adb wait-for-device
 		sleep 5
 		adb wait-for-device
-		phablet-network --skip-setup
+		phablet-network --skip-setup -t 90s
 	else
 		echo "SKIPPING phone reboot..."
 	fi
