@@ -11,7 +11,8 @@ RESDIR=`pwd`/clientlogs
 UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
-IMAGE_OPT="--ubuntu-bootstrap"
+IMAGE_OPT="${IMAGE_OPT---ubuntu-bootstrap}"
+UUID="${UUID-$(uuidgen)}"
 
 usage() {
 cat <<EOF
@@ -76,7 +77,7 @@ else
     IMAGEVER=$(adb shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
 adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
-uuidgen > clientlogs/.ci-uuid
+echo $UUID > clientlogs/.ci-uuid
 adb push clientlogs/.ci-uuid /home/phablet/
 cat >clientlogs/.ci-utah-args <<EOF
 $IMAGE_OPT
