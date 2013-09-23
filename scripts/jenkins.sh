@@ -13,7 +13,7 @@ UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.p
 
 usage() {
 	cat <<EOF
-usage: $0 -a APP [-s ANDROID_SERIAL] [-T] [-Q]
+usage: $0 -a APP [-s ANDROID_SERIAL] [-p FILE -p FILE ...]  [-T] [-Q]
 
 Provisions the given device with the latest build
 
@@ -21,6 +21,7 @@ OPTIONS:
   -h	Show this message
   -s    Specify the serial of the device to install
   -a    The application under the "tests" directory to test
+  -p    Extra file to pull from target (absolute path or relative to /home/phablet)
   -T    Run the utah test from the target instead of the host
   -Q    "Quick" don't do a reboot of the device before running the test
 
@@ -45,6 +46,7 @@ test_from_target() {
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
+		$EXTRA_PULL \
 		-l ${TESTSUITE_TARGET}/master.run
 }
 
@@ -64,6 +66,7 @@ test_from_host() {
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
+		$EXTRA_PULL \
 		-l ${TESTSUITE_HOST}/master.run
 }
 
@@ -118,7 +121,7 @@ main() {
 	exit $EXITCODE
 }
 
-while getopts s:a:TQh opt; do
+while getopts p:s:a:TQh opt; do
     case $opt in
     h)
         usage
@@ -130,6 +133,20 @@ while getopts s:a:TQh opt; do
     a)
         APP=$OPTARG
         ;;
+	p)
+		EXTRA_PULL_FILE=$OPTARG
+
+		if [ ! -z $EXTRA_PULL_FILE ]; then
+			# relative paths are assumed to be relative to /home/phablet
+			E_P_START=`echo $EXTRA_PULL_FILE | cut -c1`
+
+			if [ $E_P_START = '/' ]; then
+				EXTRA_PULL="$EXTRA_PULL --pull $EXTRA_PULL_FILE"
+			else
+				EXTRA_PULL="$EXTRA_PULL --pull /home/phablet/$EXTRA_PULL_FILE"
+			fi
+		fi
+		;;
     Q)
         QUICK=1
         ;;
