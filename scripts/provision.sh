@@ -12,7 +12,7 @@ UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.p
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
 IMAGE_OPT="${IMAGE_OPT---ubuntu-bootstrap}"
-UUID="${UUID-$(uuidgen)}"
+UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
 cat <<EOF
