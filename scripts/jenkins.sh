@@ -67,9 +67,25 @@ test_from_host() {
 		-l ${TESTSUITE_HOST}/master.run
 }
 
+assert_image() {
+	[ -z $INSTALL_URL ] && return
+	echo "Ensuring target has proper image..."
+	REQUIRED_UUID=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-uuid)
+	ACTUAL_UUID=$(adb shell "cat /home/phablet/.ci-uuid | tr -d '\r\n'")
+	if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
+		echo "UUIDs $REQUIRED_UUID != $ACTUAL_UUID, reprovisioning device..."
+		ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-utah-args | tr -d '\r\n')
+		UUID=$REQUIRED_UUID IMAGE_OPT=$ARGS ${BASEDIR}/scripts/provision.sh
+	else
+		echo "UUIDS match"
+	fi
+}
+
 main() {
 	rm -rf clientlogs
 	mkdir clientlogs
+
+	assert_image
 
 	# print the build date so the jenkins job can use it as the
 	# build description
@@ -90,7 +106,7 @@ main() {
 		adb wait-for-device
 		sleep 5
 		adb wait-for-device
-		phablet-network --skip-setup
+		phablet-network --skip-setup -t 90s
 	else
 		echo "SKIPPING phone reboot..."
 	fi

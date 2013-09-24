@@ -11,7 +11,8 @@ RESDIR=`pwd`/clientlogs
 UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
-IMAGE_OPT="--ubuntu-bootstrap"
+IMAGE_OPT="${IMAGE_OPT---ubuntu-bootstrap}"
+UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
 cat <<EOF
@@ -66,13 +67,22 @@ ${UTAH_PHABLET_CMD} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${IMA
 # mark the version we installed in /home/phablet/.ci-version
 if [ -n "$IMAGE_OPT" ] ; then
     DEVICE_TYPE=$(adb shell "getprop ro.cm.device" |tr -d '\r')
-    bzr export si-utils lp:~ubuntu-system-image/ubuntu-system-image/server/utils
-    IMAGEVER=$(si-utils/check-latest ${DEVICE_TYPE} |sed -n 's/Current full image: \([0-9]*\).*ubuntu=\([0-9\.]*\),.*=\([0-9\.]*\))/\1:\2:\3/p')
-    rm -rf si-utils
+    # adb shell messes up \n's with \r\n's so do the whole of the regex on the target
+    IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
+    CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+    REV=$(echo $IMAGEVER | cut -d: -f1)
+    IMAGE_OPT="${IMAGE_OPT} --revision $REV"
+    IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
 else
     IMAGEVER=$(adb shell "cat /var/log/installer/media-info |sed 's/.*(\([0-9\.]*\))/\1/'")
 fi
 adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
+echo $UUID > clientlogs/.ci-uuid
+adb push clientlogs/.ci-uuid /home/phablet/
+cat >clientlogs/.ci-utah-args <<EOF
+$IMAGE_OPT
+EOF
+adb push clientlogs/.ci-utah-args /home/phablet/.ci-utah-args
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
