@@ -11,7 +11,7 @@ RESDIR=`pwd`/clientlogs
 UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
-IMAGE_OPT="${IMAGE_OPT---ubuntu-bootstrap}"
+IMAGE_OPT="${IMAGE_OPT---ubuntu-bootstrap --skip-utah --developer-mode}"
 UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
