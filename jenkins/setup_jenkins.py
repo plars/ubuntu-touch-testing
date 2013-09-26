@@ -98,6 +98,9 @@ def _get_parser():
     parser.add_argument("-s", "--series", default=DEV_SERIES,
                         help=("series of Ubuntu to download "
                               "(default=%(default)s)"))
+    parser.add_argument("-w", "--wait", type=int, default=300,
+                        help=("How long to wait after jenkins triggers the"
+                              "install-and-boot job (default=%(default)d)"))
     return parser
 
 
@@ -152,6 +155,7 @@ def _configure_job(instance, env, args, device, test):
         'name': device,
         'publish': args.publish,
         'branch': args.branch,
+        'wait': args.wait,
     }
     jobname = _get_job_name(args, device, test)
     _publish(instance, env, args, tmpl_name, jobname, **params)
