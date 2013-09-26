@@ -15,12 +15,9 @@ mkdir clientlogs
 
 {% include "touch-setup.xml.jinja2" %}
 
-{% if not system_image %}
-IMAGE_OPT=-D
-{% endif %}
 #Wait for images to actually show up on cdimage
 sleep 300
-${BZRDIR}/scripts/provision.sh -s $ANDROID_SERIAL $IMAGE_OPT
+${BZRDIR}/scripts/provision.sh -s $ANDROID_SERIAL
 
 ${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a install-and-boot
       </command>
