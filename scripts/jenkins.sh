@@ -23,6 +23,7 @@ OPTIONS:
   -a    The application under the "tests" directory to test
   -T    Run the utah test from the target instead of the host
   -Q    "Quick" don't do a reboot of the device before running the test
+  -p    Additional files or directories to pull for results
 
 EOF
 }
@@ -45,6 +46,7 @@ test_from_target() {
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
+		${EXTRA_PULL} \
 		-l ${TESTSUITE_TARGET}/master.run
 }
 
@@ -57,13 +59,15 @@ test_from_host() {
 
 	[ -z $ANDROID_SERIAL ] || ADBOPTS="-s $ANDROID_SERIAL"
 
-	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
+	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" RESDIR="${RESDIR}" \
+		${UTAH_PHABLET_CMD} \
 		${ADBOPTS} \
 		--from-host \
 		--results-dir ${RESDIR} \
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
+		${EXTRA_PULL} \
 		-l ${TESTSUITE_HOST}/master.run
 }
 
@@ -134,7 +138,7 @@ main() {
 	exit $EXITCODE
 }
 
-while getopts s:a:TQh opt; do
+while getopts s:a:p:TQh opt; do
     case $opt in
     h)
         usage
@@ -151,6 +155,9 @@ while getopts s:a:TQh opt; do
         ;;
     T)
         FROM_TARGET=1
+        ;;
+    p)
+        EXTRA_PULL="--pull $OPTARG"
         ;;
   esac
 done
