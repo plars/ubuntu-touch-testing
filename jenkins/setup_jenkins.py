@@ -25,21 +25,15 @@ import os
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
-
-SYSTEM_IMAGE = os.environ.get('SYSTEM_IMAGE', False)
-
 Test = collections.namedtuple('Test', ['name', 'fmt', 'restrict_to'])
 
 
-if SYSTEM_IMAGE:
-    def _test(name, fmt='{prefix}{series}-touch_ro-{type}-smoke-{testname}',
-              restrict_to=None):
-        return Test(name, fmt, restrict_to)
-else:
-    def _test(name, fmt='{prefix}{series}-touch-{type}-smoke-{testname}',
-              restrict_to=None):
-        return Test(name, fmt, restrict_to)
+def _test(name, fmt='{prefix}{series}-touch_ro-{type}-smoke-{testname}',
+          restrict_to=None):
+    return Test(name, fmt, restrict_to)
 
+
+DEVICES = ['mako-05', 'maguro-02']
 
 TESTS = [
     _test('install-and-boot'),
@@ -59,42 +53,20 @@ TESTS = [
     _test('music-app-autopilot'),
     _test('ubuntu-calculator-app-autopilot'),
     _test('ubuntu-clock-app-autopilot'),
-    #_test('ubuntu-docviewer-app-autopilot'),
     _test('ubuntu-filemanager-app-autopilot'),
     _test('ubuntu-rssreader-app-autopilot'),
     _test('ubuntu-terminal-app-autopilot'),
     _test('ubuntu-weather-app-autopilot'),
     _test('sdk'),
     _test('security'),
-]
-
-DEVICES = [
-    "mako-01",
-    "maguro-01",
-    "manta-01",
-    "grouper-02",
-]
-
-
-if SYSTEM_IMAGE:
-    #TESTS = [_test('upgrade')] + TESTS
-    TESTS += [
-        _test('smem',
-              '{prefix}{testname}-{series}-'
-              'touch_ro-armhf-install-idle-{type}'),
-        _test('memevent',
-              '{prefix}{testname}-{series}-touch_ro-armhf-default-{type}'),
-    ]
-    DEVICES = ['mako-05', 'maguro-02']
-else:
-    TESTS += [
-        _test('eventstat',
+    _test('eventstat',
               '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
-        _test('smem',
-              '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
-        _test('memevent',
-              '{prefix}{testname}-{series}-touch-armhf-default-{type}'),
-    ]
+    _test('smem',
+          '{prefix}{testname}-{series}-'
+          'touch_ro-armhf-install-idle-{type}'),
+    _test('memevent',
+          '{prefix}{testname}-{series}-touch_ro-armhf-default-{type}'),
+]
 
 
 def _get_parser():
@@ -128,6 +100,9 @@ def _get_parser():
     parser.add_argument("-s", "--series", default=DEV_SERIES,
                         help=("series of Ubuntu to download "
                               "(default=%(default)s)"))
+    parser.add_argument("-w", "--wait", type=int, default=300,
+                        help=("How long to wait after jenkins triggers the"
+                              "install-and-boot job (default=%(default)d)"))
     return parser
 
 
@@ -182,19 +157,16 @@ def _configure_job(instance, env, args, device, test):
         'name': device,
         'publish': args.publish,
         'branch': args.branch,
+        'wait': args.wait,
     }
-    params['system_image'] = True if SYSTEM_IMAGE else False
     jobname = _get_job_name(args, device, test)
     _publish(instance, env, args, tmpl_name, jobname, **params)
 
 
 def _configure_master(instance, env, args, device, projects):
     device_type = device[:device.index("-")]
-    trigger_url = ('http://cdimage.ubuntu.com/ubuntu-touch/daily-preinstalled/'
-                   'pending/MD5SUMS')
-    if SYSTEM_IMAGE:
-        fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
-        trigger_url = fmt.format(device_type)
+    fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
+    trigger_url = fmt.format(device_type)
 
     params = {
         'host': args.host,
