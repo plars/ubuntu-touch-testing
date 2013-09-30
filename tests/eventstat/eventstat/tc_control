@@ -1,0 +1,12 @@
+description: Gather memory usage information
+dependencies: none
+action: |
+  1. gather eventstat data
+expected_results: |
+  1. eventstat.log should be saved to /tmp/results
+type: userland
+timeout: 800
+command: ./eventstat.sh
+#build_cmd:
+tc_setup: ./setup.sh
+#tc_cleanup:

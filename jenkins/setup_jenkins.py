@@ -88,6 +88,8 @@ if SYSTEM_IMAGE:
     DEVICES = ['mako-05', 'maguro-02']
 else:
     TESTS += [
+        _test('eventstat',
+              '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
         _test('smem',
               '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
         _test('memevent',
