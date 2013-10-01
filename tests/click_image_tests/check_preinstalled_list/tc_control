@@ -1,0 +1,10 @@
+description: check that all the expected click packages are installed
+dependencies: a touch read-only image
+action: |
+  1. download the list of click packages
+  2. list the current click packages installed on the device
+expected_results: |
+  1. the current list of click packages from the archive should match
+type: userland
+timeout: 120
+command: ./check_preinstalled_list.py

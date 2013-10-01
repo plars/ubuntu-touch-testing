@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: click_image_tests
+    fetch_method: dev
+    fetch_location: ./

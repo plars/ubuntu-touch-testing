@@ -58,6 +58,7 @@ TESTS = [
     _test('ubuntu-terminal-app-autopilot'),
     _test('ubuntu-weather-app-autopilot'),
     _test('ubuntu-ui-toolkit-autopilot'),
+    _test('click_image_tests'),
     _test('sdk'),
     _test('security'),
     _test('eventstat',
