@@ -57,6 +57,7 @@ TESTS = [
     _test('ubuntu-rssreader-app-autopilot'),
     _test('ubuntu-terminal-app-autopilot'),
     _test('ubuntu-weather-app-autopilot'),
+    _test('ubuntu-ui-toolkit-autopilot'),
     _test('sdk'),
     _test('security'),
     _test('eventstat',
