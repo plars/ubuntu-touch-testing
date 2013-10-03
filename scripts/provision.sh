@@ -87,6 +87,8 @@ adb push clientlogs/.ci-utah-args /home/phablet/.ci-utah-args
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
 
+phablet-click-test-setup
+
 # ensure the "edges intro" is disabled so that it doesn't cause noise
 # in the system
 adb shell dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false
