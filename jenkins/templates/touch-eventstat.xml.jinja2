@@ -14,3 +14,7 @@ export APP=eventstat
 ${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a $APP -p /tmp/results
       </command>
 {% endblock %}
+
+{% block artifacts %}
+      <artifacts>clientlogs/*, **/jenkins.sh</artifacts>
+{% endblock %}

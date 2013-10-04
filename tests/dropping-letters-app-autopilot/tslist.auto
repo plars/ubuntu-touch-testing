@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list dropping_letters_app
+  test_cmd: autopilot-run dropping_letters_app.tests.{}
+

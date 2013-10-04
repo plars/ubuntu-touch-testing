@@ -114,6 +114,8 @@ main() {
 		echo "SKIPPING phone reboot..."
 	fi
 
+	${BASEDIR}/utils/host/adb-shell "aa-clickhook -f --include=/usr/share/autopilot-touch/apparmor/click.rules"
+
 	if [ ! -z $FROM_TARGET ] ; then
 		echo "launching test on the target...."
 		test_from_target

@@ -3,6 +3,7 @@
 from autopilot import introspection
 from autopilot.display import Display
 from autopilot.input import Pointer, Touch
+import dbus
 import os
 import sys
 
@@ -24,11 +25,20 @@ def start_unity_in_testability():
     print "Stopping Unity"
     os.system('/sbin/stop unity8')
     print "Unity stopped"
+    os.system('rm -f /tmp/mir_socket')
 
+    print "----------------------------------------------------------------------"
+    print "Taking screen lock (#1235000)"
+    bus = dbus.SystemBus()
+    powerd = bus.get_object('com.canonical.powerd', '/com/canonical/powerd')
+    powerd_cookie = powerd.requestSysState("autopilot-lock", 1, dbus_interface='com.canonical.powerd')
     print "----------------------------------------------------------------------"
     print "Starting Unity with testability"
     os.system('/sbin/start unity8')
     print "Unity started"
+    print "----------------------------------------------------------------------"
+    print "Releasing screen lock (#1235000)"
+    powerd.clearSysState(powerd_cookie, dbus_interface='com.canonical.powerd')
 
     print "----------------------------------------------------------------------"
     if os.path.exists(override_file):

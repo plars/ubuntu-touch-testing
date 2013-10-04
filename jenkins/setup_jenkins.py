@@ -59,13 +59,13 @@ TESTS = [
     _test('ubuntu-weather-app-autopilot'),
     _test('ubuntu-ui-toolkit-autopilot'),
     _test('click_image_tests'),
+    _test('dropping-letters-app-autopilot'),
     _test('sdk'),
     _test('security'),
     _test('eventstat',
-              '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
+          '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
     _test('smem',
-          '{prefix}{testname}-{series}-'
-          'touch_ro-armhf-install-idle-{type}'),
+          '{prefix}{testname}-{series}-touch_ro-armhf-install-idle-{type}'),
     _test('memevent',
           '{prefix}{testname}-{series}-touch_ro-armhf-default-{type}'),
 ]
