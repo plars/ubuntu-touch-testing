@@ -25,6 +25,7 @@ def start_unity_in_testability():
     print "Stopping Unity"
     os.system('/sbin/stop unity8')
     print "Unity stopped"
+    os.system('rm -f /tmp/mir_socket')
 
     print "----------------------------------------------------------------------"
     print "Taking screen lock (#1235000)"
