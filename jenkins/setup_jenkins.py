@@ -28,12 +28,13 @@ DEV_SERIES = UbuntuDistroInfo().devel()
 Test = collections.namedtuple('Test', ['name', 'fmt', 'restrict_to'])
 
 
-def _test(name, fmt='{prefix}{series}-touch_ro-{type}-smoke-{testname}',
-          restrict_to=None):
+def _test(name, fmt='{prefix}{series}-touch_{imagetype}-{type}-'
+          'smoke-{testname}', restrict_to=None):
     return Test(name, fmt, restrict_to)
 
 
 DEVICES = ['mako-05', 'maguro-02']
+DEVICES_MIR = ['mako-02', 'maguro-01']
 
 TESTS = [
     _test('install-and-boot'),
@@ -63,11 +64,11 @@ TESTS = [
     _test('sdk'),
     _test('security'),
     _test('eventstat',
-          '{prefix}{testname}-{series}-touch-armhf-install-idle-{type}'),
+          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'),
     _test('smem',
-          '{prefix}{testname}-{series}-touch_ro-armhf-install-idle-{type}'),
+          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'),
     _test('memevent',
-          '{prefix}{testname}-{series}-touch_ro-armhf-default-{type}'),
+          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-default-{type}'),
 ]
 
 
@@ -105,6 +106,8 @@ def _get_parser():
     parser.add_argument("-w", "--wait", type=int, default=300,
                         help=("How long to wait after jenkins triggers the"
                               "install-and-boot job (default=%(default)d)"))
+    parser.add_argument("-i", "--imagetype", default="ro",
+                        help="Image type (ro or mir). default=%(default)s")
     return parser
 
 
@@ -135,6 +138,7 @@ def _get_job_name(args, device, test):
     return test.fmt.format(prefix=prefix,
                            series=args.series,
                            testname=test.name,
+                           imagetype=args.imagetype,
                            type=device[:device.index("-")])
 
 
@@ -160,6 +164,7 @@ def _configure_job(instance, env, args, device, test):
         'publish': args.publish,
         'branch': args.branch,
         'wait': args.wait,
+        'imagetype': args.imagetype,
     }
     jobname = _get_job_name(args, device, test)
     _publish(instance, env, args, tmpl_name, jobname, **params)
@@ -198,7 +203,12 @@ def main():
 
     env = _get_environment()
 
-    device_list = args.name if args.name else DEVICES
+    if args.name:
+        device_list = args.name
+    elif args.imagetype == "ro":
+        device_list = DEVICES
+    elif args.imagetype == "mir":
+        device_list = DEVICES_MIR
 
     for device in device_list:
         projects = []

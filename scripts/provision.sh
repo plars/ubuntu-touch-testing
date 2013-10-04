@@ -29,7 +29,7 @@ OPTIONS:
 EOF
 }
 
-while getopts s:n:Dh opt; do
+while getopts i:s:n:Dh opt; do
     case $opt in
     h)
         usage
@@ -43,6 +43,9 @@ while getopts s:n:Dh opt; do
         ;;
     D)
         IMAGE_OPT=""
+        ;;
+    i)
+        IMAGE_TYPE=$OPTARG
         ;;
   esac
 done
@@ -88,6 +91,12 @@ adb push clientlogs/.ci-utah-args /home/phablet/.ci-utah-args
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
 
 phablet-click-test-setup
+
+if [ "$IMAGE_TYPE" == "ro" ]; then
+    adb shell rm -f /home/phablet/.display-mir
+elif [ "$IMAGE_TYPE" == "mir" ]; then
+    adb shell touch /home/phablet/.display-mir
+fi
 
 # ensure the "edges intro" is disabled so that it doesn't cause noise
 # in the system
