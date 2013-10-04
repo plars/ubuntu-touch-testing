@@ -33,8 +33,12 @@ def _test(name, fmt='{prefix}{series}-touch_{imagetype}-{type}-'
     return Test(name, fmt, restrict_to)
 
 
-DEVICES = ['mako-05', 'maguro-02']
+DEVICES_RO = ['mako-05', 'maguro-02']
 DEVICES_MIR = ['mako-02', 'maguro-01']
+DEVICES = {
+    "ro": DEVICES_RO,
+    "mir": DEVICES_MIR,
+    }
 
 TESTS = [
     _test('install-and-boot'),
@@ -205,10 +209,8 @@ def main():
 
     if args.name:
         device_list = args.name
-    elif args.imagetype == "ro":
-        device_list = DEVICES
-    elif args.imagetype == "mir":
-        device_list = DEVICES_MIR
+    elif args.imagetype:
+        device_list = DEVICES[args.imagetype]
 
     for device in device_list:
         projects = []
