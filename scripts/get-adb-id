@@ -22,7 +22,10 @@ DEVICES = {
     "manta-02": "R32D102RPPK",
     "manta-04": "R32D203DDZR",
     "manta-05": "R32D203DMBY",
+
+    # personal devices
     "mako-doanac": "00963b879612414a",
+    "grouper-doanac": "015d1884b20c1c0f",
 }
 
 name = sys.argv[1]
