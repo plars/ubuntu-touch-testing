@@ -6,7 +6,7 @@ set -e
 
 BASEDIR=$(dirname $(readlink -f $0))/..
 
-RESDIR=`pwd`/clientlogs
+RESDIR="${RESDIR-`pwd`/clientlogs}"
 UTAHFILE=${RESDIR}/utah.yaml
 UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 
@@ -85,8 +85,8 @@ assert_image() {
 }
 
 main() {
-	rm -rf clientlogs
-	mkdir clientlogs
+	rm -rf $RESDIR
+	mkdir $RESDIR
 
 	assert_image
 
