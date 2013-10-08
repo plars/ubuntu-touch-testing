@@ -17,6 +17,7 @@
 
 import argparse
 import collections
+import imp
 import jenkins
 import jinja2
 import logging
@@ -32,13 +33,6 @@ def _test(name, fmt='{prefix}{series}-touch_{imagetype}-{type}-'
           'smoke-{testname}', restrict_to=None):
     return Test(name, fmt, restrict_to)
 
-
-DEVICES_RO = ['mako-05', 'maguro-02']
-DEVICES_MIR = ['mako-02', 'maguro-01']
-DEVICES = {
-    "ro": DEVICES_RO,
-    "mir": DEVICES_MIR,
-    }
 
 TESTS = [
     _test('install-and-boot'),
@@ -94,25 +88,19 @@ def _get_parser():
                         help="username to use when logging into Jenkins")
     parser.add_argument("-b", "--branch", default="lp:ubuntu-test-cases/touch",
                         help="The branch this is located. default=%(default)s")
+    parser.add_argument("-c", "--config", required=True,
+                        type=argparse.FileType('r'),
+                        help="The job config to use.")
     parser.add_argument("-P", "--publish", action="store_true",
                         help="Publish at the end of the job")
     parser.add_argument("--prefix",
                         help="Prefix to add to the beginning of the job name")
-    parser.add_argument("-j", "--jenkins", default="http://10.98.0.1:8080/",
-                        help="URL of jenkins instance to configure jobs in.")
-    parser.add_argument("-n", "--name", action='append',
-                        help=("Device names where the job should be executed."
-                              " Can be used more than once."))
-    parser.add_argument("--host", default='phoenix',
-                        help=("Host name where the jobs should be executed."))
     parser.add_argument("-s", "--series", default=DEV_SERIES,
                         help=("series of Ubuntu to download "
                               "(default=%(default)s)"))
     parser.add_argument("-w", "--wait", type=int, default=300,
                         help=("How long to wait after jenkins triggers the"
                               "install-and-boot job (default=%(default)d)"))
-    parser.add_argument("-i", "--imagetype", default="ro",
-                        help="Image type (ro or mir). default=%(default)s")
     return parser
 
 
@@ -136,14 +124,14 @@ def _get_environment():
         trim_blocks=True)
 
 
-def _get_job_name(args, device, test):
+def _get_job_name(args, device, test, image_type):
     prefix = ""
     if(args.prefix):
         prefix = args.prefix + "-"
     return test.fmt.format(prefix=prefix,
                            series=args.series,
                            testname=test.name,
-                           imagetype=args.imagetype,
+                           imagetype=image_type,
                            type=device[:device.index("-")])
 
 
@@ -161,34 +149,37 @@ def _publish(instance, env, args, template, jobname, **params):
         instance.create_job(jobname, cfg)
 
 
-def _configure_job(instance, env, args, device, test):
+def _configure_job(instance, env, args, config_item, device, test):
     tmpl_name = 'touch-{}.xml.jinja2'.format(test.name)
     params = {
-        'host': args.host,
-        'name': device,
+        'host': config_item['node-label'],
+        'name': device['name'],
         'publish': args.publish,
         'branch': args.branch,
         'wait': args.wait,
-        'imagetype': args.imagetype,
+        'imagetype': config_item['image-type'],
     }
-    jobname = _get_job_name(args, device, test)
+    jobname = _get_job_name(args, params['name'], test, params['imagetype'])
     _publish(instance, env, args, tmpl_name, jobname, **params)
+    return jobname
 
 
-def _configure_master(instance, env, args, device, projects):
+def _configure_master(instance, env, args, projects, config_item, device):
+    device = device['name']
     device_type = device[:device.index("-")]
     fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
     trigger_url = fmt.format(device_type)
 
     params = {
-        'host': args.host,
+        'host': config_item['node-label'],
         'name': device,
         'publish': args.publish,
         'branch': args.branch,
         'projects': projects,
         'trigger_url': trigger_url
     }
-    jobname = _get_job_name(args, device, _test('master'))
+    image_type = config_item['image-type']
+    jobname = _get_job_name(args, device, _test('master'), image_type)
     _publish(instance, env, args, 'touch-master.xml.jinja2', jobname, **params)
 
 
@@ -201,29 +192,32 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     args = _get_parser().parse_args()
 
-    jenkins_inst = _get_jenkins(args.jenkins, args.username, args.password)
+    config = imp.load_source('', 'config.py', args.config)
+
+    jenkins_inst = _get_jenkins(config.JENKINS, args.username, args.password)
     if args.dryrun:
         jenkins_inst.create_job = _dryrun_func
         jenkins_inst.reconfig_job = _dryrun_func
 
     env = _get_environment()
 
-    if args.name:
-        device_list = args.name
-    elif args.imagetype:
-        device_list = DEVICES[args.imagetype]
-
-    for device in device_list:
-        projects = []
-        for test in TESTS:
-            logging.debug("configuring job for %s", test.name)
-            if not test.restrict_to or device in test.restrict_to:
-                _configure_job(jenkins_inst, env, args, device, test)
-                projects.append(_get_job_name(args, device, test))
-            else:
-                logging.info('%s not configured for %s', device, test.name)
-
-        _configure_master(jenkins_inst, env, args, device, projects)
+    for item in config.MATRIX:
+        for device in item['devices']:
+            projects = []
+            tests = TESTS
+            if 'filter' in item:
+                tests = item['filter'](tests, _test)
+            for test in tests:
+                if not test.restrict_to or device in test.restrict_to:
+                    logging.debug("configuring %s job for %s",
+                                  device['name'], test.name)
+                    p = _configure_job(
+                        jenkins_inst, env, args, item, device, test)
+                    projects.append(p)
+                else:
+                    logging.info('%s not configured for %s',
+                                 device['name'], test.name)
+            _configure_master(jenkins_inst, env, args, projects, item, device)
 
 if __name__ == '__main__':
     main()
