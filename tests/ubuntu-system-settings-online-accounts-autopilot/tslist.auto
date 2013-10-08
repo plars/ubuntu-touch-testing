@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list online_accounts_ui
+  test_cmd: autopilot-run online_accounts_ui.tests.{}
+

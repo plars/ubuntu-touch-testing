@@ -63,6 +63,7 @@ TESTS = [
     _test('ubuntu-terminal-app-autopilot'),
     _test('ubuntu-weather-app-autopilot'),
     _test('ubuntu-ui-toolkit-autopilot'),
+    _test('ubuntu-system-settings-online-accounts-autopilot'),
     _test('click_image_tests'),
     _test('dropping-letters-app-autopilot'),
     _test('sdk'),
