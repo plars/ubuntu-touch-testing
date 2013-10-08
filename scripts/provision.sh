@@ -69,8 +69,8 @@ DEVICE_TYPE=$(adb shell "getprop ro.cm.device" |tr -d '\r')
 IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
 CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
 REV=$(echo $IMAGEVER | cut -d: -f1)
-IMAGE_OPT="${IMAGE_OPT} --revision $REV"
-IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
+echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
+echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
 adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
 echo $UUID > clientlogs/.ci-uuid
 adb push clientlogs/.ci-uuid /home/phablet/
