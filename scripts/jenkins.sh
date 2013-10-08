@@ -66,6 +66,7 @@ test_from_host() {
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
+		--pull /tmp/xmlresults \
 		$EXTRA_PULL \
 		-l ${TESTSUITE_HOST}/master.run
 }
