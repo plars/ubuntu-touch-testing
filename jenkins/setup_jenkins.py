@@ -25,13 +25,13 @@ import os
 
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
+DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
 
-Test = collections.namedtuple('Test', ['name', 'fmt', 'restrict_to'])
+Test = collections.namedtuple('Test', ['name', 'fmt'])
 
 
-def _test(name, fmt='{prefix}{series}-touch_{imagetype}-{type}-'
-          'smoke-{testname}', restrict_to=None):
-    return Test(name, fmt, restrict_to)
+def _test(name, fmt=DEF_FMT):
+    return Test(name, fmt)
 
 
 TESTS = [
@@ -209,15 +209,10 @@ def main():
             if 'filter' in item:
                 tests = item['filter'](tests, _test)
             for test in tests:
-                if not test.restrict_to or device in test.restrict_to:
-                    logging.debug("configuring %s job for %s",
-                                  device['name'], test.name)
-                    p = _configure_job(
-                        jenkins_inst, env, args, item, device, test)
-                    projects.append(p)
-                else:
-                    logging.info('%s not configured for %s',
-                                 device['name'], test.name)
+                logging.debug("configuring %s job for %s",
+                              device['name'], test.name)
+                p = _configure_job(jenkins_inst, env, args, item, device, test)
+                projects.append(p)
             _configure_master(jenkins_inst, env, args, projects, item, device)
 
 if __name__ == '__main__':
