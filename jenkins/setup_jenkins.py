@@ -158,6 +158,7 @@ def _configure_job(instance, env, args, config_item, device, test):
         'branch': args.branch,
         'wait': args.wait,
         'imagetype': config_item['image-type'],
+        'image_opt': config_item.get('IMAGE_OPT', ''),
     }
     jobname = _get_job_name(args, params['name'], test, params['imagetype'])
     _publish(instance, env, args, tmpl_name, jobname, **params)
