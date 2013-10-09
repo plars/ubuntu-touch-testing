@@ -88,6 +88,8 @@ if [ "$IMAGE_TYPE" == "ro" ]; then
     adb shell rm -f /home/phablet/.display-mir
 elif [ "$IMAGE_TYPE" == "mir" ]; then
     adb shell touch /home/phablet/.display-mir
+elif [ "$IMAGE_TYPE" == "custom" ]; then
+    adb shell touch /home/phablet/.display-mir
 fi
 
 # ensure the "edges intro" is disabled so that it doesn't cause noise
