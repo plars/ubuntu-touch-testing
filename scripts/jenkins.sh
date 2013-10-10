@@ -75,6 +75,9 @@ test_from_host() {
 		--pull /tmp/xmlresults \
 		$EXTRA_PULL \
 		-l ${TESTSUITE_HOST}/master.run
+
+	# make sure the user running this script can remove its artifacts.
+	sudo chown -R `whoami` ${RESDIR}
 }
 
 assert_image() {
