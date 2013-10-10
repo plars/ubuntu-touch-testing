@@ -2,6 +2,11 @@
 
 JENKINS = 'http://localhost:8080'
 
+_devices = [
+    {'name': 'mako-doanac', 'serial': '00963b879612414a'},
+    {'name': 'grouper-doanac', 'serial': '015d1884b20c1c0f'},
+]
+
 
 def _custom_test_filter(common_tests, mktest_func):
     tests = []
@@ -20,17 +25,12 @@ MATRIX = [
     {
         'image-type': 'ro',
         'node-label': 'mako-doanac',
-        'devices': [
-            {'name': 'mako-doanac'},
-            {'name': 'grouper-doanac'},
-        ],
+        'devices': _devices,
     },
     {
         'image-type': 'custom',
         'node-label': 'mako-doanac',
-        'devices': [
-            {'name': 'mako-doanac'},
-        ],
+        'devices': _devices,
         'filter': _custom_test_filter,
         'IMAGE_OPT': 'export IMAGE_OPT="--ubuntu-bootstrap --skip-utah '
                      '--developer-mode --channel devel-customized"'

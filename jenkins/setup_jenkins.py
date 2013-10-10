@@ -151,9 +151,11 @@ def _publish(instance, env, args, template, jobname, **params):
 
 def _configure_job(instance, env, args, config_item, device, test):
     tmpl_name = 'touch-{}.xml.jinja2'.format(test.name)
+    defserial = '$(${BZRDIR}/scripts/get-adb-id %s)' % device['name']
     params = {
         'host': config_item['node-label'],
         'name': device['name'],
+        'serial': device.get('serial', defserial),
         'publish': args.publish,
         'branch': args.branch,
         'wait': args.wait,
