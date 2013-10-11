@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: ${COUNT:=2}
+: ${COUNT:=10}
 
 adb push smem-tabs /tmp
 
