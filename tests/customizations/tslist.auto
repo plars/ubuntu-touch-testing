@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list customization_tests
+  test_cmd: autopilot-run customization_tests.tests.{}
+

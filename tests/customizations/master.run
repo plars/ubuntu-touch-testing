@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: customizations
+    fetch_method: dev
+    fetch_location: ./
