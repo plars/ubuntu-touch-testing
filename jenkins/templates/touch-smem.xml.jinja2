@@ -11,10 +11,12 @@
       <command>rm -rf *
 {% include "touch-setup.xml.jinja2" %}
 
-${BZRDIR}/scripts/run-touch-utah-runlist.sh -s $ANDROID_SERIAL -p /tmp/results -r lp:~ubuntu-test-case-dev/ubuntu-test-cases/qa-baseline-testing/runlists/smem.run
+export APP=smem
+
+${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a $APP -p /tmp/results
 </command>
 {% endblock %}
 
 {% block artifacts %}
-      <artifacts>clientlogs/*,results/**/*</artifacts>
+      <artifacts>clientlogs/**/*</artifacts>
 {% endblock %}
