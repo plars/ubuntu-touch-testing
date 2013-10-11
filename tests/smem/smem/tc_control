@@ -7,7 +7,5 @@ expected_results: |
 type: userland
 timeout: 2300
 command: ./smem.sh
-run_as: root
-build_cmd: chmod +x ./smem.sh
-#tc_setup: ./setup.sh
-#tc_cleanup: 
+#tc_setup:
+#tc_cleanup:
