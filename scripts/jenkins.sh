@@ -13,7 +13,7 @@ UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.p
 
 usage() {
 	cat <<EOF
-usage: $0 -a APP [-s ANDROID_SERIAL] [-p FILE -p FILE ...]  [-T] [-Q]
+usage: $0 -a APP [-s ANDROID_SERIAL] [-p FILE -p FILE ...] [-Q]
 
 Provisions the given device with the latest build
 
@@ -22,7 +22,6 @@ OPTIONS:
   -s    Specify the serial of the device to install
   -a    The application under the "tests" directory to test
   -p    Extra file to pull from target (absolute path or relative to /home/phablet)
-  -T    Run the utah test from the target instead of the host
   -Q    "Quick" don't do a reboot of the device before running the test
 
 EOF
@@ -36,24 +35,6 @@ cleanup() {
 	for p in $PIDS ; do
 		kill $p
 	done
-}
-
-test_from_target() {
-	# push the runlist over to the test
-	adb push ${BASEDIR}/tests ${TESTSUITE_TARGET_BASE} &> /dev/null
-
-	# provisioning puts scripts under /home/phablet/bin which is writeable
-	# all types of images. that's not in the PATH and we are running tests
-	# here in a way that requires a writeable system so:
-	adb shell cp /home/phablet/bin/* /usr/local/bin/
-
-	${UTAH_PHABLET_CMD} \
-		--results-dir ${RESDIR} \
-		--skip-install --skip-network --skip-utah \
-		--pull /var/crash \
-		--pull /home/phablet/.cache/upstart \
-		$EXTRA_PULL \
-		-l ${TESTSUITE_TARGET}/master.run
 }
 
 test_from_host() {
@@ -130,13 +111,8 @@ main() {
 
 	${BASEDIR}/utils/host/adb-shell "aa-clickhook -f --include=/usr/share/autopilot-touch/apparmor/click.rules"
 
-	if [ ! -z $FROM_TARGET ] ; then
-		echo "launching test on the target...."
-		test_from_target
-	else
-		echo "launching test from the host...."
-		test_from_host
-	fi
+	echo "launching test from the host...."
+	test_from_host
 	adb shell 'rm -f /var/crash/*'
 
 	if ! `grep "^errors: [!0]" < $UTAHFILE >/dev/null` ; then
@@ -153,7 +129,7 @@ main() {
 	exit $EXITCODE
 }
 
-while getopts p:s:a:TQh opt; do
+while getopts p:s:a:Qh opt; do
     case $opt in
     h)
         usage
@@ -181,9 +157,6 @@ while getopts p:s:a:TQh opt; do
 		;;
     Q)
         QUICK=1
-        ;;
-    T)
-        FROM_TARGET=1
         ;;
   esac
 done
