@@ -3,7 +3,6 @@
 : ${COUNT:=10}
 
 adb push smem-tabs /tmp
-${TARGET_PREFIX} "chmod +x /tmp/smem-tabs"
 
 for i in `seq 1 $COUNT`; do
     ${TARGET_PREFIX} "mkdir -p /tmp/results/results/$i"
