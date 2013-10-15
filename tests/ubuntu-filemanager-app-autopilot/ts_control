@@ -1,1 +1,1 @@
-ts_setup: PKGS=ubuntu-filemanager-app-autopilot prepare-autopilot-test.sh
+ts_setup: prepare-autopilot-test.sh
