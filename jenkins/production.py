@@ -41,7 +41,7 @@ MATRIX = [
             {'name': 'mako-11'},
         ],
         'filter': _custom_test_filter,
-        'IMAGE_OPT': 'export IMAGE_OPT="--ubuntu-bootstrap --skip-utah '
-                     '--developer-mode --channel devel-customized"'
+        'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
+                     '--channel devel-customized"'
     },
 ]
