@@ -4,4 +4,4 @@
 UTAH_PROBE_DIR="${UTAH_PROBE_DIR-/var/cache/utah-probes}"
 adb-shell mkdir -p /tmp/xmlresults
 
-adb-shell sudo -i -u phablet bash -ic \"UTAH_PROBE_DIR=$UTAH_PROBES_DIR PYTHONPATH=/home/phablet/autopilot autopilot run -v -f xml -o /tmp/xmlresults/$*.xml $*\"
+adb-shell sudo -i -u phablet bash -ic \"cd /home/phablet/autopilot \; UTAH_PROBE_DIR=$UTAH_PROBES_DIR autopilot run -v -f xml -o /tmp/xmlresults/$*.xml $*\"
