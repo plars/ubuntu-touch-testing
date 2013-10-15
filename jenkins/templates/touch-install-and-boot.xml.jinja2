@@ -18,7 +18,7 @@ mkdir clientlogs
 #Wait for images to actually show up on cdimage
 sleep {{wait}}
 {{image_opt}}
-${BZRDIR}/scripts/provision.sh -s $ANDROID_SERIAL -i {{imagetype}}
+${BZRDIR}/scripts/provision.sh -s $ANDROID_SERIAL -i {{imagetype}} -w
 
 ${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a install-and-boot
       </command>
