@@ -30,11 +30,17 @@ DEFINE_MEGA = os.environ.get('MEGA', False)
 
 DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
 
-Test = collections.namedtuple('Test', ['name', 'fmt'])
+Test = collections.namedtuple('Test', ['name', 'fmt', 'ap', 'pkgs'])
 
 
 def _test(name, fmt=DEF_FMT):
-    return Test(name, fmt)
+    return Test(name, fmt, None, None)
+
+
+def _ap_test(name, fmt=DEF_FMT):
+    # convert share-app-autopilot to share_app
+    ap = name.replace('-', '_').replace('_autopilot', '')
+    return Test(name, fmt, ap, [name])
 
 
 TESTS = [
@@ -44,13 +50,13 @@ TESTS = [
     _test('gallery-app-autopilot'),
     _test('webbrowser-app-autopilot'),
     _test('unity8-autopilot'),
-    _test('friends-app-autopilot'),
+    _ap_test('friends-app-autopilot'),
     _test('notes-app-autopilot'),
     _test('camera-app-autopilot'),
     _test('dialer-app-autopilot'),
     _test('messaging-app-autopilot'),
     _test('address-book-app-autopilot'),
-    _test('share-app-autopilot'),
+    _ap_test('share-app-autopilot'),
     _test('calendar-app-autopilot'),
     _test('music-app-autopilot'),
     _test('ubuntu-calculator-app-autopilot'),
@@ -156,16 +162,30 @@ if DEFINE_MEGA:
     def _configure_jobs(instance, env, args, config_item, device, tests):
         name = device['name']
         device_type = name[:name.index("-")]
-        defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NODE})'
+        defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
         fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
         trigger_url = fmt.format(device_type)
+
+        packages = []
+        ap_tests = []
+        ut_tests = []
+
+        for test in tests:
+            if test.ap:
+                ap_tests.append(test.ap)
+                if test.pkgs is not None:
+                    packages.extend(test.pkgs)
+            else:
+                ut_tests.append(test.name)
 
         params = {
             'name': name,
             'serial': device.get('serial', defserial),
             'publish': args.publish,
             'branch': args.branch,
-            'tests': ' '.join([t.name for t in tests]),
+            'tests': ' '.join(ut_tests),
+            'ap_tests': ' '.join(ap_tests),
+            'packages': ' '.join(packages),
             'trigger_url': trigger_url,
             'wait': args.wait,
             'imagetype': config_item['image-type'],

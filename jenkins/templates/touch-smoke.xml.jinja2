@@ -23,6 +23,24 @@
 	  </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>APPS</name>
+          <description>A space separated list of autopilot tests to run. "ALL" can be used to run all known tests.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>PACKAGES</name>
+          <description>A space separated list of packages to install. "ALL" can be used to install required packages for all known autopilot tests.
+	  </description>
+          <defaultValue>ALL</defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>PPAS</name>
+          <description>A space separated list of PPAs to configure on the device.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <com.sonyericsson.rebuild.RebuildSettings>
@@ -49,14 +67,33 @@ bzr branch ${BRANCH} ${BZRDIR}
 export ANDROID_SERIAL={{serial}}
 
 {{image_opt}}
+
 if [ -z $INSTALL_URL ] ; then
   #Wait for images to actually show up on cdimage
   sleep {{wait}}
 
-  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} -w
+  if [ &quot;$PACKAGES&quot; = &quot;ALL&quot; ] ; then
+    PACKAGES=&quot;{{packages}}&quot;
+  fi
+
+  custom_args=&quot;&quot;
+  set +x
+  for p in $PACKAGES ; do
+    custom_args=&quot;$custom_args -p $p&quot;
+  done
+  for p in $PPAS ; do
+    custom_args=&quot;$custom_args -P $p&quot;
+  done
+  set -x
+  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} $custom_args
 else
   BASEDIR=${BZRDIR} ${BZRDIR}/scripts/assert-image
 fi
+
+if [ &quot;$APPS&quot; = &quot;ALL&quot; ] ; then
+  APPS="{{ap_tests}}"
+fi
+[ -z "$APPS" ] || APPS=${APPS} ${BZRDIR}/scripts/run-autopilot-tests.sh
 
 if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
   TESTS="{{tests}}"
