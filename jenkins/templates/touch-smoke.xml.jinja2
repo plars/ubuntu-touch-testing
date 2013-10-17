@@ -2,6 +2,23 @@
 <project>
   <actions/>
   <description>
+This job provides a flexible way to execute all the tests in our daily image
+testing process that contribute to the
+&lt;a href=&quot;http://reports.qa.ubuntu.com/smokeng/&quot;&gt;QA Dashboard&lt;/a&gt;.
+The job is parameterized to give flexibility in what gets tested. A couple of
+common ways to run this job are:
+&lt;dl>
+  &lt;dt&gt;Full Test Run&lt;/dt&gt;
+  &lt;dd&gt;TESTS=ALL&lt;/dd&gt;
+  &lt;dd&gt;APPS=ALL&lt;/dd&gt;
+  &lt;dd&gt;PACKAGES=ALL&lt;/dd&gt;
+  &lt;dt&gt;Re-run a Failed Autopilot Test&lt;/dt&gt;
+  &lt;dd&gt;INSTALL_URL=http://jenkins-dev-image-test:8080/job/saucy-touch_ro-mako/9&lt;/dd&gt;
+  &lt;dd&gt;APPS=share_app&lt;/dd&gt;
+  &lt;dt&gt;Run Several Autopilot Tests on Latest Build&lt;/dt&gt;
+  &lt;dd&gt;APPS=share_app music_app&lt;/dd&gt;
+  &lt;dd&gt;PACKAGES=share-app-autopilot&lt;/dd&gt;
+&lt;/dl&gt;
 &lt;pre&gt;
 #NOTE: Automatically created from a script as part of daily smoke testing&#xd;
   {{branch}}&#xd;
@@ -13,7 +30,7 @@
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>INSTALL_URL</name>
-          <description>A URL to the previous job. If provided this job will use the same install options as it used.
+          <description>A URL to the previous job. If provided this job will use the same install options as it used. If the device executing the job happens to have the exact same image, then provisioning can be skipped.
 	  </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
