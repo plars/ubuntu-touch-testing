@@ -8,15 +8,14 @@ BASEDIR=$(dirname $(readlink -f $0))
 
 RESDIR=`pwd`/clientlogs
 
-UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.py}"
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
-IMAGE_OPT="${IMAGE_OPT---ubuntu-bootstrap --skip-utah --developer-mode}"
+IMAGE_OPT="${IMAGE_OPT-ubuntu-system -b --channel devel-proposed}"
 UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
 cat <<EOF
-usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE]
+usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-P ppa] [-p package] [-w]
 
 Provisions the given device with the latest build
 
@@ -24,63 +23,81 @@ OPTIONS:
   -h	Show this message
   -s    Specify the serial of the device to install
   -n    Select network file
+  -P    add the ppa to the target (can be repeated)
+  -p    add the package to the target (can be repeated)
+  -w    make the system writeable (implied with -p and -P arguments)
 
 EOF
 }
 
-while getopts i:s:n:Dh opt; do
-    case $opt in
-    h)
-        usage
-        exit 0
-        ;;
-    n)
-        NETWORK_FILE=$OPTARG
-        ;;
-    s)
-	export ANDROID_SERIAL=$OPTARG
-        ;;
-    i)
-        IMAGE_TYPE=$OPTARG
-        ;;
-  esac
+image_info() {
+	# mark the version we installed in /home/phablet/.ci-[uuid,flash-args]
+	# adb shell messes up \n's with \r\n's so do the whole of the regex on the target
+	IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
+	CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+	REV=$(echo $IMAGEVER | cut -d: -f1)
+	echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
+	echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
+	adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
+	echo $UUID > $RESDIR/.ci-uuid
+	adb push $RESDIR/.ci-uuid /home/phablet/
+	cat > $RESDIR/.ci-flash-args <<EOF
+$IMAGE_OPT
+EOF
+	adb push $RESDIR/.ci-flash-args /home/phablet/.ci-flash-args
+	echo $CUSTOMIZE > $RESDIR/.ci-customizations
+	adb push $RESDIR/.ci-customizations /home/phablet/.ci-customizations
+}
+
+while getopts i:s:n:P:p:wh opt; do
+	case $opt in
+	h)
+		usage
+		exit 0
+		;;
+	n)
+		NETWORK_FILE=$OPTARG
+		;;
+	s)
+		export ANDROID_SERIAL=$OPTARG
+		;;
+	i)
+		IMAGE_TYPE=$OPTARG
+		;;
+	w)
+		# making this a non-zero length string enables the logic
+		CUSTOMIZE=" "
+		;;
+	P)
+		CUSTOMIZE="$CUSTOMIZE --ppa $OPTARG"
+		;;
+	p)
+		CUSTOMIZE="$CUSTOMIZE -p $OPTARG"
+		;;
+	esac
 done
 
 if [ -z $ANDROID_SERIAL ] ; then
-    # ensure we only have one device attached
-    lines=$(adb devices | wc -l)
-    if [ $lines -gt 3 ] ; then
-        echo "ERROR: More than one device attached, please use -s option"
-	echo
-        usage
-        exit 1
-    fi
+	# ensure we only have one device attached
+	lines=$(adb devices | wc -l)
+	if [ $lines -gt 3 ] ; then
+		echo "ERROR: More than one device attached, please use -s option"
+		echo
+		usage
+		exit 1
+	fi
 fi
 
 set -x
-rm -rf clientlogs
-mkdir clientlogs
+[ -d $RESDIR ] && rm -rf $RESDIR
+mkdir -p $RESDIR
 
-${UTAH_PHABLET_CMD} --results-dir ${RESDIR} --network-file=${NETWORK_FILE} ${IMAGE_OPT}
+phablet-flash $IMAGE_OPT
+adb wait-for-device
+sleep 60  #give the system a little time
+image_info
 
-# mark the version we installed in /home/phablet/.ci-version
-DEVICE_TYPE=$(adb shell "getprop ro.cm.device" |tr -d '\r')
-# adb shell messes up \n's with \r\n's so do the whole of the regex on the target
-IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
-CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
-REV=$(echo $IMAGEVER | cut -d: -f1)
-echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
-echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
-adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
-echo $UUID > clientlogs/.ci-uuid
-adb push clientlogs/.ci-uuid /home/phablet/
-cat >clientlogs/.ci-utah-args <<EOF
-$IMAGE_OPT
-EOF
-adb push clientlogs/.ci-utah-args /home/phablet/.ci-utah-args
-
-# get our target-based utilities into our PATH
-adb push ${BASEDIR}/../utils/target /home/phablet/bin
+phablet-network -n $NETWORK_FILE
 
 phablet-click-test-setup
 
@@ -90,6 +107,12 @@ elif [ "$IMAGE_TYPE" == "mir" ]; then
     adb shell touch /home/phablet/.display-mir
 fi
 
-# ensure the "edges intro" is disabled so that it doesn't cause noise
-# in the system
-adb shell dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false
+if [ -n "$CUSTOMIZE" ] ; then
+	echo "= CUSTOMIZING IMAGE"
+	phablet-config writable-image $CUSTOMIZE
+fi
+
+phablet-config edges-intro --disable
+
+# get our target-based utilities into our PATH
+adb push ${BASEDIR}/../utils/target /home/phablet/bin
