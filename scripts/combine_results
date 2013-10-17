@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+
+"""
+We always run the system-settle test before and after an autopilot test. This
+script takes the results of the before/after results and combines them in with
+the junit xml results from the autopilot test so we have one unified report.
+"""
+
+
+import os
+import sys
+
+from xml.etree import ElementTree
+
+
+def _build_node(name, rcfile, stdout):
+    e = ElementTree.Element('testcase')
+    e.attrib['classname'] = 'systemsettle'
+    e.attrib['name'] = name
+    rc = int(open(rcfile).read())
+    if rc != 0:
+        f = ElementTree.Element('failure')
+        e.append(f)
+        f.attrib['type'] = 'testtools.testresult.real._StringException'
+        f.text = open(stdout).read()
+    return e, rc != 0
+
+
+def _get_results(apfile):
+    try:
+        tree = ElementTree.parse(apfile)
+    except Exception as ex:
+        e = ElementTree.Element('testsuite')
+        tree = ElementTree.ElementTree(e)
+        e.attrib['errors'] = '1'
+        e.attrib['failures'] = '0'
+        e.attrib['tests'] = '1'
+
+        t = ElementTree.Element('testcase')
+        e.append(t)
+        t.attrib['classname'] = 'phablet-tools'
+        t.attrib['name'] = 'phablet-test-run'
+
+        f = ElementTree.Element('failure')
+        t.append(f)
+        f.attrib['type'] = 'testtools.testresult.real._StringException'
+        f.text = str(ex)
+
+    return tree
+
+
+def combine(resdir):
+    ap_file = os.path.join(resdir, 'test_results.xml')
+    tree = _get_results(ap_file)
+    ap_results = tree.getroot()
+
+    errors = int(ap_results.attrib['errors'])
+
+    rc = os.path.join(resdir, 'settle_before.rc')
+    log = os.path.join(resdir, 'settle_before.log')
+    node, failed = _build_node('before', rc, log)
+    ap_results.insert(0, node)
+    if failed:
+        errors += 1
+
+    rc = os.path.join(resdir, 'settle_after.rc')
+    log = os.path.join(resdir, 'settle_after.log')
+    node, failed = _build_node('after', rc, log)
+    ap_results.append(node)
+    if failed:
+        errors += 1
+
+    num = int(ap_results.attrib['tests']) + 2
+    ap_results.attrib['tests'] = str(num)
+    ap_results.attrib['errors'] = str(errors)
+
+    tree.write(ap_file)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print('usage: {} <results directory>'.format(sys.argv[0]))
+        sys.exit(1)
+
+    combine(sys.argv[1])
