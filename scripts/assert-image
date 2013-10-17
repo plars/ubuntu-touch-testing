@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# a simple script to ensure the proper image is installed on the target
+
+[ -z $INSTALL_URL ] && exit 0
+
+echo "Ensuring target has proper image..."
+REQUIRED_UUID=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-uuid)
+ACTUAL_UUID=$(adb shell "cat /home/phablet/.ci-uuid | tr -d '\r\n'")
+if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
+	echo "= UUIDs $REQUIRED_UUID != $ACTUAL_UUID"
+	ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-args | tr -d '\r\n')
+	CUST=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations | tr -d '\r\n')
+	echo "reprovisioning device with: $ARGS"
+	echo "customizing device with: $CUST"
+	UUID=$REQUIRED_UUID IMAGE_OPT=$ARGS CUSTOMIZATIONS=$CUST \
+		${BASEDIR}/scripts/provision.sh
+else
+	echo "= UUIDS match, reusing image on target"
+fi
+

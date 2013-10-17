@@ -12,6 +12,12 @@
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
+          <name>INSTALL_URL</name>
+          <description>A URL to the previous job. If provided this job will use the same install options as it used.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>TESTS</name>
           <description>A space separated list of utah tests to run. "ALL" can be used to run all known tests.
 	  </description>
@@ -43,10 +49,14 @@ bzr branch ${BRANCH} ${BZRDIR}
 export ANDROID_SERIAL={{serial}}
 
 {{image_opt}}
+if [ -z $INSTALL_URL ] ; then
+  #Wait for images to actually show up on cdimage
+  sleep {{wait}}
 
-#Wait for images to actually show up on cdimage
-sleep {{wait}}
-${BZRDIR}/scripts/provision.sh -i {{imagetype}} -w
+  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} -w
+else
+  BASEDIR=${BZRDIR} ${BZRDIR}/scripts/assert-image
+fi
 
 if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
   TESTS="{{tests}}"
