@@ -1,13 +1,18 @@
-# The configuration matrix of our production device testing
+# The configuration matrix of our staging device testing
 
-JENKINS = 'http://10.97.9.20:8080'
+import os
+
+if not os.environ.get('MEGA', False):
+    raise RuntimeError('staging server only supports MEGA jobs')
+
+JENKINS = 'http://jenkins-dev-image-test:8080/'
 
 MATRIX = [
     {
         'image-type': 'ro',
         'node-label': 'ashes',
         'devices': [
-            {'name': 'mako-06'},
+            {'name': 'mako-06 || mako-07 || mako-08'},
         ],
     },
 ]
