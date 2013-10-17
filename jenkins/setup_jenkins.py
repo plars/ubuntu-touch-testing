@@ -37,38 +37,40 @@ def _test(name, fmt=DEF_FMT):
     return Test(name, fmt, None, None)
 
 
-def _ap_test(name, fmt=DEF_FMT):
+def _ap_test(name, fmt=DEF_FMT, packages=None):
     # convert share-app-autopilot to share_app
     ap = name.replace('-', '_').replace('_autopilot', '')
-    return Test(name, fmt, ap, [name])
+    if packages is None:
+        packages = [name]
+    return Test(name, fmt, ap, packages)
 
 
 TESTS = [
     _test('install-and-boot'),
     _test('default'),
-    _test('mediaplayer-app-autopilot'),
-    _test('gallery-app-autopilot'),
-    _test('webbrowser-app-autopilot'),
-    _test('unity8-autopilot'),
+    _ap_test('mediaplayer-app-autopilot'),
+    _ap_test('gallery-app-autopilot'),
+    _ap_test('webbrowser-app-autopilot'),
+    _ap_test('unity8-autopilot', packages=[]),
     _ap_test('friends-app-autopilot'),
-    _test('notes-app-autopilot'),
-    _test('camera-app-autopilot'),
-    _test('dialer-app-autopilot'),
-    _test('messaging-app-autopilot'),
-    _test('address-book-app-autopilot'),
+    _ap_test('notes-app-autopilot', packages=[]),
+    _ap_test('camera-app-autopilot'),
+    _ap_test('dialer-app-autopilot'),
+    _ap_test('messaging-app-autopilot'),
+    _ap_test('address-book-app-autopilot'),
     _ap_test('share-app-autopilot'),
-    _test('calendar-app-autopilot'),
-    _test('music-app-autopilot'),
-    _test('ubuntu-calculator-app-autopilot'),
-    _test('ubuntu-clock-app-autopilot'),
-    _test('ubuntu-filemanager-app-autopilot'),
-    _test('ubuntu-rssreader-app-autopilot'),
-    _test('ubuntu-terminal-app-autopilot'),
-    _test('ubuntu-weather-app-autopilot'),
-    _test('ubuntu-ui-toolkit-autopilot'),
-    _test('ubuntu-system-settings-online-accounts-autopilot'),
+    _ap_test('calendar-app-autopilot', packages=['python-dateutil']),
+    _ap_test('music-app-autopilot', packages=[]),
+    _ap_test('ubuntu-calculator-app-autopilot', packages=[]),
+    _ap_test('ubuntu-clock-app-autopilot', packages=[]),
+    _ap_test('ubuntu-filemanager-app-autopilot', packages=[]),
+    _ap_test('ubuntu-rssreader-app-autopilot', packages=[]),
+    _ap_test('ubuntu-terminal-app-autopilot', packages=[]),
+    _ap_test('ubuntu-weather-app-autopilot', packages=[]),
+    _ap_test('ubuntu-ui-toolkit-autopilot'),
+    _ap_test('ubuntu-system-settings-online-accounts-autopilot'),
     _test('click_image_tests'),
-    _test('dropping-letters-app-autopilot'),
+    _ap_test('dropping-letters-app-autopilot', packages=[]),
     _test('sdk'),
     _test('security'),
     _test('eventstat',
