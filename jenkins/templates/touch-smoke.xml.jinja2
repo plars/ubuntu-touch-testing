@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>
+&lt;pre&gt;
+#NOTE: Automatically created from a script as part of daily smoke testing&#xd;
+  {{branch}}&#xd;
+&lt;/pre&gt;
+  </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>INSTALL_URL</name>
+          <description>A URL to the previous job. If provided this job will use the same install options as it used.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TESTS</name>
+          <description>A space separated list of utah tests to run. "ALL" can be used to run all known tests.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <com.sonyericsson.rebuild.RebuildSettings>
+      <autoRebuild>false</autoRebuild>
+    </com.sonyericsson.rebuild.RebuildSettings>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>{{ name }}</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e
+BRANCH=&quot;{{branch}}&quot;
+BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+BZRDIR=$(readlink -f $BZRDIR)
+[ -d $BZRDIR ] &amp;&amp; rm -rf $BZRDIR
+bzr branch ${BRANCH} ${BZRDIR}
+
+export ANDROID_SERIAL={{serial}}
+
+{{image_opt}}
+if [ -z $INSTALL_URL ] ; then
+  #Wait for images to actually show up on cdimage
+  sleep {{wait}}
+
+  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} -w
+else
+  BASEDIR=${BZRDIR} ${BZRDIR}/scripts/assert-image
+fi
+
+if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
+  TESTS="{{tests}}"
+fi
+
+rc=0
+for test in $TESTS ; do
+  echo == testing $test =======================================================
+  RESDIR=`pwd`/clientlogs/$test ${BZRDIR}/scripts/jenkins.sh -a $test || rc=1
+done
+exit $rc
+      </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>clientlogs/**</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.junit.JUnitResultArchiver>
+      <testResults>clientlogs/**/test_results.xml</testResults>
+      <keepLongStdio>true</keepLongStdio>
+      <testDataPublishers>
+        <hudson.plugins.junitattachments.AttachmentPublisher/>
+      </testDataPublishers>
+    </hudson.tasks.junit.JUnitResultArchiver>
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexp>
+      <regexpForFailed>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+{% if publish %}
+    <hudson.tasks.Mailer>
+      <recipients>paul.larson@canonical.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+    <hudson.plugins.build__publisher.BuildPublisher>
+      <publishUnstableBuilds>true</publishUnstableBuilds>
+      <publishFailedBuilds>true</publishFailedBuilds>
+      <postActions class="vector"/>
+    </hudson.plugins.build__publisher.BuildPublisher>
+{% endif %}
+  </publishers>
+  <buildWrappers>
+      <hudson.plugins.build__timeout.BuildTimeoutWrapper>
+          <timeoutMinutes>180</timeoutMinutes>
+      <failBuild>true</failBuild>
+      <writingDescription>false</writingDescription>
+      <timeoutPercentage>0</timeoutPercentage>
+      <timeoutType>absolute</timeoutType>
+      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+</project>
+
