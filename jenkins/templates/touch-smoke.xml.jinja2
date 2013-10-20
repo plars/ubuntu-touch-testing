@@ -90,7 +90,7 @@ if [ -z $INSTALL_URL ] ; then
   sleep {{wait}}
 
   if [ &quot;$PACKAGES&quot; = &quot;ALL&quot; ] ; then
-    PACKAGES=&quot;{{packages}}&quot;
+    PACKAGES=&quot;$(${BZRDIR}/jenkins/apconfig.py packages)&quot;
   fi
 
   custom_args=&quot;&quot;
@@ -108,7 +108,7 @@ else
 fi
 
 if [ &quot;$APPS&quot; = &quot;ALL&quot; ] ; then
-  APPS="{{ap_tests}}"
+  APPS=&quot;$(${BZRDIR}/jenkins/apconfig.py apps)&quot;
 fi
 [ -z "$APPS" ] || APPS=${APPS} ${BZRDIR}/scripts/run-autopilot-tests.sh
 

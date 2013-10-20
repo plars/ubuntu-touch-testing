@@ -26,51 +26,32 @@ import os
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
+import apconfig
+
 DEFINE_MEGA = os.environ.get('MEGA', False)
 
 DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
 
-Test = collections.namedtuple('Test', ['name', 'fmt', 'ap', 'pkgs'])
+Test = collections.namedtuple('Test', ['name', 'fmt', 'ap'])
 
 
 def _test(name, fmt=DEF_FMT):
-    return Test(name, fmt, None, None)
+    return Test(name, fmt, False)
 
 
-def _ap_test(name, fmt=DEF_FMT, packages=None):
-    # convert share-app-autopilot to share_app
-    ap = name.replace('-', '_').replace('_autopilot', '')
-    if packages is None:
-        packages = [name]
-    return Test(name, fmt, ap, packages)
+def _ap_test(name):
+    return Test(name, DEF_FMT, True)
 
 
 TESTS = [
     _test('install-and-boot'),
     _test('default'),
-    _ap_test('mediaplayer-app-autopilot'),
-    _ap_test('gallery-app-autopilot'),
-    _ap_test('webbrowser-app-autopilot'),
-    _ap_test('unity8-autopilot', packages=[]),
-    _ap_test('friends-app-autopilot'),
-    _ap_test('notes-app-autopilot', packages=[]),
-    _ap_test('camera-app-autopilot'),
-    _ap_test('dialer-app-autopilot'),
-    _ap_test('messaging-app-autopilot'),
-    _ap_test('address-book-app-autopilot'),
-    _ap_test('share-app-autopilot'),
-    _ap_test('calendar-app-autopilot', packages=['python-dateutil']),
-    _ap_test('music-app-autopilot', packages=[]),
-    _ap_test('ubuntu-calculator-app-autopilot', packages=[]),
-    _ap_test('ubuntu-clock-app-autopilot', packages=[]),
-    _ap_test('ubuntu-filemanager-app-autopilot', packages=[]),
-    _ap_test('ubuntu-rssreader-app-autopilot', packages=[]),
-    _ap_test('ubuntu-terminal-app-autopilot', packages=[]),
-    _ap_test('ubuntu-weather-app-autopilot', packages=[]),
-    _ap_test('ubuntu-ui-toolkit-autopilot'),
-    _ap_test('ubuntu-system-settings-online-accounts-autopilot'),
+]
+
+TESTS += [_ap_test(t.name) for t in apconfig.TESTSUITES]
+
+TESTS += [
     _test('click_image_tests'),
-    _ap_test('dropping-letters-app-autopilot', packages=[]),
     _test('sdk'),
     _test('security'),
     _test('eventstat',
@@ -168,26 +149,12 @@ if DEFINE_MEGA:
         fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
         trigger_url = fmt.format(device_type)
 
-        packages = []
-        ap_tests = []
-        ut_tests = []
-
-        for test in tests:
-            if test.ap:
-                ap_tests.append(test.ap)
-                if test.pkgs is not None:
-                    packages.extend(test.pkgs)
-            else:
-                ut_tests.append(test.name)
-
         params = {
             'name': name,
             'serial': device.get('serial', defserial),
             'publish': args.publish,
             'branch': args.branch,
-            'tests': ' '.join(ut_tests),
-            'ap_tests': ' '.join(ap_tests),
-            'packages': ' '.join(packages),
+            'tests': ' '.join([t.name for t in tests if not t.ap]),
             'trigger_url': trigger_url,
             'wait': args.wait,
             'imagetype': config_item['image-type'],
