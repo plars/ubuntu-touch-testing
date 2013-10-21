@@ -31,10 +31,6 @@ PIDS=""
 
 cleanup() {
 	set +e
-	echo "killing child pids: $PIDS"
-	for p in $PIDS ; do
-		kill $p
-	done
 }
 
 test_from_host() {
@@ -101,10 +97,6 @@ main() {
 		sleep 5
 		adb wait-for-device
 		phablet-network --skip-setup -t 90s
-		adb shell powerd-cli active &
-		PIDS="$PIDS $!"
-		adb shell powerd-cli display on &
-		PIDS="$PIDS $!"
 	else
 		echo "SKIPPING phone reboot..."
 	fi
