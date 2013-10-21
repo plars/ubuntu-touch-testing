@@ -19,7 +19,7 @@ def _custom_test_filter(common_tests, mktest_func):
 
 MATRIX = [
     {
-        'image-type': 'ro',
+        'image-type': 'touch_ro',
         'node-label': 'phoenix',
         'devices': [
             {'name': 'mako-05'},
@@ -27,7 +27,7 @@ MATRIX = [
         ],
     },
     {
-        'image-type': 'mir',
+        'image-type': 'touch_mir',
         'node-label': 'phoenix',
         'devices': [
             {'name': 'mako-02'},
@@ -35,7 +35,7 @@ MATRIX = [
         ],
     },
     {
-        'image-type': 'custom',
+        'image-type': 'touch_custom',
         'node-label': 'phoenix',
         'devices': [
             {'name': 'mako-11'},

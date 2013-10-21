@@ -30,9 +30,8 @@ import apconfig
 
 DEFINE_MEGA = os.environ.get('MEGA', False)
 
-DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
-IDLE_FMT =\
-    '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'
+DEF_FMT = '{prefix}{series}-{imagetype}-{type}-smoke-{testname}'
+IDLE_FMT = '{prefix}{testname}-{series}-{imagetype}-armhf-install-idle-{type}'
 
 Test = collections.namedtuple('Test', ['name', 'fmt', 'ap'])
 
@@ -59,7 +58,7 @@ TESTS += [
     _test('eventstat', IDLE_FMT),
     _test('smem', IDLE_FMT),
     _test('memevent',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-default-{type}')
+          '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
 ]
 
 
@@ -161,7 +160,7 @@ if DEFINE_MEGA:
             'image_opt': config_item.get('IMAGE_OPT', ''),
         }
         # a hack so we can use _get_job_name
-        test = _test('', fmt='{prefix}{series}-touch_{imagetype}-{type}')
+        test = _test('', fmt='{prefix}{series}-{imagetype}-{type}')
         job = _get_job_name(args, name, test, config_item['image-type'])
         _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
 else:
