@@ -29,7 +29,6 @@ def _ap_test(name, app=None, pkgs=None):
 
 
 TESTSUITES = [
-    _ap_test('share-app-autopilot', pkgs=['share-app-autopilot']),
     _ap_test('friends-app-autopilot', pkgs=['friends-app-autopilot']),
     _ap_test('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
     _ap_test('gallery-app-autopilot', pkgs=['gallery-app-autopilot']),
