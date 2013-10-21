@@ -31,6 +31,8 @@ import apconfig
 DEFINE_MEGA = os.environ.get('MEGA', False)
 
 DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
+IDLE_FMT =\
+    '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'
 
 Test = collections.namedtuple('Test', ['name', 'fmt', 'ap'])
 
@@ -54,12 +56,10 @@ TESTS += [
     _test('click_image_tests'),
     _test('sdk'),
     _test('security'),
-    _test('eventstat',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'),
-    _test('smem',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'),
+    _test('eventstat', IDLE_FMT),
+    _test('smem', IDLE_FMT),
     _test('memevent',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-default-{type}'),
+          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-default-{type}')
 ]
 
 
