@@ -7,7 +7,7 @@ if not os.environ.get('MEGA', False):
 
 JENKINS = 'http://jenkins-dev-image-test:8080/'
 
-SAUCY_MATRIX = [
+TRUSTY_MATRIX = [
     {
         'image-type': 'touch_mir',
         'node-label': 'ashes',
@@ -21,5 +21,5 @@ SAUCY_MATRIX = [
 ]
 
 MATRIX = {
-    'saucy': SAUCY_MATRIX,
+    'trusty': TRUSTY_MATRIX,
 }

@@ -101,10 +101,8 @@ phablet-network -n $NETWORK_FILE
 
 phablet-click-test-setup
 
-if [ "$IMAGE_TYPE" == "touch_ro" ]; then
+if [ "$IMAGE_TYPE" = "touch_sf4p" ]; then
     adb shell rm -f /home/phablet/.display-mir
-elif [ "$IMAGE_TYPE" == "touch_mir" ]; then
-    adb shell touch /home/phablet/.display-mir
 fi
 
 if [ -n "$CUSTOMIZE" ] ; then

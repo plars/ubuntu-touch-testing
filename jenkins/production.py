@@ -22,9 +22,9 @@ def _url(channel, device):
            % (channel, device)
 
 
-SAUCY_MATRIX = [
+TRUSTY_MATRIX = [
     {
-        'image-type': 'touch_ro',
+        'image-type': 'touch_sf4p',
         'node-label': 'phoenix',
         'devices': [
             {
@@ -38,7 +38,7 @@ SAUCY_MATRIX = [
         ],
     },
     {
-        'image-type': 'touch_mir',
+        'image-type': 'touch',
         'node-label': 'phoenix',
         'devices': [
             {
@@ -66,6 +66,25 @@ SAUCY_MATRIX = [
     },
 ]
 
+SAUCY_MATRIX = [
+    {
+        'image-type': 'touch_mir',
+        'node-label': 'phoenix',
+        'devices': [
+            # TODO - decide where these should run?
+            #{
+            #    'name': 'mako-05',
+            #    'trigger_url': _url('saucy-proposed', 'mako'),
+            #},
+            #{
+            #    'name': 'maguro-02',
+            #    'trigger_url': _url('saucy-proposed', 'maguro'),
+            #},
+        ],
+    },
+]
+
 MATRIX = {
+    'trusty': TRUSTY_MATRIX,
     'saucy': SAUCY_MATRIX,
 }
