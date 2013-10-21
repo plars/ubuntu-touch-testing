@@ -26,7 +26,6 @@ def _sf4p_test_filter(common_tests, mktest_func):
     ]
 
     tests = [t for t in common_tests if t.name in test_set]
-    tests.insert(1, mktest_func('customizations'))
     return tests
 
 
