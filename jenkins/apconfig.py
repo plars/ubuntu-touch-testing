@@ -33,7 +33,7 @@ TESTSUITES = [
     _ap_test('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
     _ap_test('gallery-app-autopilot', pkgs=['gallery-app-autopilot']),
     _ap_test('webbrowser-app-autopilot', pkgs=['webbrowser-app-autopilot']),
-    _ap_test('unity8-autopilot', 'unity8'),
+    _ap_test('unity8-autopilot', 'unity8', pkgs=['python-gi']),
     _ap_test('notes-app-autopilot'),
     _ap_test('camera-app-autopilot', pkgs=['camera-app-autopilot']),
     _ap_test('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
