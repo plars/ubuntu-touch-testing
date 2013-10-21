@@ -22,7 +22,7 @@ def _url(channel, device):
            % (channel, device)
 
 
-MATRIX = [
+SAUCY_MATRIX = [
     {
         'image-type': 'touch_ro',
         'node-label': 'phoenix',
@@ -62,6 +62,10 @@ MATRIX = [
         ],
         'filter': _custom_test_filter,
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
-                     '--channel devel-customized"'
+                     '--channel devel-proposed-customized"'
     },
 ]
+
+MATRIX = {
+    'saucy': SAUCY_MATRIX,
+}

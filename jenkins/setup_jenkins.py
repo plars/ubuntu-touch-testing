@@ -211,6 +211,9 @@ def main():
     args = _get_parser().parse_args()
 
     config = imp.load_source('', 'config.py', args.config)
+    if args.series not in config.MATRIX:
+        print('"%s" series is not supported by this config.' % args.series)
+        exit(1)
 
     jenkins_inst = _get_jenkins(config.JENKINS, args.username, args.password)
     if args.dryrun:
@@ -219,7 +222,7 @@ def main():
 
     env = _get_environment()
 
-    for item in config.MATRIX:
+    for item in config.MATRIX[args.series]:
         for device in item['devices']:
             tests = TESTS
             if 'filter' in item:
