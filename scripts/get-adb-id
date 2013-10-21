@@ -5,6 +5,7 @@ import sys
 DEVICES = {
     "maguro-01": "0149BD7E0A019003",
     "maguro-02": "0149BD7E0200E00F",
+    "maguro-03": "0149C7A50A00C011",
     "maguro-04": "0149BDCC0500701B",
     "maguro-05": "0149BD3418014013",
     "mako-01": "01aa3d7a5dcba4a2",
