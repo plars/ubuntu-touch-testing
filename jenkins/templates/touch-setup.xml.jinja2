@@ -3,4 +3,15 @@ BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
 BZRDIR=$(readlink -f $BZRDIR)
 bzr branch ${BRANCH} ${BZRDIR}
 
-export ANDROID_SERIAL={{serial}}
+device_free() {
+  if [ -f .device.$$ ] ; then
+    ${BZRDIR}/scripts/device free
+  fi
+}
+
+if [ -z $ANDROID_SERIAL ] ; then
+  echo No device lock found. Aquiring...
+  ${BZRDIR}/scripts/device get --name {{name}}
+  . ./.device.$$  # source in the device serial
+  trap device_free TERM INT EXIT
+fi

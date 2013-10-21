@@ -191,6 +191,10 @@ else:
         job = _get_job_name(args, device['name'], _test('master'), image_type)
         _publish(instance, env, args, 'touch-master.xml.jinja2', job, **params)
 
+        job = 'smoke-master-free'
+        _publish(instance, env, args,
+                 'touch-master-free.xml.jinja2', job, **params)
+
     def _configure_jobs(instance, env, args, config_item, device, tests):
         projects = []
         for test in tests:
