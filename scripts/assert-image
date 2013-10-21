@@ -2,7 +2,7 @@
 
 # a simple script to ensure the proper image is installed on the target
 
-[ -z $INSTALL_URL ] && exit 0
+[ -z $INSTALL_URL ] && echo "= INSTALL_URL not set. Using target as-is." && exit 0
 
 echo "Ensuring target has proper image..."
 REQUIRED_UUID=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-uuid)
