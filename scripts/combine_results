@@ -13,10 +13,10 @@ import sys
 from xml.etree import ElementTree
 
 
-def _build_node(name, rcfile, stdout):
+def _build_node(classname, name, rcfile, stdout):
     e = ElementTree.Element('testcase')
-    e.attrib['classname'] = 'systemsettle'
-    e.attrib['name'] = name
+    e.attrib['classname'] = classname
+    e.attrib['name'] = 'settle_%s' % name
     rc = int(open(rcfile).read())
     if rc != 0:
         f = ElementTree.Element('failure')
@@ -49,6 +49,10 @@ def _get_results(apfile):
     return tree
 
 
+def _get_classname(results):
+    return results[0].attrib.get('classname', '???').split('.')[0]
+
+
 def combine(resdir):
     ap_file = os.path.join(resdir, 'test_results.xml')
     tree = _get_results(ap_file)
@@ -56,16 +60,18 @@ def combine(resdir):
 
     errors = int(ap_results.attrib['errors'])
 
+    classname = _get_classname(ap_results)
+
     rc = os.path.join(resdir, 'settle_before.rc')
     log = os.path.join(resdir, 'settle_before.log')
-    node, failed = _build_node('before', rc, log)
+    node, failed = _build_node(classname, 'before', rc, log)
     ap_results.insert(0, node)
     if failed:
         errors += 1
 
     rc = os.path.join(resdir, 'settle_after.rc')
     log = os.path.join(resdir, 'settle_after.log')
-    node, failed = _build_node('after', rc, log)
+    node, failed = _build_node(classname, 'after', rc, log)
     ap_results.append(node)
     if failed:
         errors += 1
