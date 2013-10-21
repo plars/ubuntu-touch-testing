@@ -54,27 +54,21 @@ test_app() {
 
 	system_settle before $odir
 
-	adb-shell /home/phablet/bin/unlock_screen.sh
-	phablet-test-run \
-		-o ${odir} \
-		-a /var/crash -a /home/phablet/.cache/upstart \
-		-v $app || true
-
+	if adb-shell /home/phablet/bin/unlock_screen.sh ; then
+		phablet-test-run \
+			-o ${odir} \
+			-a /var/crash -a /home/phablet/.cache/upstart \
+			-v $app || true
+	else
+		echo Screen unlock failed, skipping $app
+	fi
 	system_settle after $odir
 }
 
 reboot_wait() {
 	if [ -z $QUICK ] ; then
-		# get the phone in sane place
-		adb reboot
-		# sometimes reboot doesn't happen fast enough, so add a little
-		# delay to help ensure its actually rebooted and we didn't just
-		# connect back to the device before it rebooted
-		adb wait-for-device
-		sleep 5
-		adb wait-for-device
+		${BASEDIR}/scripts/reboot-and-wait
 		adb shell 'rm -rf /var/crash/* /home/phablet/.cache/upstart/*.log'
-		phablet-network --skip-setup -t 90s
 	else
 		echo "SKIPPING phone reboot..."
 	fi

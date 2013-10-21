@@ -1,0 +1,37 @@
+#!/usr/bin/python
+
+import argparse
+import logging
+
+from phabletutils.device import AndroidBridge
+
+
+def _get_arg_parser():
+    parser = argparse.ArgumentParser(
+        description='Reboot device and waits for networking to become active.')
+    parser.add_argument('-s', '--serial', help='Device serial')
+    parser.add_argument('-n', '--num-tries', type=int, default=3,
+                        help='''How many times to retry on failure.
+                             default=%(default)d''')
+    return parser
+
+
+def main(args):
+    device = AndroidBridge(args.serial)
+    for i in range(args.num_tries):
+        device.reboot()
+        device.wait_for_device()
+        try:
+            device.wait_for_network()
+            return 0
+        except:
+            pass  # try the loop again
+    logging.error('device failed to start and activate networking')
+    return 1
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger().name = 'reboot-and-wait'
+    args = _get_arg_parser().parse_args()
+    exit(main(args))
