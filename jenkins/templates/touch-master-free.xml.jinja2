@@ -1,5 +1,9 @@
 {% extends "touch-base.xml.jinja2" %}
 
+{% block timeout %}
+  <timeoutMinutes>10</timeoutMinutes>
+{% endblock timeout %}
+
 {% block shellcmds %}
       <command>set -e
 rm -rf *
