@@ -25,10 +25,11 @@ DEVICES = {
     "manta-05": "R32D203DMBY",
 }
 
-name = sys.argv[1]
+if __name__ == '__main__':
+    name = sys.argv[1]
 
-try:
-    print(DEVICES[name])
-except KeyError:
-    print("Unknown device name: '%s'" % name)
-    sys.exit(-1)
+    try:
+        print(DEVICES[name])
+    except KeyError:
+        print("Unknown device name: '%s'" % name)
+        sys.exit(-1)

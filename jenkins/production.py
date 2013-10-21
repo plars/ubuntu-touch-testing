@@ -95,6 +95,8 @@ SAUCY_MATRIX = [
                 'name': 'maguro-02',
                 'trigger_url': _url('saucy-proposed', 'maguro'),
             },
+        'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
+                     '--channel saucy-proposed"'
         ],
     },
 ]

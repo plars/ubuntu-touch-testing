@@ -7,13 +7,27 @@
     </com.redfin.hudson.UrlChangeTrigger>
   </triggers>
 {% endblock %}
-{% block shellblock %}{% endblock %}
+
+{% block shellcmds %}
+      <command>set -e
+rm -rf *
+{% include "touch-setup.xml.jinja2" %}
+
+mv .device.$$ device-lock
+      </command>
+{% endblock %}
+
 {% block extrasteps %}
 {% for project in projects %}
     <hudson.plugins.parameterizedtrigger.TriggerBuilder>
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-          <configs class="java.util.Collections$EmptyList"/>
+	  <configs>
+            <hudson.plugins.parameterizedtrigger.FileBuildParameters>
+              <propertiesFile>device-lock</propertiesFile>
+              <failTriggerOnMissing>true</failTriggerOnMissing>
+            </hudson.plugins.parameterizedtrigger.FileBuildParameters>
+          </configs>
           <projects>{{project}}</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
@@ -51,4 +65,20 @@
 {% block descriptionsetter %}{% endblock %}
 {% block buildpublisher %}{% endblock %}
 {% block mailer %}{% endblock %}
-{% block locks %}{% endblock %}
+{% block buildtrigger %}
+    <hudson.plugins.parameterizedtrigger.BuildTrigger>
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.FileBuildParameters>
+              <propertiesFile>device-lock</propertiesFile>
+              <failTriggerOnMissing>true</failTriggerOnMissing>
+            </hudson.plugins.parameterizedtrigger.FileBuildParameters>
+          </configs>
+          <projects>smoke-master-free</projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+{% endblock %}
