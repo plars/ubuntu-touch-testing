@@ -9,7 +9,7 @@ JENKINS = 'http://jenkins-dev-image-test:8080/'
 
 MATRIX = [
     {
-        'image-type': 'ro',
+        'image-type': 'mir',
         'node-label': 'ashes',
         'devices': [
             {'name': 'mako-06 || mako-07 || mako-08'},
