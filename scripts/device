@@ -1,0 +1,191 @@
+#!/usr/bin/python
+
+import argparse
+import contextlib
+import fcntl
+import imp
+import logging
+import os
+import sys
+import time
+
+
+class DeviceException(Exception):
+    """Just a handy way to pass errors to the CLI."""
+    pass
+
+
+@contextlib.contextmanager
+def _device_pool(args):
+    lockfile = os.path.join(args.device_pool, 'lockfile')
+    with open(lockfile, 'w') as f:
+        logging.debug('aquiring lock for device pool')
+        try:
+            fcntl.lockf(f, fcntl.LOCK_EX)
+            yield args.device_pool
+        finally:
+            fcntl.lockf(f, fcntl.LOCK_UN)
+
+
+def _get_tokenfile():
+    return '.device.%d' % os.getppid()
+
+
+def _lock_device(device_file):
+    logging.info('locking file %s', device_file)
+
+    name = os.path.basename(device_file)
+    lockfile = device_file + '.lck'
+
+    with open(device_file) as f:
+        contents = f.read()
+        with open(_get_tokenfile(), 'w') as w:
+            w.write(contents)
+            if contents[-1] != '\n':
+                w.write('\n')
+            w.write('DEVICE_NAME=%s\n' % name)
+            w.write('LOCK_FILE=%s\n' % lockfile)
+    os.rename(device_file, lockfile)
+
+
+def _get_by_name(args):
+    loops = 0
+    while True:
+        with _device_pool(args) as pool:
+            f = os.path.join(pool, args.name)
+            if os.path.exists(f):
+                _lock_device(f)
+                break
+            elif os.path.exists(f + '.lck'):
+                # throttle back logging as time progresses
+                if (loops < 10) or \
+                   (loops < 100 and loops % 4 == 0) or \
+                   (loops % 12 == 0):
+                    logging.info(
+                        'device is locked, waiting... attempts(%d)', loops)
+            else:
+                raise DeviceException('No such device exists.')
+        time.sleep(5)
+        loops += 1
+
+
+def _get_by_type(args):
+    while True:
+        with _device_pool(args) as pool:
+            match = False
+            for d in os.listdir(pool):
+                if args.type in d:
+                    match = True
+                    if not d.endswith('.lck'):
+                        _lock_device(os.path.join(pool, d))
+                        return
+            if not match:
+                raise DeviceException(
+                    'No "%s" devices found in pool.' % args.type)
+        time.sleep(5)
+
+
+def _get_by_env(args, jobname):
+    # find the device portion of a string like:
+    #  saucy-touch_ro-DEVICETYPE-smoke-ubuntu-terminal-app-autopilot
+    parts = jobname.split('-')
+    if len(parts) < 3:
+        raise DeviceException('Invalid jobname: %s.' % jobname)
+    args.type = parts[2]
+    _get_by_type(args)
+
+
+def _device_get(args):
+    job = os.environ.get('JOBNAME', False)
+
+    if args.name:
+        _get_by_name(args)
+    elif args.type:
+        _get_by_type(args)
+    elif job:
+        _get_by_env(args, job)
+    else:
+        raise DeviceException('no device, type or $JOBNAME specified.')
+
+
+def _device_free(args):
+    if not os.path.exists(args.tokenfile):
+        raise DeviceException('tokenfile(%s) does not exist.' % args.tokenfile)
+
+    lockfile = None
+    with open(args.tokenfile) as f:
+        for line in f.readlines():
+            if line.startswith('LOCK_FILE='):
+                lockfile = line.split('=', 2)[1].strip()
+                break
+
+    device_file = os.path.splitext(lockfile)[0]
+    with _device_pool(args):
+        logging.info('releasing lock for %s', device_file)
+        os.rename(lockfile, device_file)
+    os.unlink(args.tokenfile)
+
+
+def _populate(args):
+    if os.path.exists(args.device_pool):
+        raise DeviceException('pool(%s) already exists.' % args.device_pool)
+    os.makedirs(args.device_pool)
+
+    # jump through some hoops to import this module since it has dashes
+    # and doesn't have a .py extension
+    module = 'get-adb-id'
+    fname = os.path.join(os.path.dirname(__file__), module)
+    adb = imp.load_source(module, fname)
+
+    # import the config
+    config_module = imp.load_source('config', args.config)
+    for config in config_module.MATRIX.values():
+        for item in config:
+            for device in item['devices']:
+                name = device['name']
+                serial = device.get('serial', None)
+                if not serial:
+                    serial = adb.DEVICES[name]
+                with open(os.path.join(args.device_pool, name), 'w') as f:
+                    f.write('ANDROID_SERIAL=%s' % serial)
+
+
+def _get_args():
+    parser = argparse.ArgumentParser(
+        description='''Provides a mechanism to aquire a lock on a device in
+                    a given resource pool. The lock info will be written in
+                    the format .device.<calling pid>. This file can be sourced
+                    by a shell script to get ANDROID_SERIAL etc.''')
+    parser.add_argument('--device-pool', default='/var/lib/jenkins/ci-devices',
+                        help='location of the device pool. %(default)s')
+
+    sub = parser.add_subparsers(title='Commands', metavar='')
+    p = sub.add_parser('get', help='Aquire a lock on an idle device.')
+    grp = p.add_mutually_exclusive_group()
+    grp.add_argument('--name', help='Get device by name')
+    grp.add_argument('--type', help='Get device by type')
+    p.set_defaults(func=_device_get)
+
+    p = sub.add_parser('free', help='Release a lock on a device.')
+    p.add_argument('--tokenfile', default=_get_tokenfile(),
+                   help='token file for device reservation. %(default)s')
+    p.set_defaults(func=_device_free)
+
+    p = sub.add_parser('populate', help='Initialize a device pool for usage')
+    p.add_argument('-c', '--config', required=True,
+                   help='The jenkins config to find devices in.')
+    p.set_defaults(func=_populate)
+
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    args = _get_args()
+    rc = 0
+    try:
+        args.func(args)
+    except DeviceException as e:
+        rc = 1
+        print('ERROR: %s' % e)
+    sys.exit(rc)
