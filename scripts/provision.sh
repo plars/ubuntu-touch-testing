@@ -114,5 +114,9 @@ fi
 
 phablet-config edges-intro --disable
 
+# seems phablet-config's wait-for-device returns too fast on mir
+sleep 10
+adb wait-for-device
+
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
