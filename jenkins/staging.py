@@ -7,12 +7,19 @@ if not os.environ.get('MEGA', False):
 
 JENKINS = 'http://jenkins-dev-image-test:8080/'
 
-MATRIX = [
+TRUSTY_MATRIX = [
     {
-        'image-type': 'mir',
+        'image-type': 'touch_mir',
         'node-label': 'ashes',
         'devices': [
-            {'name': 'mako-06 || mako-07 || mako-08'},
+            {
+                'name': 'mako-06 || mako-07 || mako-08'},
+                'trigger_url': 'http://system-image.ubuntu.com/devel-proposed/mako/index.json'
+            }
         ],
     },
 ]
+
+MATRIX = {
+    'trusty': TRUSTY_MATRIX,
+}

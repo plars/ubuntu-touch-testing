@@ -30,7 +30,8 @@ import apconfig
 
 DEFINE_MEGA = os.environ.get('MEGA', False)
 
-DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
+DEF_FMT = '{prefix}{series}-{imagetype}-{type}-smoke-{testname}'
+IDLE_FMT = '{prefix}{testname}-{series}-{imagetype}-armhf-install-idle-{type}'
 
 Test = collections.namedtuple('Test', ['name', 'fmt', 'ap'])
 
@@ -54,12 +55,10 @@ TESTS += [
     _test('click_image_tests'),
     _test('sdk'),
     _test('security'),
-    _test('eventstat',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'),
-    _test('smem',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-install-idle-{type}'),
+    _test('eventstat', IDLE_FMT),
+    _test('smem', IDLE_FMT),
     _test('memevent',
-          '{prefix}{testname}-{series}-touch_{imagetype}-armhf-default-{type}'),
+          '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
 ]
 
 
@@ -144,10 +143,7 @@ def _publish(instance, env, args, template, jobname, **params):
 if DEFINE_MEGA:
     def _configure_jobs(instance, env, args, config_item, device, tests):
         name = device['name']
-        device_type = name[:name.index("-")]
         defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
-        fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
-        trigger_url = fmt.format(device_type)
 
         params = {
             'name': name,
@@ -155,13 +151,13 @@ if DEFINE_MEGA:
             'publish': args.publish,
             'branch': args.branch,
             'tests': ' '.join([t.name for t in tests if not t.ap]),
-            'trigger_url': trigger_url,
+            'trigger_url': device['trigger_url'],
             'wait': args.wait,
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
         }
         # a hack so we can use _get_job_name
-        test = _test('', fmt='{prefix}{series}-touch_{imagetype}-{type}')
+        test = _test('', fmt='{prefix}{series}-{imagetype}-{type}')
         job = _get_job_name(args, name, test, config_item['image-type'])
         _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
 else:
@@ -183,21 +179,16 @@ else:
         return job
 
     def _configure_master(instance, env, args, projects, config_item, device):
-        device = device['name']
-        device_type = device[:device.index("-")]
-        fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
-        trigger_url = fmt.format(device_type)
-
         params = {
             'host': config_item['node-label'],
-            'name': device,
+            'name': device['name'],
             'publish': args.publish,
             'branch': args.branch,
             'projects': projects,
-            'trigger_url': trigger_url
+            'trigger_url': device['trigger_url'],
         }
         image_type = config_item['image-type']
-        job = _get_job_name(args, device, _test('master'), image_type)
+        job = _get_job_name(args, device['name'], _test('master'), image_type)
         _publish(instance, env, args, 'touch-master.xml.jinja2', job, **params)
 
     def _configure_jobs(instance, env, args, config_item, device, tests):
@@ -220,6 +211,9 @@ def main():
     args = _get_parser().parse_args()
 
     config = imp.load_source('', 'config.py', args.config)
+    if args.series not in config.MATRIX:
+        print('"%s" series is not supported by this config.' % args.series)
+        exit(1)
 
     jenkins_inst = _get_jenkins(config.JENKINS, args.username, args.password)
     if args.dryrun:
@@ -228,7 +222,7 @@ def main():
 
     env = _get_environment()
 
-    for item in config.MATRIX:
+    for item in config.MATRIX[args.series]:
         for device in item['devices']:
             tests = TESTS
             if 'filter' in item:
