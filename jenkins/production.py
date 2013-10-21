@@ -71,15 +71,16 @@ SAUCY_MATRIX = [
         'image-type': 'touch_mir',
         'node-label': 'phoenix',
         'devices': [
-            # TODO - decide where these should run?
-            #{
-            #    'name': 'mako-05',
-            #    'trigger_url': _url('saucy-proposed', 'mako'),
-            #},
-            #{
-            #    'name': 'maguro-02',
-            #    'trigger_url': _url('saucy-proposed', 'maguro'),
-            #},
+            {
+                'name': 'mako-05',
+                'trigger_url': _url('saucy-proposed', 'mako'),
+            },
+            {
+                'name': 'maguro-02',
+                'trigger_url': _url('saucy-proposed', 'maguro'),
+            },
+        'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
+                     '--channel saucy-proposed-customized"'
         ],
     },
 ]
