@@ -17,28 +17,48 @@ def _custom_test_filter(common_tests, mktest_func):
     return tests
 
 
+def _url(channel, device):
+    return 'http://system-image.ubuntu.com/%s/%s/index.json' \
+           % (channel, device)
+
+
 MATRIX = [
     {
         'image-type': 'touch_ro',
         'node-label': 'phoenix',
         'devices': [
-            {'name': 'mako-05'},
-            {'name': 'maguro-02'},
+            {
+                'name': 'mako-05',
+                'trigger_url': _url('devel-proposed', 'mako'),
+            },
+            {
+                'name': 'maguro-02',
+                'trigger_url': _url('devel-proposed', 'maguro'),
+            },
         ],
     },
     {
         'image-type': 'touch_mir',
         'node-label': 'phoenix',
         'devices': [
-            {'name': 'mako-02'},
-            {'name': 'maguro-01'},
+            {
+                'name': 'mako-02',
+                'trigger_url': _url('devel-proposed', 'mako'),
+            },
+            {
+                'name': 'maguro-01',
+                'trigger_url': _url('devel-proposed', 'maguro'),
+            },
         ],
     },
     {
         'image-type': 'touch_custom',
         'node-label': 'phoenix',
         'devices': [
-            {'name': 'mako-11'},
+            {
+                'name': 'mako-11',
+                'trigger_url': _url('devel-proposed-customized', 'mako'),
+            },
         ],
         'filter': _custom_test_filter,
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '

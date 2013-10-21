@@ -143,10 +143,7 @@ def _publish(instance, env, args, template, jobname, **params):
 if DEFINE_MEGA:
     def _configure_jobs(instance, env, args, config_item, device, tests):
         name = device['name']
-        device_type = name[:name.index("-")]
         defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
-        fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
-        trigger_url = fmt.format(device_type)
 
         params = {
             'name': name,
@@ -154,7 +151,7 @@ if DEFINE_MEGA:
             'publish': args.publish,
             'branch': args.branch,
             'tests': ' '.join([t.name for t in tests if not t.ap]),
-            'trigger_url': trigger_url,
+            'trigger_url': device['trigger_url'],
             'wait': args.wait,
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
@@ -182,21 +179,16 @@ else:
         return job
 
     def _configure_master(instance, env, args, projects, config_item, device):
-        device = device['name']
-        device_type = device[:device.index("-")]
-        fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
-        trigger_url = fmt.format(device_type)
-
         params = {
             'host': config_item['node-label'],
-            'name': device,
+            'name': device['name'],
             'publish': args.publish,
             'branch': args.branch,
             'projects': projects,
-            'trigger_url': trigger_url
+            'trigger_url': device['trigger_url'],
         }
         image_type = config_item['image-type']
-        job = _get_job_name(args, device, _test('master'), image_type)
+        job = _get_job_name(args, device['name'], _test('master'), image_type)
         _publish(instance, env, args, 'touch-master.xml.jinja2', job, **params)
 
     def _configure_jobs(instance, env, args, config_item, device, tests):
