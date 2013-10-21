@@ -91,13 +91,12 @@ SAUCY_MATRIX = [
                 'trigger_url': _url('saucy-proposed', 'mako'),
             },
             {
-                # maguro-02 should be the least utilized trusty device
-                'name': 'maguro-02',
+                'name': 'maguro-03',
                 'trigger_url': _url('saucy-proposed', 'maguro'),
             },
+        ],
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
                      '--channel saucy-proposed"'
-        ],
     },
 ]
 
