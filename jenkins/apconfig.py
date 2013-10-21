@@ -51,7 +51,7 @@ TESTSUITES = [
     _ap_test('ubuntu-terminal-app-autopilot'),
     _ap_test('ubuntu-weather-app-autopilot'),
     _ap_test('ubuntu-ui-toolkit-autopilot', 'ubuntuuitoolkit',
-             ['ubuntu-ui-toolkit-app-autopilot']),
+             ['ubuntu-ui-toolkit-autopilot']),
     _ap_test('ubuntu-system-settings-online-accounts-autopilot',
              'online_accounts_ui',
              ['ubuntu-system-settings-online-accounts-autopilot']),
