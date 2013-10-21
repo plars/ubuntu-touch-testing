@@ -50,7 +50,6 @@ TESTS = [
     _test('dialer-app-autopilot'),
     _test('messaging-app-autopilot'),
     _test('address-book-app-autopilot'),
-    _test('share-app-autopilot'),
     _test('calendar-app-autopilot'),
     _test('music-app-autopilot'),
     _test('ubuntu-calculator-app-autopilot'),
