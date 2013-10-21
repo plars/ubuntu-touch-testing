@@ -50,6 +50,9 @@ while getopts "h?rp:c:d:i:m:l:" opt; do
     esac
 done
 
+#kill powerd-cli before running - known to cause cpu spike in unity8
+pkill powerd-cli
+
 # minimum average idle level required to succeed
 idle_avg_min=${idle_avg_min:-99}
 # measurement details: top $top_wait $top_repeat
