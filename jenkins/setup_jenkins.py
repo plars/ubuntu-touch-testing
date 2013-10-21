@@ -26,42 +26,32 @@ import os
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
+import apconfig
+
 DEFINE_MEGA = os.environ.get('MEGA', False)
 
 DEF_FMT = '{prefix}{series}-touch_{imagetype}-{type}-smoke-{testname}'
 
-Test = collections.namedtuple('Test', ['name', 'fmt'])
+Test = collections.namedtuple('Test', ['name', 'fmt', 'ap'])
 
 
 def _test(name, fmt=DEF_FMT):
-    return Test(name, fmt)
+    return Test(name, fmt, False)
+
+
+def _ap_test(name):
+    return Test(name, DEF_FMT, True)
 
 
 TESTS = [
     _test('install-and-boot'),
     _test('default'),
-    _test('mediaplayer-app-autopilot'),
-    _test('gallery-app-autopilot'),
-    _test('webbrowser-app-autopilot'),
-    _test('unity8-autopilot'),
-    _test('friends-app-autopilot'),
-    _test('notes-app-autopilot'),
-    _test('camera-app-autopilot'),
-    _test('dialer-app-autopilot'),
-    _test('messaging-app-autopilot'),
-    _test('address-book-app-autopilot'),
-    _test('calendar-app-autopilot'),
-    _test('music-app-autopilot'),
-    _test('ubuntu-calculator-app-autopilot'),
-    _test('ubuntu-clock-app-autopilot'),
-    _test('ubuntu-filemanager-app-autopilot'),
-    _test('ubuntu-rssreader-app-autopilot'),
-    _test('ubuntu-terminal-app-autopilot'),
-    _test('ubuntu-weather-app-autopilot'),
-    _test('ubuntu-ui-toolkit-autopilot'),
-    _test('ubuntu-system-settings-online-accounts-autopilot'),
+]
+
+TESTS += [_ap_test(t.name) for t in apconfig.TESTSUITES]
+
+TESTS += [
     _test('click_image_tests'),
-    _test('dropping-letters-app-autopilot'),
     _test('sdk'),
     _test('security'),
     _test('eventstat',
@@ -155,7 +145,7 @@ if DEFINE_MEGA:
     def _configure_jobs(instance, env, args, config_item, device, tests):
         name = device['name']
         device_type = name[:name.index("-")]
-        defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NODE})'
+        defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
         fmt = 'http://system-image.ubuntu.com/devel-proposed/{}/index.json'
         trigger_url = fmt.format(device_type)
 
@@ -164,7 +154,7 @@ if DEFINE_MEGA:
             'serial': device.get('serial', defserial),
             'publish': args.publish,
             'branch': args.branch,
-            'tests': ' '.join([t.name for t in tests]),
+            'tests': ' '.join([t.name for t in tests if not t.ap]),
             'trigger_url': trigger_url,
             'wait': args.wait,
             'imagetype': config_item['image-type'],

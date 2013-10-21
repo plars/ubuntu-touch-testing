@@ -2,6 +2,23 @@
 <project>
   <actions/>
   <description>
+This job provides a flexible way to execute all the tests in our daily image
+testing process that contribute to the
+&lt;a href=&quot;http://reports.qa.ubuntu.com/smokeng/&quot;&gt;QA Dashboard&lt;/a&gt;.
+The job is parameterized to give flexibility in what gets tested. A couple of
+common ways to run this job are:
+&lt;dl>
+  &lt;dt&gt;Full Test Run&lt;/dt&gt;
+  &lt;dd&gt;TESTS=ALL&lt;/dd&gt;
+  &lt;dd&gt;APPS=ALL&lt;/dd&gt;
+  &lt;dd&gt;PACKAGES=ALL&lt;/dd&gt;
+  &lt;dt&gt;Re-run a Failed Autopilot Test&lt;/dt&gt;
+  &lt;dd&gt;INSTALL_URL=http://jenkins-dev-image-test:8080/job/saucy-touch_ro-mako/9&lt;/dd&gt;
+  &lt;dd&gt;APPS=share_app&lt;/dd&gt;
+  &lt;dt&gt;Run Several Autopilot Tests on Latest Build&lt;/dt&gt;
+  &lt;dd&gt;APPS=share_app music_app&lt;/dd&gt;
+  &lt;dd&gt;PACKAGES=share-app-autopilot&lt;/dd&gt;
+&lt;/dl&gt;
 &lt;pre&gt;
 #NOTE: Automatically created from a script as part of daily smoke testing&#xd;
   {{branch}}&#xd;
@@ -13,13 +30,31 @@
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>INSTALL_URL</name>
-          <description>A URL to the previous job. If provided this job will use the same install options as it used.
+          <description>A URL to the previous job. If provided this job will use the same install options as it used. If the device executing the job happens to have the exact same image, then provisioning can be skipped.
 	  </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>TESTS</name>
           <description>A space separated list of utah tests to run. "ALL" can be used to run all known tests.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>APPS</name>
+          <description>A space separated list of autopilot tests to run. "ALL" can be used to run all known tests.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>PACKAGES</name>
+          <description>A space separated list of packages to install. "ALL" can be used to install required packages for all known autopilot tests.
+	  </description>
+          <defaultValue>ALL</defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>PPAS</name>
+          <description>A space separated list of PPAs to configure on the device.
 	  </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
@@ -49,14 +84,33 @@ bzr branch ${BRANCH} ${BZRDIR}
 export ANDROID_SERIAL={{serial}}
 
 {{image_opt}}
+
 if [ -z $INSTALL_URL ] ; then
   #Wait for images to actually show up on cdimage
   sleep {{wait}}
 
-  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} -w
+  if [ &quot;$PACKAGES&quot; = &quot;ALL&quot; ] ; then
+    PACKAGES=&quot;$(${BZRDIR}/jenkins/apconfig.py packages)&quot;
+  fi
+
+  custom_args=&quot;&quot;
+  set +x
+  for p in $PACKAGES ; do
+    custom_args=&quot;$custom_args -p $p&quot;
+  done
+  for p in $PPAS ; do
+    custom_args=&quot;$custom_args -P $p&quot;
+  done
+  set -x
+  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} $custom_args
 else
   BASEDIR=${BZRDIR} ${BZRDIR}/scripts/assert-image
 fi
+
+if [ &quot;$APPS&quot; = &quot;ALL&quot; ] ; then
+  APPS=&quot;$(${BZRDIR}/jenkins/apconfig.py apps)&quot;
+fi
+[ -z "$APPS" ] || APPS=${APPS} ${BZRDIR}/scripts/run-autopilot-tests.sh
 
 if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
   TESTS="{{tests}}"
