@@ -56,11 +56,11 @@ TRUSTY_MATRIX = [
         'devices': [
             {
                 'name': 'mako-02',
-                'trigger_url': _url('devel-proposed', 'mako'),
+                'trigger_url': _url('trusty-proposed', 'mako'),
             },
             {
                 'name': 'maguro-01',
-                'trigger_url': _url('devel-proposed', 'maguro'),
+                'trigger_url': _url('trusty-proposed', 'maguro'),
             },
         ],
     },
@@ -70,12 +70,12 @@ TRUSTY_MATRIX = [
         'devices': [
             {
                 'name': 'mako-11',
-                'trigger_url': _url('devel-proposed-customized', 'mako'),
+                'trigger_url': _url('trusty-proposed-customized', 'mako'),
             },
         ],
         'filter': _custom_test_filter,
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
-                     '--channel devel-proposed-customized"'
+                     '--channel trusty-proposed-customized"'
     },
 ]
 
