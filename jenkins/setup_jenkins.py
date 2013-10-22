@@ -152,7 +152,6 @@ if DEFINE_MEGA:
             'branch': args.branch,
             'tests': ' '.join([t.name for t in tests if not t.ap]),
             'trigger_url': device['trigger_url'],
-            'wait': args.wait,
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
         }

@@ -86,9 +86,6 @@ export ANDROID_SERIAL={{serial}}
 {{image_opt}}
 
 if [ -z $INSTALL_URL ] ; then
-  #Wait for images to actually show up on cdimage
-  sleep {{wait}}
-
   if [ &quot;$PACKAGES&quot; = &quot;ALL&quot; ] ; then
     PACKAGES=&quot;$(${BZRDIR}/jenkins/apconfig.py packages)&quot;
   fi
