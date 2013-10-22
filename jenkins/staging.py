@@ -14,7 +14,7 @@ TRUSTY_MATRIX = [
         'devices': [
             {
                 'name': 'mako-06 || mako-07 || mako-08'},
-                'trigger_url': 'http://system-image.ubuntu.com/devel-proposed/mako/index.json'
+                'trigger_url': 'http://system-image.ubuntu.com/trusty-proposed/mako/index.json'
             }
         ],
     },

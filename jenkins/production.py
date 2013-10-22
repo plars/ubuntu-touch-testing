@@ -41,11 +41,11 @@ TRUSTY_MATRIX = [
         'devices': [
             {
                 'name': 'mako-05',
-                'trigger_url': _url('devel-proposed', 'mako'),
+                'trigger_url': _url('trusty-proposed', 'mako'),
             },
             {
                 'name': 'maguro-02',
-                'trigger_url': _url('devel-proposed', 'maguro'),
+                'trigger_url': _url('trusty-proposed', 'maguro'),
             },
         ],
         'filter': _sf4p_test_filter,
