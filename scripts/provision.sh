@@ -94,27 +94,23 @@ mkdir -p $RESDIR
 
 phablet-flash $IMAGE_OPT
 adb wait-for-device
-sleep 60  #give the system a little time
-image_info
-
-phablet-network -n $NETWORK_FILE
+sleep 20  #give the system a little time
 
 phablet-click-test-setup
+phablet-network -n $NETWORK_FILE
 
 if [ "$IMAGE_TYPE" = "touch_sf4p" ]; then
     adb shell rm -f /home/phablet/.display-mir
 fi
 
+phablet-config edges-intro --disable
+
+# get our target-based utilities into our PATH
+adb push ${BASEDIR}/../utils/target /home/phablet/bin
+
+image_info
+
 if [ -n "$CUSTOMIZE" ] ; then
 	echo "= CUSTOMIZING IMAGE"
 	phablet-config writable-image $CUSTOMIZE
 fi
-
-phablet-config edges-intro --disable
-
-# seems phablet-config's wait-for-device returns too fast on mir
-sleep 10
-adb wait-for-device
-
-# get our target-based utilities into our PATH
-adb push ${BASEDIR}/../utils/target /home/phablet/bin
