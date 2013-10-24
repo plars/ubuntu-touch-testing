@@ -3,32 +3,6 @@
 JENKINS = 'http://10.97.0.1:8080'
 
 
-def _custom_test_filter(common_tests, mktest_func):
-    tests = []
-    test_set = [
-        'install-and-boot',
-        'default',
-        'unity8-autopilot',
-        'webbrowser-app-autopilot',
-    ]
-
-    tests = [t for t in common_tests if t.name in test_set]
-    tests.insert(1, mktest_func('customizations'))
-    return tests
-
-
-def _sf4p_test_filter(common_tests, mktest_func):
-    tests = []
-    test_set = [
-        'install-and-boot',
-        'default',
-        'unity8-autopilot',
-    ]
-
-    tests = [t for t in common_tests if t.name in test_set]
-    return tests
-
-
 def _url(channel, device):
     return 'http://system-image.ubuntu.com/%s/%s/index.json' \
            % (channel, device)
@@ -48,7 +22,6 @@ TRUSTY_MATRIX = [
                 'trigger_url': _url('trusty-proposed', 'maguro'),
             },
         ],
-        'filter': _sf4p_test_filter,
     },
     {
         'image-type': 'touch',
@@ -73,7 +46,6 @@ TRUSTY_MATRIX = [
                 'trigger_url': _url('trusty-proposed-customized', 'mako'),
             },
         ],
-        'filter': _custom_test_filter,
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system '
                      '--channel trusty-proposed-customized"'
     },
