@@ -25,14 +25,9 @@ import os
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
-import apconfig
 import testconfig
 
 DEFINE_MEGA = os.environ.get('MEGA', False)
-
-TESTS = testconfig.TESTSUITES_PRE
-TESTS += apconfig.TESTSUITES
-TESTS += testconfig.TESTSUITES_POST
 
 
 def _get_parser():
@@ -200,7 +195,7 @@ def main():
 
     for item in config.MATRIX[args.series]:
         for device in item['devices']:
-            tests = TESTS
+            tests = testconfig.TESTS
             if 'filter' in item:
                 tests = item['filter'](tests)
             _configure_jobs(jenkins_inst, env, args, item, device, tests)
