@@ -53,6 +53,7 @@ test_app() {
 	mkdir -p $odir
 
 	system_settle before $odir
+	phablet-config autopilot --dbus-probe enable
 
 	[ "$app" = "unity8" ] && NOSHELL="-n"
 
