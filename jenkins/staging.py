@@ -9,7 +9,7 @@ JENKINS = 'http://jenkins-dev-image-test:8080/'
 
 TRUSTY_MATRIX = [
     {
-        'image-type': 'touch_mir',
+        'image-type': 'touch',
         'node-label': 'ashes',
         'devices': [
             {
