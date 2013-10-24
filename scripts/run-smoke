@@ -19,39 +19,53 @@ BASEDIR=$(readlink -f $(dirname $0)/..)
 IMAGE_TYPE="${IMAGE_TYPE-touch}"
 RESDIR="${RESDIR-$(pwd)/clientlogs}"
 
-if [ -z $INSTALL_URL ] ; then
-	if [ "$PACKAGES" = "ALL" ] ; then
-		PACKAGES="$(${BASEDIR}/jenkins/testconfig.py packages -i $IMAGE_TYPE)"
+provision() {
+	if [ -z $INSTALL_URL ] ; then
+		if [ "$PACKAGES" = "ALL" ] ; then
+			PACKAGES="$(${BASEDIR}/jenkins/testconfig.py packages -i $IMAGE_TYPE)"
+		fi
+
+		custom_args=""
+		set +x
+		for p in $PACKAGES ; do
+			custom_args="$custom_args -p $p"
+		done
+		for p in $PPAS ; do
+			custom_args="$custom_args -P $p"
+		done
+		set -x
+		${BASEDIR}/scripts/provision.sh -i ${IMAGE_TYPE} $custom_args
+	else
+		${BASEDIR}/scripts/assert-image
+	fi
+}
+
+test_autopilot() {
+	if [ "$APPS" = "ALL" ] ; then
+		APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
+	fi
+	[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || return 1
+}
+
+test_utah() {
+	if [ "$TESTS" = "ALL" ] ; then
+		TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
 	fi
 
-	custom_args=""
-	set +x
-	for p in $PACKAGES ; do
-		custom_args="$custom_args -p $p"
+	rc=0
+	for test in $TESTS ; do
+		echo == testing $test =======================================================
+		RESDIR=${RESDIR}/$test ${BASEDIR}/scripts/jenkins.sh -a $test || rc=1
 	done
-	for p in $PPAS ; do
-		custom_args="$custom_args -P $p"
-	done
-	set -x
-	${BASEDIR}/scripts/provision.sh -i ${IMAGE_TYPE} $custom_args
-else
-	${BASEDIR}/scripts/assert-image
-fi
+	return $rc
+}
 
-if [ "$APPS" = "ALL" ] ; then
-	APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
-fi
+main() {
+	rc=0
+	provision
+	test_autopilot || rc=1
+	test_utah || rc=1
+	return $rc
+}
 
-rc=0
-
-[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || rc=1
-
-if [ "$TESTS" = "ALL" ] ; then
-	TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
-fi
-
-for test in $TESTS ; do
-	echo == testing $test =======================================================
-	RESDIR=${RESDIR}/$test ${BASEDIR}/scripts/jenkins.sh -a $test || rc=1
-done
-exit $rc
+main
