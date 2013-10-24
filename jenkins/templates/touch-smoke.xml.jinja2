@@ -82,43 +82,10 @@ BZRDIR=$(readlink -f $BZRDIR)
 bzr branch ${BRANCH} ${BZRDIR}
 
 export ANDROID_SERIAL={{serial}}
+export IMAGE_TYPE={{imagetype}}
 
 {{image_opt}}
-
-if [ -z $INSTALL_URL ] ; then
-  if [ &quot;$PACKAGES&quot; = &quot;ALL&quot; ] ; then
-    PACKAGES=&quot;$(${BZRDIR}/jenkins/testconfig.py packages -i {{imagetype}})&quot;
-  fi
-
-  custom_args=&quot;&quot;
-  set +x
-  for p in $PACKAGES ; do
-    custom_args=&quot;$custom_args -p $p&quot;
-  done
-  for p in $PPAS ; do
-    custom_args=&quot;$custom_args -P $p&quot;
-  done
-  set -x
-  ${BZRDIR}/scripts/provision.sh -i {{imagetype}} $custom_args
-else
-  BASEDIR=${BZRDIR} ${BZRDIR}/scripts/assert-image
-fi
-
-if [ &quot;$APPS&quot; = &quot;ALL&quot; ] ; then
-  APPS=&quot;$(${BZRDIR}/jenkins/testconfig.py apps -i {{imagetype}})&quot;
-fi
-[ -z "$APPS" ] || APPS=${APPS} ${BZRDIR}/scripts/run-autopilot-tests.sh
-
-if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
-  TESTS=&quot;$(${BZRDIR}/jenkins/testconfig.py tests -i {{imagetype}})&quot;
-fi
-
-rc=0
-for test in $TESTS ; do
-  echo == testing $test =======================================================
-  RESDIR=`pwd`/clientlogs/$test ${BZRDIR}/scripts/jenkins.sh -a $test || rc=1
-done
-exit $rc
+${BZRDIR}/scripts/run-smoke
       </command>
     </hudson.tasks.Shell>
   </builders>
