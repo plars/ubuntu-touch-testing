@@ -55,6 +55,7 @@ test_app() {
 	system_settle before $odir
 	phablet-config autopilot --dbus-probe enable
 
+	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
 
 	if adb-shell /home/phablet/bin/unlock_screen.sh ; then
