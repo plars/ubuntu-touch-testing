@@ -54,8 +54,11 @@ test_app() {
 
 	system_settle before $odir
 
+	[ "$app" = "unity8" ] && NOSHELL="-n"
+
 	if adb-shell /home/phablet/bin/unlock_screen.sh ; then
 		phablet-test-run \
+			$NOSHELL \
 			-o ${odir} \
 			-a /var/crash -a /home/phablet/.cache/upstart \
 			-v $app || true
