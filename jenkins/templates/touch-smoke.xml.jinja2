@@ -83,6 +83,7 @@ bzr branch ${BRANCH} ${BZRDIR}
 
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
+export STATSD_KEY={{statsd_key}}.{{imagetype}}
 
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke

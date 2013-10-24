@@ -11,6 +11,7 @@
 ## PACKAGES - debian packages to install
 ## APPS - autopilot apps to run or ALL
 ## TESTS - UTAH tests to run or ALL
+## STATSD_KEY - If provided metrics will be sent to statsd with this prefix
 
 set -e
 
@@ -18,6 +19,25 @@ BASEDIR=$(readlink -f $(dirname $0)/..)
 
 IMAGE_TYPE="${IMAGE_TYPE-touch}"
 RESDIR="${RESDIR-$(pwd)/clientlogs}"
+
+add_stat() {
+	[ -z $STATSD_KEY ] || ${BASEDIR}/scripts/statsd-cli "${STATSD_KEY}.$1:$2|$3"
+}
+
+timeit() {
+	rc=0
+	start=$(date +%s.%N)
+	$* || rc=1
+	end=$(date +%s.%N)
+	diff=$(echo "($end - $start) * 1000" | bc)
+	add_stat $1 $diff ms
+	return $rc
+}
+
+gaugeit() {
+	val=$(eval "echo \$$1" | wc -w)
+	add_stat $1 $val g
+}
 
 provision() {
 	if [ -z $INSTALL_URL ] ; then
@@ -27,6 +47,7 @@ provision() {
 
 		custom_args=""
 		set +x
+		gaugeit PACKAGES
 		for p in $PACKAGES ; do
 			custom_args="$custom_args -p $p"
 		done
@@ -44,6 +65,7 @@ test_autopilot() {
 	if [ "$APPS" = "ALL" ] ; then
 		APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
 	fi
+	gaugeit APPS
 	[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || return 1
 }
 
@@ -51,6 +73,7 @@ test_utah() {
 	if [ "$TESTS" = "ALL" ] ; then
 		TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
 	fi
+	gaugeit TESTS
 
 	rc=0
 	for test in $TESTS ; do
@@ -62,10 +85,10 @@ test_utah() {
 
 main() {
 	rc=0
-	provision
-	test_autopilot || rc=1
-	test_utah || rc=1
+	timeit provision
+	timeit test_autopilot || rc=1
+	timeit test_utah || rc=1
 	return $rc
 }
 
-main
+timeit main
