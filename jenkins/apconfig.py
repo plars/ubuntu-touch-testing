@@ -16,44 +16,45 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import collections
 
-TestSuite = collections.namedtuple('TestSuite', ['name', 'app', 'pkgs'])
+import testconfig
 
 
-def _ap_test(name, app=None, pkgs=None):
-    if not app:
-        # convert share-app-autopilot to share_app
-        app = name.replace('-', '_').replace('_autopilot', '')
-    return TestSuite(name, app, pkgs)
+class APTest(testconfig.Test):
+    def __init__(self, name, app=None, pkgs=None):
+        testconfig.Test.__init__(self, name)
+        self.pkgs = pkgs
+        if not app:
+            # convert share-app-autopilot to share_app
+            app = name.replace('-', '_').replace('_autopilot', '')
+        self.app = app
 
 
 TESTSUITES = [
-    _ap_test('friends-app-autopilot', pkgs=['friends-app-autopilot']),
-    _ap_test('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
-    _ap_test('gallery-app-autopilot', pkgs=['gallery-app-autopilot']),
-    _ap_test('webbrowser-app-autopilot', pkgs=['webbrowser-app-autopilot']),
-    _ap_test('unity8-autopilot', 'unity8', pkgs=['python-gi']),
-    _ap_test('notes-app-autopilot'),
-    _ap_test('camera-app-autopilot', pkgs=['camera-app-autopilot']),
-    _ap_test('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
-    _ap_test('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
-    _ap_test('address-book-app-autopilot',
-             pkgs=['address-book-app-autopilot']),
-    _ap_test('calendar-app-autopilot'),
-    _ap_test('music-app-autopilot'),
-    _ap_test('dropping-letters-app-autopilot'),
-    _ap_test('ubuntu-calculator-app-autopilot'),
-    _ap_test('ubuntu-clock-app-autopilot'),
-    _ap_test('ubuntu-filemanager-app-autopilot'),
-    _ap_test('ubuntu-rssreader-app-autopilot'),
-    _ap_test('ubuntu-terminal-app-autopilot'),
-    _ap_test('ubuntu-weather-app-autopilot'),
-    _ap_test('ubuntu-ui-toolkit-autopilot', 'ubuntuuitoolkit',
-             ['ubuntu-ui-toolkit-autopilot']),
-    _ap_test('ubuntu-system-settings-online-accounts-autopilot',
-             'online_accounts_ui',
-             ['ubuntu-system-settings-online-accounts-autopilot']),
+    APTest('friends-app-autopilot', pkgs=['friends-app-autopilot']),
+    APTest('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
+    APTest('gallery-app-autopilot', pkgs=['gallery-app-autopilot']),
+    APTest('webbrowser-app-autopilot', pkgs=['webbrowser-app-autopilot']),
+    APTest('unity8-autopilot', 'unity8', pkgs=['python-gi']),
+    APTest('notes-app-autopilot'),
+    APTest('camera-app-autopilot', pkgs=['camera-app-autopilot']),
+    APTest('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
+    APTest('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
+    APTest('address-book-app-autopilot', pkgs=['address-book-app-autopilot']),
+    APTest('calendar-app-autopilot'),
+    APTest('music-app-autopilot'),
+    APTest('dropping-letters-app-autopilot'),
+    APTest('ubuntu-calculator-app-autopilot'),
+    APTest('ubuntu-clock-app-autopilot'),
+    APTest('ubuntu-filemanager-app-autopilot'),
+    APTest('ubuntu-rssreader-app-autopilot'),
+    APTest('ubuntu-terminal-app-autopilot'),
+    APTest('ubuntu-weather-app-autopilot'),
+    APTest('ubuntu-ui-toolkit-autopilot', 'ubuntuuitoolkit',
+           ['ubuntu-ui-toolkit-autopilot']),
+    APTest('ubuntu-system-settings-online-accounts-autopilot',
+           'online_accounts_ui',
+           ['ubuntu-system-settings-online-accounts-autopilot']),
 ]
 
 

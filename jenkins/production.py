@@ -2,8 +2,10 @@
 
 JENKINS = 'http://10.97.0.1:8080'
 
+import testconfig
 
-def _custom_test_filter(common_tests, mktest_func):
+
+def _custom_test_filter(common_tests):
     tests = []
     test_set = [
         'install-and-boot',
@@ -13,11 +15,11 @@ def _custom_test_filter(common_tests, mktest_func):
     ]
 
     tests = [t for t in common_tests if t.name in test_set]
-    tests.insert(1, mktest_func('customizations'))
+    tests.insert(1, testconfig.Test('customizations'))
     return tests
 
 
-def _sf4p_test_filter(common_tests, mktest_func):
+def _sf4p_test_filter(common_tests):
     tests = []
     test_set = [
         'install-and-boot',

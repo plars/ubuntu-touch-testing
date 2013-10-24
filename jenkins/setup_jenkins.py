@@ -16,7 +16,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import collections
 import imp
 import jenkins
 import jinja2
@@ -27,39 +26,13 @@ from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
 import apconfig
+import testconfig
 
 DEFINE_MEGA = os.environ.get('MEGA', False)
 
-DEF_FMT = '{prefix}{series}-{imagetype}-{type}-smoke-{testname}'
-IDLE_FMT = '{prefix}{testname}-{series}-{imagetype}-armhf-install-idle-{type}'
-
-Test = collections.namedtuple('Test', ['name', 'fmt', 'ap'])
-
-
-def _test(name, fmt=DEF_FMT):
-    return Test(name, fmt, False)
-
-
-def _ap_test(name):
-    return Test(name, DEF_FMT, True)
-
-
-TESTS = [
-    _test('install-and-boot'),
-    _test('default'),
-]
-
-TESTS += [_ap_test(t.name) for t in apconfig.TESTSUITES]
-
-TESTS += [
-    _test('click_image_tests'),
-    _test('sdk'),
-    _test('security'),
-    _test('eventstat', IDLE_FMT),
-    _test('smem', IDLE_FMT),
-    _test('memevent',
-          '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
-]
+TESTS = testconfig.TESTSUITES_PRE
+TESTS += apconfig.TESTSUITES
+TESTS += testconfig.TESTSUITES_POST
 
 
 def _get_parser():
@@ -150,13 +123,12 @@ if DEFINE_MEGA:
             'serial': device.get('serial', defserial),
             'publish': args.publish,
             'branch': args.branch,
-            'tests': ' '.join([t.name for t in tests if not t.ap]),
             'trigger_url': device['trigger_url'],
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
         }
         # a hack so we can use _get_job_name
-        test = _test('', fmt='{prefix}{series}-{imagetype}-{type}')
+        test = testconfig.Test('', fmt='{prefix}{series}-{imagetype}-{type}')
         job = _get_job_name(args, name, test, config_item['image-type'])
         _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
 else:
@@ -187,7 +159,8 @@ else:
             'trigger_url': device['trigger_url'],
         }
         image_type = config_item['image-type']
-        job = _get_job_name(args, device['name'], _test('master'), image_type)
+        test = testconfig.Test('master')
+        job = _get_job_name(args, device['name'], test, image_type)
         _publish(instance, env, args, 'touch-master.xml.jinja2', job, **params)
 
         job = 'smoke-master-free'
@@ -229,7 +202,7 @@ def main():
         for device in item['devices']:
             tests = TESTS
             if 'filter' in item:
-                tests = item['filter'](tests, _test)
+                tests = item['filter'](tests)
             _configure_jobs(jenkins_inst, env, args, item, device, tests)
 
 if __name__ == '__main__':

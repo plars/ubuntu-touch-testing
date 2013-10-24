@@ -110,7 +110,7 @@ fi
 [ -z "$APPS" ] || APPS=${APPS} ${BZRDIR}/scripts/run-autopilot-tests.sh
 
 if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
-  TESTS="{{tests}}"
+  TESTS=&quot;$(${BZRDIR}/jenkins/testconfig.py tests)&quot;
 fi
 
 rc=0
