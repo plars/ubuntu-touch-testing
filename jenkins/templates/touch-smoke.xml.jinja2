@@ -87,7 +87,7 @@ export ANDROID_SERIAL={{serial}}
 
 if [ -z $INSTALL_URL ] ; then
   if [ &quot;$PACKAGES&quot; = &quot;ALL&quot; ] ; then
-    PACKAGES=&quot;$(${BZRDIR}/jenkins/testconfig.py packages)&quot;
+    PACKAGES=&quot;$(${BZRDIR}/jenkins/testconfig.py packages -i {{imagetype}})&quot;
   fi
 
   custom_args=&quot;&quot;
@@ -105,12 +105,12 @@ else
 fi
 
 if [ &quot;$APPS&quot; = &quot;ALL&quot; ] ; then
-  APPS=&quot;$(${BZRDIR}/jenkins/testconfig.py apps)&quot;
+  APPS=&quot;$(${BZRDIR}/jenkins/testconfig.py apps -i {{imagetype}})&quot;
 fi
 [ -z "$APPS" ] || APPS=${APPS} ${BZRDIR}/scripts/run-autopilot-tests.sh
 
 if [ &quot;$TESTS&quot; = &quot;ALL&quot; ] ; then
-  TESTS=&quot;$(${BZRDIR}/jenkins/testconfig.py tests )&quot;
+  TESTS=&quot;$(${BZRDIR}/jenkins/testconfig.py tests -i {{imagetype}})&quot;
 fi
 
 rc=0

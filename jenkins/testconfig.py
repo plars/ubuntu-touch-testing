@@ -78,23 +78,67 @@ TESTSUITES += [
 ]
 
 
+def filter_tests(tests, image_type):
+    if image_type:
+        func = globals().get('get_tests_%s' % image_type)
+        if func:
+            tests = func(tests)
+        elif image_type not in ['touch', 'touch_mir']:
+            print('Unsupported image type: %s' % image_type)
+            exit(1)
+    return tests
+
+
+def _get_tests(test_type, image_type):
+    tests = [t for t in TESTSUITES if type(t) == test_type]
+    return filter_tests(tests, image_type)
+
+
 def _handle_utah(args):
-    tests = [t.name for t in TESTSUITES if type(t) == Test]
-    print(' '.join(tests))
+    tests = _get_tests(Test, args.image_type)
+    # NOTE: this is only called by MEGA jobs, so we can skip install-and-boot
+    print(' '.join([t.name for t in tests if t.name != 'install-and-boot']))
 
 
 def _handle_ap_apps(args):
-    apps = [t.app for t in TESTSUITES if type(t) == APTest]
-    print(' '.join(apps))
+    tests = _get_tests(APTest, args.image_type)
+    print(' '.join([t.app for t in tests]))
 
 
 def _handle_ap_packages(args):
     pkgs = []
-    for test in TESTSUITES:
-        if type(test) == APTest and (not args.app or test.app in args.app):
+    tests = _get_tests(APTest, args.image_type)
+    for test in tests:
+        if not args.app or test.app in args.app:
             if test.pkgs:
                 pkgs.extend(test.pkgs)
     print(' '.join(pkgs))
+
+
+def get_tests_touch_sf4p(common_tests):
+    tests = []
+    test_set = [
+        'install-and-boot',
+        'default',
+        'unity8-autopilot',
+    ]
+
+    tests = [t for t in common_tests if t.name in test_set]
+    return tests
+
+
+def get_tests_touch_custom(common_tests):
+    tests = []
+    test_set = [
+        'install-and-boot',
+        'default',
+        'unity8-autopilot',
+        'webbrowser-app-autopilot',
+    ]
+
+    tests = [t for t in common_tests if t.name in test_set]
+    tests.insert(1, Test('customizations'))
+    return tests
 
 
 def _get_parser():
@@ -104,13 +148,21 @@ def _get_parser():
 
     p = sub.add_parser('utah', help='List UTAH tests')
     p.set_defaults(func=_handle_utah)
+    p.add_argument('-i', '--image-type',
+                   help='Return list of test configured for an image type.')
 
     p = sub.add_parser('apps', help='List autopilot application names')
     p.set_defaults(func=_handle_ap_apps)
+    p.add_argument('-i', '--image-type',
+                   help='Return list of test configured for an image type.')
 
     p = sub.add_parser('packages', help='List packages required for autopilot')
     p.set_defaults(func=_handle_ap_packages)
-    p.add_argument('-a', '--app', action='append',
+    g = p.add_mutually_exclusive_group()
+    g.add_argument('-i', '--image-type',
+                   help='''If no apps are listed, limit to tests for an
+                        image type.''')
+    g.add_argument('-a', '--app', action='append',
                    help='Autopilot test application. eg share_app')
     return parser
 

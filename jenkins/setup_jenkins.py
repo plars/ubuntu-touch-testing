@@ -195,9 +195,8 @@ def main():
 
     for item in config.MATRIX[args.series]:
         for device in item['devices']:
-            tests = testconfig.TESTS
-            if 'filter' in item:
-                tests = item['filter'](tests)
+            tests = testconfig.TESTSUITES
+            tests = testconfig.filter_tests(tests, item['image-type'])
             _configure_jobs(jenkins_inst, env, args, item, device, tests)
 
 if __name__ == '__main__':
