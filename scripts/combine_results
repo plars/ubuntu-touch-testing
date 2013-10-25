@@ -36,9 +36,12 @@ def _get_results(apfile):
         e.attrib['failures'] = '0'
         e.attrib['tests'] = '1'
 
+        # make a guess at the classname:
+        classname = os.path.basename(os.path.dirname(apfile))
+
         t = ElementTree.Element('testcase')
         e.append(t)
-        t.attrib['classname'] = 'phablet-tools'
+        t.attrib['classname'] = classname
         t.attrib['name'] = 'phablet-test-run'
 
         f = ElementTree.Element('failure')
