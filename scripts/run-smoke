@@ -1,0 +1,57 @@
+#!/bin/bash
+
+## Executes the new "mega" job. Which provisions and runs all tests in one pass
+## Important variables passed to the script from jenkins are:
+##  (these are all optional)
+## ANDROID_SERIAL
+## IMAGE_TYPE - ie - touch, touch_sf4p
+## RESDIR - ie "clientlogs". The directory store results in
+## IMAGE_OPT - options to pass the phablet-flash
+## INSTALL_URL - value to see if target has proper image in place
+## PACKAGES - debian packages to install
+## APPS - autopilot apps to run or ALL
+## TESTS - UTAH tests to run or ALL
+
+set -e
+
+BASEDIR=$(readlink -f $(dirname $0)/..)
+
+IMAGE_TYPE="${IMAGE_TYPE-touch}"
+RESDIR="${RESDIR-$(pwd)/clientlogs}"
+
+if [ -z $INSTALL_URL ] ; then
+	if [ "$PACKAGES" = "ALL" ] ; then
+		PACKAGES="$(${BASEDIR}/jenkins/testconfig.py packages -i $IMAGE_TYPE)"
+	fi
+
+	custom_args=""
+	set +x
+	for p in $PACKAGES ; do
+		custom_args="$custom_args -p $p"
+	done
+	for p in $PPAS ; do
+		custom_args="$custom_args -P $p"
+	done
+	set -x
+	${BASEDIR}/scripts/provision.sh -i ${IMAGE_TYPE} $custom_args
+else
+	${BASEDIR}/scripts/assert-image
+fi
+
+if [ "$APPS" = "ALL" ] ; then
+	APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
+fi
+
+rc=0
+
+[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || rc=1
+
+if [ "$TESTS" = "ALL" ] ; then
+	TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
+fi
+
+for test in $TESTS ; do
+	echo == testing $test =======================================================
+	RESDIR=${RESDIR}/$test ${BASEDIR}/scripts/jenkins.sh -a $test || rc=1
+done
+exit $rc
