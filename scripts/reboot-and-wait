@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import time
 
 from phabletutils.device import AndroidBridge
 
@@ -20,6 +21,8 @@ def main(args):
     device = AndroidBridge(args.serial)
     for i in range(args.num_tries):
         device.reboot()
+        device.wait_for_device()
+        time.sleep(5)
         device.wait_for_device()
         try:
             device.wait_for_network()
