@@ -45,6 +45,7 @@ test_from_host() {
 	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
 		${ADBOPTS} \
 		--from-host \
+		--whoopsie \
 		--results-dir ${RESDIR} \
 		--skip-install --skip-network --skip-utah \
 		--pull /var/crash \
