@@ -121,6 +121,7 @@ if DEFINE_MEGA:
             'trigger_url': device['trigger_url'],
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
+            'statsd_key': config_item.get('statsd-key', ''),
         }
         # a hack so we can use _get_job_name
         test = testconfig.Test('', fmt='{prefix}{series}-{imagetype}-{type}')

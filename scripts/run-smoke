@@ -11,6 +11,7 @@
 ## PACKAGES - debian packages to install
 ## APPS - autopilot apps to run or ALL
 ## TESTS - UTAH tests to run or ALL
+## STATSD_KEY - If provided metrics will be sent to statsd with this prefix
 
 set -e
 
@@ -19,39 +20,75 @@ BASEDIR=$(readlink -f $(dirname $0)/..)
 IMAGE_TYPE="${IMAGE_TYPE-touch}"
 RESDIR="${RESDIR-$(pwd)/clientlogs}"
 
-if [ -z $INSTALL_URL ] ; then
-	if [ "$PACKAGES" = "ALL" ] ; then
-		PACKAGES="$(${BASEDIR}/jenkins/testconfig.py packages -i $IMAGE_TYPE)"
+add_stat() {
+	[ -z $STATSD_KEY ] || ${BASEDIR}/scripts/statsd-cli "${STATSD_KEY}.$1:$2|$3"
+}
+
+timeit() {
+	rc=0
+	start=$(date +%s.%N)
+	$* || rc=1
+	end=$(date +%s.%N)
+	diff=$(echo "($end - $start) * 1000" | bc)
+	add_stat $1 $diff ms
+	return $rc
+}
+
+gaugeit() {
+	val=$(eval "echo \$$1" | wc -w)
+	add_stat $1 $val g
+}
+
+provision() {
+	if [ -z $INSTALL_URL ] ; then
+		if [ "$PACKAGES" = "ALL" ] ; then
+			PACKAGES="$(${BASEDIR}/jenkins/testconfig.py packages -i $IMAGE_TYPE)"
+		fi
+
+		custom_args=""
+		set +x
+		gaugeit PACKAGES
+		for p in $PACKAGES ; do
+			custom_args="$custom_args -p $p"
+		done
+		for p in $PPAS ; do
+			custom_args="$custom_args -P $p"
+		done
+		set -x
+		${BASEDIR}/scripts/provision.sh -i ${IMAGE_TYPE} $custom_args
+	else
+		${BASEDIR}/scripts/assert-image
 	fi
+}
 
-	custom_args=""
-	set +x
-	for p in $PACKAGES ; do
-		custom_args="$custom_args -p $p"
+test_autopilot() {
+	if [ "$APPS" = "ALL" ] ; then
+		APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
+	fi
+	gaugeit APPS
+	[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || return 1
+}
+
+test_utah() {
+	if [ "$TESTS" = "ALL" ] ; then
+		TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
+	fi
+	gaugeit TESTS
+
+	rc=0
+	for test in $TESTS ; do
+		echo == testing $test =======================================================
+		RESDIR=${RESDIR}/$test ${BASEDIR}/scripts/jenkins.sh -a $test || rc=1
 	done
-	for p in $PPAS ; do
-		custom_args="$custom_args -P $p"
-	done
-	set -x
-	${BASEDIR}/scripts/provision.sh -i ${IMAGE_TYPE} $custom_args
-else
-	${BASEDIR}/scripts/assert-image
-fi
+	return $rc
+}
 
-if [ "$APPS" = "ALL" ] ; then
-	APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
-fi
+main() {
+	rc=0
+	timeit provision
+	timeit test_autopilot || rc=1
+	timeit test_utah || rc=1
+	return $rc
+}
 
-rc=0
-
-[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || rc=1
-
-if [ "$TESTS" = "ALL" ] ; then
-	TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
-fi
-
-for test in $TESTS ; do
-	echo == testing $test =======================================================
-	RESDIR=${RESDIR}/$test ${BASEDIR}/scripts/jenkins.sh -a $test || rc=1
-done
-exit $rc
+timeit main

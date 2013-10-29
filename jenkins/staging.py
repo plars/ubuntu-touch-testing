@@ -11,6 +11,7 @@ TRUSTY_MATRIX = [
     {
         'image-type': 'touch',
         'node-label': 'ashes',
+        'statsd-key': 'ubuntu-ci.test-execution-service.staging',
         'devices': [
             {
                 'name': 'mako-06 || mako-07 || mako-08',
