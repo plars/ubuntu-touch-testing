@@ -24,6 +24,13 @@ common ways to run this job are:
 #NOTE: Automatically created from a script as part of daily smoke testing
   {{branch}}
 </pre>
+{% if statsd_key %}
+<h3>Graphite Reports</h3>
+<ul>
+  <li><a href="https://graphite.engineering.canonical.com/graphlot/?width=841&height=770&&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.provision.mean%2C0.000016667%29%2C%22Provisioning%20Time(minutes)%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_autopilot.mean%2C0.000016667%29%2C%22Autopilot%20Tests%20Time%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_utah.mean%2C0.000016667%29%2C%22UTAH%20Tests%20Time%22%29&from=-1weeks">Timings (1 week)</a></li>
+  <li><a href="https://graphite.engineering.canonical.com/graphlot/?width=841&height=770&&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.provision.mean%2C0.000016667%29%2C%22Provisioning%20Time(minutes)%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_autopilot.mean%2C0.000016667%29%2C%22Autopilot%20Tests%20Time%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_utah.mean%2C0.000016667%29%2C%22UTAH%20Tests%20Time%22%29&from=-4weeks">Timings (4 weeks)</a></li>
+</ul>
+{% endif %}
 ]]>
   </description>
   <keepDependencies>false</keepDependencies>
