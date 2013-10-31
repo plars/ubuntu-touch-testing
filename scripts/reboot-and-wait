@@ -19,6 +19,7 @@ def _get_arg_parser():
 
 def main(args):
     device = AndroidBridge(args.serial)
+    device.wait_for_device()
     for i in range(args.num_tries):
         device.reboot()
         device.wait_for_device()

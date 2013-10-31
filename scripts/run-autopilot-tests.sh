@@ -27,6 +27,10 @@ OPTIONS:
 EOF
 }
 
+log_error() {
+	echo ERROR: $* >> ${RESDIR}/runner-errors.txt
+}
+
 system_settle() {
 	[ -z $NOSETTLE ] || return 0
 
@@ -50,10 +54,10 @@ test_app() {
 
 	odir=${RESDIR}/${app}
 	[ -d $odir ] && rm -rf $odir
-	mkdir -p $odir
+	mkdir -p $odir || return 1
 
 	system_settle before $odir
-	phablet-config autopilot --dbus-probe enable
+	phablet-config autopilot --dbus-probe enable || return 1
 
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
@@ -73,7 +77,12 @@ test_app() {
 reboot_wait() {
 	if [ -z $QUICK ] ; then
 		${BASEDIR}/scripts/reboot-and-wait
-		adb shell 'rm -rf /var/crash/* /home/phablet/.cache/upstart/*.log'
+		files="/var/crash/* /home/phablet/.cache/upstart/*.log"
+		if ! adb shell rm -rf "$FILES" ; then
+			log_error "unable to remove crash and log files, retrying"
+			adb wait-for-device
+			adb shell rm -rf "$FILES"
+		fi
 	else
 		echo "SKIPPING phone reboot..."
 	fi
@@ -96,7 +105,15 @@ main() {
 		echo "========================================================"
 		set -x
 		reboot_wait
-		test_app $app
+		if ! test_app $app ; then
+			log_error "testing $app, retrying"
+			# we sometimes see sporatic adb failures that seem to
+			# related to MTP. This adds a retry for the test.
+			# test_app only fails on a device error (not a test
+			# case error)
+			adb wait-for-device
+			test_app $app
+		fi
 	done
 }
 
