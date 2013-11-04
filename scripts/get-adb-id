@@ -8,6 +8,8 @@ DEVICES = {
     "maguro-03": "0149C7A50A00C011",
     "maguro-04": "0149BDCC0500701B",
     "maguro-05": "0149BD3418014013",
+    "maguro-06": "014E058C0F00C013",
+    "maguro-07": "01498FE717002014",
     "mako-01": "01aa3d7a5dcba4a2",
     "mako-02": "01ade38b552014d4",
     "mako-03": "04c6714ed7c863f2",
