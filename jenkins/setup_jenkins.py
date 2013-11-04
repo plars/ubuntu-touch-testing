@@ -130,6 +130,8 @@ if DEFINE_MEGA:
 else:
     def _configure_job(instance, env, args, config_item, device, test):
         tmpl_name = 'touch-{}.xml.jinja2'.format(test.name)
+        if type(test) == testconfig.APTest:
+            tmpl_name = 'touch-autopilot-base.xml.jinja2'
         defserial = '$(${BZRDIR}/scripts/get-adb-id %s)' % device['name']
         params = {
             'host': config_item['node-label'],
@@ -140,6 +142,7 @@ else:
             'wait': args.wait,
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
+            'testname': test.name,
         }
         job = _get_job_name(args, params['name'], test, params['imagetype'])
         _publish(instance, env, args, tmpl_name, job, **params)
