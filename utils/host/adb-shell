@@ -10,7 +10,10 @@ set -eu
 pat='ADB_RC=([[:digit:]]+)'
 
 {
-	adb shell "$* ; echo ADB_RC=\$?"
+	if ! adb shell "$* ; echo ADB_RC=\$?" ; then
+		adb wait-for-device
+        	adb shell "$* ; echo ADB_RC=\$?"
+	fi
 } | while read line; do
 	echo $line
 	if [[ $line =~ $pat ]] ; then
