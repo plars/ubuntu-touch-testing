@@ -14,7 +14,7 @@ TRUSTY_MATRIX = [
         'statsd-key': 'ubuntu-ci.test-execution-service.staging',
         'devices': [
             {
-                'name': 'mako-06 || mako-07 || mako-08',
+                'name': 'mako',
                 'trigger_url': 'http://system-image.ubuntu.com/trusty-proposed/mako/index.json'
             }
         ],

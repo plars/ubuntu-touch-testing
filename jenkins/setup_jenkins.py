@@ -83,17 +83,6 @@ def _get_environment():
         trim_blocks=True)
 
 
-def _get_job_name(args, device, test, image_type):
-    prefix = ""
-    if(args.prefix):
-        prefix = args.prefix + "-"
-    return test.fmt.format(prefix=prefix,
-                           series=args.series,
-                           testname=test.name,
-                           imagetype=image_type,
-                           type=device[:device.index("-")])
-
-
 def _publish(instance, env, args, template, jobname, **params):
     tmpl = env.get_template(template)
     cfg = tmpl.render(**params)
@@ -109,6 +98,14 @@ def _publish(instance, env, args, template, jobname, **params):
 
 
 if DEFINE_MEGA:
+    def _get_job_name(args, device_type, image_type):
+        prefix = ""
+        if(args.prefix):
+            prefix = args.prefix + "-"
+
+        return '{}{}-{}-{}-smoke'.format(
+            prefix, args.series, image_type, device_type)
+
     def _configure_jobs(instance, env, args, config_item, device, tests):
         name = device['name']
         defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
@@ -123,11 +120,20 @@ if DEFINE_MEGA:
             'image_opt': config_item.get('IMAGE_OPT', ''),
             'statsd_key': config_item.get('statsd-key', ''),
         }
-        # a hack so we can use _get_job_name
-        test = testconfig.Test('', fmt='{prefix}{series}-{imagetype}-{type}')
-        job = _get_job_name(args, name, test, config_item['image-type'])
+
+        job = _get_job_name(args, name, config_item['image-type'])
         _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
 else:
+    def _get_job_name(args, device, test, image_type):
+        prefix = ""
+        if(args.prefix):
+            prefix = args.prefix + "-"
+        return test.fmt.format(prefix=prefix,
+                               series=args.series,
+                               testname=test.name,
+                               imagetype=image_type,
+                               type=device[:device.index("-")])
+
     def _configure_job(instance, env, args, config_item, device, test):
         tmpl_name = 'touch-{}.xml.jinja2'.format(test.name)
         defserial = '$(${BZRDIR}/scripts/get-adb-id %s)' % device['name']
