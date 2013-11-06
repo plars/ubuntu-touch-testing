@@ -5,5 +5,5 @@ action: |
 expected_results: |
   1. When doing nothing, system calms down to at least 99% idle level
 type: userland
-timeout: 120
+timeout: 300
 command: ../systemsettle.sh -c5 -d6 -p 97.5 -l _before
