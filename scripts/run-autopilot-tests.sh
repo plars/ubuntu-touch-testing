@@ -89,6 +89,24 @@ reboot_wait() {
 	fi
 }
 
+grab_powerd() {
+	echo "grabbing powerd cli locks..."
+	adb shell powerd-cli active &
+	PIDS="$!"
+	adb shell powerd-cli display on &
+	PIDS="$PIDS $!"
+}
+
+release_powerd() {
+	if [ -n "$PIDS" ] ; then
+		echo "killing child pids: $PIDS"
+		for p in $PIDS ; do
+			kill $p || true
+		done
+		PIDS=""
+	fi
+}
+
 main() {
 	# print the build date so the jenkins job can use it as the
 	# build description
@@ -106,6 +124,9 @@ main() {
 		echo "========================================================"
 		set -x
 		reboot_wait
+
+		grab_powerd
+
 		if ! test_app $app ; then
 			log_error "testing $app, retrying"
 			# we sometimes see sporatic adb failures that seem to
@@ -115,6 +136,8 @@ main() {
 			adb wait-for-device
 			test_app $app
 		fi
+
+		release_powerd
 	done
 }
 
@@ -158,4 +181,5 @@ if [ -z "$APPS" ] ; then
 	exit 1
 fi
 
+trap release_powerd TERM INT EXIT
 main
