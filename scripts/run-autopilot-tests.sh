@@ -40,7 +40,7 @@ system_settle() {
 	settle=${BASEDIR}/tests/systemsettle/systemsettle.sh
 	{
 		export UTAH_PROBE_DIR=${odir}  # needed for log file location
-		timeout 120s $settle -c5 -d2 -p 97.5 -l $label || rc=1
+		timeout 120s $settle -c5 -d6 -p 97.5 -l $label || rc=1
 		echo $rc > ${odir}/settle_${label}.rc
 	} 2>&1 | tee ${odir}/settle_${label}.log
 
@@ -57,7 +57,8 @@ test_app() {
 	mkdir -p $odir || return 1
 
 	system_settle before $odir
-	phablet-config autopilot --dbus-probe enable || return 1
+	phablet-config autopilot --dbus-probe enable || \
+		(log_error "'autopilot dbus-probe enable' failed"; return 1)
 
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
@@ -69,7 +70,7 @@ test_app() {
 			-a /var/crash -a /home/phablet/.cache/upstart \
 			-v $app || true
 	else
-		echo Screen unlock failed, skipping $app
+		log_error "screen unlock failed, skipping $app"
 	fi
 	system_settle after $odir
 }
@@ -85,6 +86,24 @@ reboot_wait() {
 		fi
 	else
 		echo "SKIPPING phone reboot..."
+	fi
+}
+
+grab_powerd() {
+	echo "grabbing powerd cli locks..."
+	adb shell powerd-cli active &
+	PIDS="$!"
+	adb shell powerd-cli display on &
+	PIDS="$PIDS $!"
+}
+
+release_powerd() {
+	if [ -n "$PIDS" ] ; then
+		echo "killing child pids: $PIDS"
+		for p in $PIDS ; do
+			kill $p || true
+		done
+		PIDS=""
 	fi
 }
 
@@ -105,6 +124,9 @@ main() {
 		echo "========================================================"
 		set -x
 		reboot_wait
+
+		grab_powerd
+
 		if ! test_app $app ; then
 			log_error "testing $app, retrying"
 			# we sometimes see sporatic adb failures that seem to
@@ -114,6 +136,8 @@ main() {
 			adb wait-for-device
 			test_app $app
 		fi
+
+		release_powerd
 	done
 }
 
@@ -157,4 +181,5 @@ if [ -z "$APPS" ] ; then
 	exit 1
 fi
 
+trap release_powerd TERM INT EXIT
 main
