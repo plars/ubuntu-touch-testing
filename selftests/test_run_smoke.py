@@ -17,6 +17,7 @@ import imp
 import mock
 import os
 import subprocess
+import sys
 import unittest
 
 
@@ -27,7 +28,9 @@ class TestRunSmoke(unittest.TestCase):
     def setUp(self):
         # load the module
         module = 'run-smoke'
-        fname = os.path.join(os.path.dirname(__file__), '../scripts', module)
+        path = os.path.join(os.path.dirname(__file__), '../scripts')
+        sys.path.append(path)
+        fname = os.path.join(path, module)
         self.run_smoke = imp.load_source(module, fname)
         if 'ANDROID_SERIAL' in os.environ:
             del os.environ['ANDROID_SERIAL']
