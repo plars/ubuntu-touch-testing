@@ -58,7 +58,7 @@ top_wait=${top_wait:-6}
 # how many samples to ignore
 top_ignore=${top_ignore:-1}
 # how many total attempts to settle the system
-settle_max=${settle_max:-20}
+settle_max=${settle_max:-10}
 
 top_log="$UTAH_PROBE_DIR/top$top_log_label.log"
 
@@ -85,7 +85,7 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   # get top
   echo "TOP DUMP (after settle run: $settle_count)" >> $top_log
   echo "========================" >> $top_log
-  ${TARGET_PREFIX} top -b -d $top_wait -n $top_repeat >> $top_log
+  ${TARGET_PREFIX} top -c -b -d $top_wait -n $top_repeat >> $top_log
   cat $top_log | grep '.Cpu.*' | tail -n $top_tail > $top_log.reduced
   echo >> $top_log
 
