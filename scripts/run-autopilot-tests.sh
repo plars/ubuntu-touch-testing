@@ -40,7 +40,7 @@ system_settle() {
 	settle=${BASEDIR}/tests/systemsettle/systemsettle.sh
 	{
 		export UTAH_PROBE_DIR=${odir}  # needed for log file location
-		timeout 120s $settle -c5 -d2 -p 97.5 -l $label || rc=1
+		timeout 120s $settle -c5 -d6 -p 97.5 -l $label || rc=1
 		echo $rc > ${odir}/settle_${label}.rc
 	} 2>&1 | tee ${odir}/settle_${label}.log
 
