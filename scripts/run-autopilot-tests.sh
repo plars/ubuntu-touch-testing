@@ -57,7 +57,8 @@ test_app() {
 	mkdir -p $odir || return 1
 
 	system_settle before $odir
-	phablet-config autopilot --dbus-probe enable || return 1
+	phablet-config autopilot --dbus-probe enable || \
+		(log_error "autopilot dbus-probe enable"; return 1)
 
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
@@ -69,7 +70,7 @@ test_app() {
 			-a /var/crash -a /home/phablet/.cache/upstart \
 			-v $app || true
 	else
-		echo Screen unlock failed, skipping $app
+		log_error "screen unlock, skipping $app"
 	fi
 	system_settle after $odir
 }
