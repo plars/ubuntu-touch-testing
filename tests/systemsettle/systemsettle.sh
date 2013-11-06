@@ -58,7 +58,7 @@ top_wait=${top_wait:-6}
 # how many samples to ignore
 top_ignore=${top_ignore:-1}
 # how many total attempts to settle the system
-settle_max=${settle_max:-10}
+settle_max=${settle_max:-20}
 
 top_log="$UTAH_PROBE_DIR/top$top_log_label.log"
 
