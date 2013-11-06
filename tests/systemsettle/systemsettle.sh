@@ -85,7 +85,7 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   # get top
   echo "TOP DUMP (after settle run: $settle_count)" >> $top_log
   echo "========================" >> $top_log
-  ${TARGET_PREFIX} top -c -b -d $top_wait -n $top_repeat >> $top_log
+  ${TARGET_PREFIX} COLUMNS=900 top -c -b -d $top_wait -n $top_repeat >> $top_log
   cat $top_log | grep '.Cpu.*' | tail -n $top_tail > $top_log.reduced
   echo >> $top_log
 
