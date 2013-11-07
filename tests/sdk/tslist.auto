@@ -1,0 +1,3 @@
+-
+  discovery_cmd: find sdk/qt_tests -type f -executable -exec basename {} \;
+  test_cmd: ../run_test.sh {}
