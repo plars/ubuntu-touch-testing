@@ -10,11 +10,16 @@ cd ..
 # we have to figure out the full path here so we can run it
 script=$(find ./qrt_tests -name $1)
 
+if echo $script | grep -q unpriv ; then
+	SUDO="sudo -i -u phablet"
+	echo "running test as phablet user..."
+fi
+
 if [ -z $TARGET_PREFIX ] ; then
 	echo "RUNNING ON TARGET"
-	$script
+	$SUDO $script
 else
 	echo "RUNNING FROM HOST"
 	# the setup.sh script copied the repo under /tmp
-	adb-shell "/tmp/$script"
+	adb-shell $SUDO /tmp/$script
 fi
