@@ -1,0 +1,6 @@
+-
+  # the awk usage below is a small hack to use more concise test case names rather
+  # than full directory paths
+  discovery_cmd: cd security/qrt_tests; make list-suite-cmds list-suite-privileged-cmds | awk -F/ '{print $NF}'
+  test_cmd: ../run_test.sh {}
+
