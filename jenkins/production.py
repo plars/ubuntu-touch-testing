@@ -1,6 +1,6 @@
 # The configuration matrix of our production device testing
 
-JENKINS = 'http://10.97.0.1:8080'
+JENKINS = 'http://q-jenkins:8080'
 
 
 def _url(channel, device):
