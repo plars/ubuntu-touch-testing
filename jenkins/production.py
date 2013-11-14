@@ -11,7 +11,7 @@ def _url(channel, device):
 TRUSTY_MATRIX = [
     {
         'image-type': 'touch_sf4p',
-        'node-label': 'phoenix',
+        'node-label': 'touch-daily',
         'devices': [
             {
                 'name': 'mako-05',
@@ -25,7 +25,7 @@ TRUSTY_MATRIX = [
     },
     {
         'image-type': 'touch',
-        'node-label': 'phoenix',
+        'node-label': 'touch-daily',
         'devices': [
             {
                 'name': 'mako-02',
@@ -39,7 +39,7 @@ TRUSTY_MATRIX = [
     },
     {
         'image-type': 'touch_custom',
-        'node-label': 'phoenix',
+        'node-label': 'touch-daily',
         'devices': [
             {
                 'name': 'mako-11',
@@ -54,7 +54,7 @@ TRUSTY_MATRIX = [
 SAUCY_MATRIX = [
     {
         'image-type': 'touch_mir',
-        'node-label': 'phoenix',
+        'node-label': 'touch-daily',
         'devices': [
             {
                 # mako-11 should be the least utilized trusty device

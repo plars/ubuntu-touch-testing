@@ -10,7 +10,7 @@ JENKINS = 'http://jenkins-dev-image-test:8080/'
 TRUSTY_MATRIX = [
     {
         'image-type': 'touch',
-        'node-label': 'ashes',
+        'node-label': 'touch-dev',
         'statsd-key': 'ubuntu-ci.test-execution-service.staging',
         'devices': [
             {
