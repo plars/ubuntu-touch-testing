@@ -2,21 +2,18 @@
 
 import os
 import contextlib
-import socket
 import time
 
 
 _namespace = os.environ.get('STATSD_KEY')
 if _namespace:
+    from txstatsd.client import UdpStatsDClient
+    from txstatsd.metrics.timermetric import TimerMetric
+    from txstatsd.metrics.gaugemetric import GaugeMetric
     _host = os.environ.get('SERVER', 'snakefruit.canonical.com')
     _port = int(os.environ.get('PORT', '10041'))
-    _conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-
-def _statsd(val):
-    if _namespace:
-        val = _namespace + '.' + val
-        _conn.sendto(val, (_host, _port))
+    _client = UdpStatsDClient(_host, _port)
+    _client.connect()
 
 
 @contextlib.contextmanager
@@ -25,11 +22,14 @@ def time_it(key):
     try:
         yield
     finally:
-        _statsd('%s:%d|ms' % (key, time.time() - start))
+        if _namespace:
+            m = TimerMetric(_client, _namespace + '.' + key)
+            m.mark(time.time() - start)
 
 
 def gauge_it(key, array):
     val = 0
     if array:
         val = len(array)
-    _statsd('%s:%d|g' % (key, val))
+    if _namespace:
+        GaugeMetric(_client, _namespace + '.' + key).mark(val)

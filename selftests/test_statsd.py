@@ -17,6 +17,7 @@ import os
 import mock
 import unittest
 import sys
+import time
 
 path = os.path.join(os.path.dirname(__file__), '../scripts')
 sys.path.append(path)
@@ -26,18 +27,38 @@ import statsd
 
 class TestStatsd(unittest.TestCase):
 
+    def setUp(self):
+        self.origkey = os.environ.get('STATSD_KEY')
+        os.environ['STATSD_KEY'] = 'prefix'
+        reload(statsd)
+
+    def tearDown(self):
+        if not self.origkey:
+            del os.environ['STATSD_KEY']
+        else:
+            os.environ['STATSD_KEY'] = self.origkey
+        reload(statsd)
+
     """Simple set of tests to make sure the statsd calls work."""
 
-    @mock.patch('statsd._statsd')
+    @mock.patch('txstatsd.metrics.metric.Metric.write')
     def testGaugeIt(self, _statsd):
         statsd.gauge_it('foo', None)
-        _statsd.assert_called_with('foo:0|g')
+        _statsd.assert_called_with('prefix.foo:0|g')
         _statsd.reset_mock()
 
         statsd.gauge_it('foo', [])
-        _statsd.assert_called_with('foo:0|g')
+        _statsd.assert_called_with('prefix.foo:0|g')
         _statsd.reset_mock()
 
         statsd.gauge_it('foo', [1, 2, 3])
-        _statsd.assert_called_with('foo:3|g')
+        _statsd.assert_called_with('prefix.foo:3|g')
         _statsd.reset_mock()
+
+    @mock.patch('txstatsd.metrics.metric.Metric.write')
+    def testTimeIt(self, _statsd):
+        with statsd.time_it('foo'):
+            time.sleep(0.1)
+        # should have a timing of about 100ms
+        self.assertRegexpMatches(
+            _statsd.call_args[0][0], 'prefix.foo:100.[\d+]|ms')
