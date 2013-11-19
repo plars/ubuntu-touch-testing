@@ -47,7 +47,11 @@ def _get_parser():
                         help='''Enable debug logging.''')
 
     parser.add_argument('--install-url',
-                        help='Flash with image from previous jenkins job.')
+                        help='''Flash with image from previous jenkins job.
+                        This option will check if the device already has image
+                        noted from this URL and will skip provisioning. The URL
+                        should be the path the job like:
+                        http://q-jenkins:8080/job/<your job>/<build number>''')
     parser.add_argument('-p', '--package', action='append',
                         help='Additional packages to install on target.')
     parser.add_argument('-P', '--ppa', action='append',
@@ -59,7 +63,9 @@ def _get_parser():
     parser.add_argument('--image-opt',
                         help='Options to pass to phablet-flash')
     parser.add_argument('--image-type', default='touch',
-                        help='Image type being tested.')
+                        help='''Image type being tested. This can be changed
+                        to 'touch_sf4p' so that SurfaceFlinger will be used
+                        instead of Mir. default=%(default)s''')
     return parser
 
 
