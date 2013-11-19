@@ -49,6 +49,10 @@ EOF
 	adb push $RESDIR/.ci-customizations /home/phablet/.ci-customizations
 }
 
+log() {
+	echo = $(date): $*
+}
+
 while getopts i:s:n:P:p:wh opt; do
 	case $opt in
 	h)
@@ -92,11 +96,15 @@ set -x
 [ -d $RESDIR ] && rm -rf $RESDIR
 mkdir -p $RESDIR
 
+log "FLASHING DEVICE"
 phablet-flash $IMAGE_OPT
 adb wait-for-device
 sleep 20  #give the system a little time
 
+log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup
+
+log "SETTING UP WIFI"
 phablet-network -n $NETWORK_FILE
 
 if [ "$IMAGE_TYPE" = "touch_sf4p" ]; then
@@ -114,7 +122,7 @@ adb push ${BASEDIR}/../utils/target /home/phablet/bin
 image_info
 
 if [ -n "$CUSTOMIZE" ] ; then
-	echo "= CUSTOMIZING IMAGE"
+	log "CUSTOMIZING IMAGE"
 	phablet-config writable-image $CUSTOMIZE
         # Make sure whoopsie-upload-all can work (bug #1245524)
         adb shell "sed -i '/Waiting for whoopsie/ a\    subprocess.call([\"restart\", \"whoopsie\"])' /usr/share/apport/whoopsie-upload-all"
