@@ -1,94 +1,217 @@
-#!/bin/bash
+#!/usr/bin/python
 
-## Executes the new "mega" job. Which provisions and runs all tests in one pass
-## Important variables passed to the script from jenkins are:
-##  (these are all optional)
-## ANDROID_SERIAL
-## IMAGE_TYPE - ie - touch, touch_sf4p
-## RESDIR - ie "clientlogs". The directory store results in
-## IMAGE_OPT - options to pass the phablet-flash
-## INSTALL_URL - value to see if target has proper image in place
-## PACKAGES - debian packages to install
-## APPS - autopilot apps to run or ALL
-## TESTS - UTAH tests to run or ALL
-## STATSD_KEY - If provided metrics will be sent to statsd with this prefix
+import argparse
+import logging
+import os
+import shutil
+import subprocess
 
-set -e
+import statsd
 
-BASEDIR=$(readlink -f $(dirname $0)/..)
+log = logging.getLogger()
+script_dir = os.path.dirname(__file__)
+res_dir = os.path.join(os.getcwd(), 'clientlogs')
 
-IMAGE_TYPE="${IMAGE_TYPE-touch}"
-RESDIR="${RESDIR-$(pwd)/clientlogs}"
 
-add_stat() {
-	[ -z $STATSD_KEY ] || ${BASEDIR}/scripts/statsd-cli "${STATSD_KEY}.$1:$2|$3"
-}
+class SerialAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        log.info('android serial: %s', values[0])
+        os.environ['ANDROID_SERIAL'] = values[0]
 
-timeit() {
-	rc=0
-	start=$(date +%s.%N)
-	$* || rc=1
-	end=$(date +%s.%N)
-	diff=$(echo "($end - $start) * 1000" | bc)
-	add_stat $1 $diff ms
-	return $rc
-}
 
-gaugeit() {
-	val=$(eval "echo \$$1" | wc -w)
-	add_stat $1 $val g
-}
+class DebugAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        log.setLevel(level=logging.DEBUG)
+        log.debug('debug logging enabled')
 
-provision() {
-	if [ -z $INSTALL_URL ] ; then
-		if [ "$PACKAGES" = "ALL" ] ; then
-			PACKAGES="$(${BASEDIR}/jenkins/testconfig.py packages -i $IMAGE_TYPE)"
-		fi
 
-		custom_args=""
-		set +x
-		gaugeit PACKAGES
-		for p in $PACKAGES ; do
-			custom_args="$custom_args -p $p"
-		done
-		for p in $PPAS ; do
-			custom_args="$custom_args -P $p"
-		done
-		set -x
-		${BASEDIR}/scripts/provision.sh -i ${IMAGE_TYPE} $custom_args
-	else
-		${BASEDIR}/scripts/assert-image
-	fi
-}
+def _serial_required():
+    required = 'ANDROID_SERIAL' not in os.environ
+    if required:
+        try:
+            out = subprocess.check_output(['adb', 'devices'])
+            required = (len(out.decode().split('\n')) != 4)
+        except subprocess.CalledProcessError as e:
+            logging.debug('error getting adb devices: %s', e)
+    return required
 
-test_autopilot() {
-	if [ "$APPS" = "ALL" ] ; then
-		APPS="$(${BASEDIR}/jenkins/testconfig.py apps -i $IMAGE_TYPE)"
-	fi
-	gaugeit APPS
-	[ -z "$APPS" ] || APPS=${APPS} ${BASEDIR}/scripts/run-autopilot-tests.sh || return 1
-}
 
-test_utah() {
-	if [ "$TESTS" = "ALL" ] ; then
-		TESTS="$(${BASEDIR}/jenkins/testconfig.py utah -i $IMAGE_TYPE)"
-	fi
-	gaugeit TESTS
+def _get_parser():
+    parser = argparse.ArgumentParser(
+        description='Run the complete test-execution-service suite.')
 
-	rc=0
-	for test in $TESTS ; do
-		echo == testing $test =======================================================
-		RESDIR=${RESDIR}/$test ${BASEDIR}/scripts/jenkins.sh -a $test || rc=1
-	done
-	return $rc
-}
+    parser.add_argument('-s', '--serial', action=SerialAction, nargs=1,
+                        required=_serial_required(),
+                        help='Android serial if more than one device present')
+    parser.add_argument('--debug', action=DebugAction, nargs=0,
+                        help='''Enable debug logging.''')
 
-main() {
-	rc=0
-	timeit provision
-	timeit test_autopilot || rc=1
-	timeit test_utah || rc=1
-	return $rc
-}
+    parser.add_argument('--install-url',
+                        help='''Flash with image from previous jenkins job.
+                        This option will check if the device already has image
+                        noted from this URL and will skip provisioning. The URL
+                        should be the path the job like:
+                        http://q-jenkins:8080/job/<your job>/<build number>''')
+    parser.add_argument('-p', '--package', action='append',
+                        help='Additional packages to install on target.')
+    parser.add_argument('-P', '--ppa', action='append',
+                        help='Additional PPA to configure on target.')
+    parser.add_argument('-a', '--app', action='append',
+                        help='Autopilot tests tor run.')
+    parser.add_argument('-t', '--test', action='append',
+                        help='UTAH tests tor run.')
+    parser.add_argument('--image-opt',
+                        help='Options to pass to phablet-flash')
+    parser.add_argument('--image-type', default='touch',
+                        help='''Image type being tested. This can be changed
+                        to 'touch_sf4p' so that SurfaceFlinger will be used
+                        instead of Mir. default=%(default)s''')
+    return parser
 
-timeit main
+
+def _arg_from_env(args, attr, envkey, array):
+    val = os.environ.get(envkey, False)
+    if val:
+        if array:
+            setattr(args, attr, val.split())
+        else:
+            setattr(args, attr, val)
+        del os.environ[envkey]
+
+
+def _merge_env(args):
+    '''When run in Jenkins everything comes as environment variables.
+
+    Its makes a much simpler job this way. While command line args are
+    much easier for a user.
+    '''
+    _arg_from_env(args, 'app', 'APPS', True)
+    _arg_from_env(args, 'test', 'TESTS', True)
+    _arg_from_env(args, 'package', 'PACKAGES', True)
+    _arg_from_env(args, 'ppa', 'PPAS', True)
+    _arg_from_env(args, 'image_opt', 'IMAGE_OPT', False)
+    _arg_from_env(args, 'image_type', 'IMAGE_TYPE', False)
+    _arg_from_env(args, 'install_url', 'INSTALL_URL', False)
+
+
+def _assert_args(args):
+    if args.install_url:
+        # this means you shouldn't specify packages, ppas, or image options
+        if args.package or args.ppa or args.image_opt:
+            msg = 'ERROR: --install-url can\'t be used with ' \
+                  '--package, -ppa, or --image_opt'
+            print(msg)
+            return False
+
+    # don't bother the install_url check, a user might be copy/pasting and
+    # doesn't hurt. Its just good to not encourage it.
+    _merge_env(args)
+
+    script = os.path.join(script_dir, '../jenkins/testconfig.py')
+    if args.package and args.package[0] == 'ALL':
+        logging.info('Discovering all required dependencies')
+        out = subprocess.check_output(
+            [script, 'packages', '-i', args.image_type])
+        args.package = [x for x in out.decode().split()]
+
+    if args.app and args.app[0] == 'ALL':
+        logging.info('Discovering all autopilot tests')
+        out = subprocess.check_output(
+            [script, 'apps', '-i', args.image_type])
+        args.app = [x for x in out.decode().split()]
+
+    if args.test and args.test[0] == 'ALL':
+        logging.info('Discovering all UTAH tests')
+        out = subprocess.check_output(
+            [script, 'utah', '-i', args.image_type])
+        args.test = [x for x in out.decode().split()]
+
+    logging.debug('ARGS: %r', args)
+
+    print('packages: %r' % args.package)
+    statsd.gauge_it('PACKAGES', args.package)
+    statsd.gauge_it('APPS', args.app)
+    statsd.gauge_it('TESTS', args.test)
+
+    return True
+
+
+def _run(args, ignore_error=False):
+    try:
+        logging.info('Running: %s', ' '.join(args))
+        subprocess.check_call(args)
+    except subprocess.CalledProcessError:
+        if ignore_error:
+            logging.error('failed to run %r, continuing', args)
+        else:
+            exit(1)
+
+
+def _assert_image(args):
+    log.info('checking if device has proper image ...')
+    os.environ['INSTALL_URL'] = args.install_url
+    _run([os.path.join(script_dir, 'assert-image')])
+
+
+def _provision(args):
+    log.info('provisioning device ...')
+    if args.image_opt:
+        log.debug('overriding IMAGE_OPT with: %s', args.image_opt)
+        os.environ['IMAGE_OPT'] = args.image_opt
+
+    cargs = [os.path.join(script_dir, 'provision.sh'), '-i', args.image_type]
+
+    if args.package:
+        for p in args.package:
+            cargs.extend(['-p', p])
+    if args.ppa:
+        for p in args.ppa:
+            cargs.extend(['-P', p])
+
+    with statsd.time_it('provision'):
+        _run(cargs)
+
+
+def _test_autopilot(args):
+    if args.app:
+        cargs = [os.path.join(script_dir, 'run-autopilot-tests.sh')]
+        for app in args.app:
+            cargs.extend(['-a', app])
+        with statsd.time_it('APPS'):
+            _run(cargs)
+
+
+def _test_utah(args):
+    if args.test:
+        cargs = [os.path.join(script_dir, 'jenkins.sh')]
+        with statsd.time_it('TESTS'):
+            for test in args.test:
+                os.environ['RESDIR'] = os.path.join(res_dir, test)
+                _run(cargs + ['-a', test], ignore_error=True)
+
+
+def main(args):
+    with statsd.time_it('main'):
+        shutil.rmtree(res_dir)
+
+        if args.install_url:
+            _assert_image(args)
+        else:
+            _provision(args)
+
+        _test_autopilot(args)
+
+        _test_utah(args)
+
+    return 0
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    log.name = 'run-smoke'
+
+    args = _get_parser().parse_args()
+    if not _assert_args(args):
+        exit(1)
+
+    exit(main(args))
