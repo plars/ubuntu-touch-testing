@@ -128,7 +128,6 @@ def _assert_args(args):
 
     logging.debug('ARGS: %r', args)
 
-    print('packages: %r' % args.package)
     statsd.gauge_it('PACKAGES', args.package)
     statsd.gauge_it('APPS', args.app)
     statsd.gauge_it('TESTS', args.test)
@@ -192,7 +191,10 @@ def _test_utah(args):
 
 def main(args):
     with statsd.time_it('main'):
-        shutil.rmtree(res_dir)
+        if os.path.exists(res_dir):
+            logging.info('deleting old result directory: %s', res_dir)
+            shutil.rmtree(res_dir)
+        os.mkdir(res_dir)
 
         if args.install_url:
             _assert_image(args)
