@@ -13,5 +13,6 @@ if [ -z $ANDROID_SERIAL ] ; then
   echo No device lock found. Aquiring...
   ${BZRDIR}/scripts/device get --name {{name}}
   . ./.device.$$  # source in the device serial
-  trap device_free TERM INT EXIT
+  trap "exit -2" TERM INT
+  trap device_free EXIT
 fi
