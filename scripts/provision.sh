@@ -113,9 +113,6 @@ fi
 
 phablet-config edges-intro --disable
 
-# Disable MTP - known to cause problems with adb disconnections
-adb shell "echo manual > /etc/init/mtp-server-bootup.override"
-
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
 
