@@ -42,7 +42,7 @@ TRUSTY_MATRIX = [
         'node-label': 'touch-daily',
         'devices': [
             {
-                'name': 'mako-11',
+                'name': 'mako-10',
                 'trigger_url': _url('trusty-proposed-customized', 'mako'),
             },
         ],

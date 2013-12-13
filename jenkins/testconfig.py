@@ -128,15 +128,7 @@ def get_tests_touch_sf4p(common_tests):
 
 
 def get_tests_touch_custom(common_tests):
-    tests = []
-    test_set = [
-        'install-and-boot',
-        'default',
-        'unity8-autopilot',
-        'webbrowser-app-autopilot',
-    ]
-
-    tests = [t for t in common_tests if t.name in test_set]
+    tests = common_tests
     tests.insert(1, Test('customizations'))
     return tests
 
