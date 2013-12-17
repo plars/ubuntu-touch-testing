@@ -120,10 +120,12 @@ def _assert_args(args):
             [script, 'apps', '-i', args.image_type])
         args.app = [x for x in out.decode().split()]
 
-    if args.test and args.test[0] == 'ALL':
+    if args.test and args.test[0].startswith('ALL'):
         logging.info('Discovering all UTAH tests')
-        out = subprocess.check_output(
-            [script, 'utah', '-i', args.image_type])
+        argv = [script, 'utah', '-i', args.image_type]
+        if args.test[0] == 'ALL_INCLUDING_AUTOPILOT':
+            argv.append('-a')
+        out = subprocess.check_output(argv)
         args.test = [x for x in out.decode().split()]
 
     logging.debug('ARGS: %r', args)

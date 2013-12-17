@@ -96,6 +96,8 @@ def _get_tests(test_type, image_type):
 
 def _handle_utah(args):
     tests = _get_tests(Test, args.image_type)
+    if args.with_autopilot:
+        tests += _get_tests(APTest, args.image_type)
     # NOTE: this is only called by MEGA jobs, so we can skip install-and-boot
     print(' '.join([t.name for t in tests if t.name != 'install-and-boot']))
 
@@ -142,6 +144,8 @@ def _get_parser():
     p.set_defaults(func=_handle_utah)
     p.add_argument('-i', '--image-type',
                    help='Return list of test configured for an image type.')
+    p.add_argument('-a', '--with-autopilot', action='store_true',
+                   help='Include autopilot tests that can be run under UTAH.')
 
     p = sub.add_parser('apps', help='List autopilot application names')
     p.set_defaults(func=_handle_ap_apps)
