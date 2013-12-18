@@ -14,7 +14,7 @@ rm -rf *
 
 {% block apptest %}{% endblock %}
 
-${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a $APP $EXTRA_PULLS
+${BZRDIR}/scripts/jenkins.sh -s $ANDROID_SERIAL -a {{testname}} $EXTRA_PULLS
       </command>
 {% endblock %}
 
