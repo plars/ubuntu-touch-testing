@@ -107,6 +107,33 @@ release_powerd() {
 	fi
 }
 
+dashboard_update() {
+	# only try and update the dashboard if we are configured to
+	[ -z $DASHBOARD_KEY ] && return 0
+	[ -z $DASHBOARD_BUILD ] && return 0
+	[ -z $DASHBOARD_IMAGE ] && return 0
+	${BASEDIR}/scripts/dashboard.py $* \
+		--image $DASHBOARD_IMAGE \
+		--build $DASHBOARD_BUILD || true
+}
+
+dashboard_result_running() {
+	dashboard_update result-running --test $1
+}
+
+dashboard_result_syncing() {
+	xunit=${RESDIR}/${app}/test_results.xml
+	[ -f $xunit ] || return 0
+	summary=$(cat clientlogs/friends_app/test_results.xml | grep "<testsuite")
+	errors=$(echo $summary | grep -Po '(?<=errors=")\d+')
+	tests=$(echo $summary | grep -Po '(?<=tests=")\d+')
+	fails=$(echo $summary | grep -Po '(?<=failures=")\d+')
+	errors=$(echo $summary | grep -Po '(?<=errors=")\d+')
+
+	dashboard_update result-syncing --test $1 \
+		--errors $errors --fails $fails --tests $tests
+}
+
 main() {
 	# print the build date so the jenkins job can use it as the
 	# build description
@@ -123,6 +150,7 @@ main() {
 		echo "= testing $app"
 		echo "========================================================"
 		set -x
+		dashboard_result_running $app
 		reboot_wait
 
 		grab_powerd
@@ -136,6 +164,7 @@ main() {
 			adb wait-for-device
 			test_app $app
 		fi
+		dashboard_result_syncing $app
 
 		release_powerd
 	done

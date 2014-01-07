@@ -134,8 +134,10 @@ class TestRunSmoke(unittest.TestCase):
         with mock.patch.object(self.run_smoke, '_run') as run:
             with mock.patch.dict('os.environ'):
                 run.side_effects = [subprocess.CalledProcessError, None]
-                self.run_smoke._test_utah(args)
-                p = os.path.join(self.run_smoke.res_dir, 'b')
-                # ensuring b ran means, that we handled the failure of test
-                # 'a' and that the environment is setup correctly
-                self.assertEqual(os.environ['RESDIR'], p)
+                with mock.patch.object(self.run_smoke, '_sync_results') as sr:
+                    self.run_smoke._test_utah(args, None, None)
+                    p = os.path.join(self.run_smoke.res_dir, 'b')
+                    # ensuring b ran means, that we handled the failure of test
+                    # 'a' and that the environment is setup correctly
+                    self.assertEqual(os.environ['RESDIR'], p)
+                    self.assertTrue(sr.called)
