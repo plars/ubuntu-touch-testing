@@ -97,7 +97,7 @@ def _get_tests(test_type, image_type):
 def _handle_utah(args):
     tests = _get_tests(Test, args.image_type)
     if args.with_autopilot:
-        tests += _get_tests(APTest, args.image_type)
+        tests = TESTSUITES
     # NOTE: this is only called by MEGA jobs, so we can skip install-and-boot
     print(' '.join([t.name for t in tests if t.name != 'install-and-boot']))
 
