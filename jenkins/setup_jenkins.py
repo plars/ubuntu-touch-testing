@@ -109,11 +109,10 @@ if DEFINE_MEGA:
             prefix, args.series, image_type, device_type)
 
     def _configure_jobs(instance, env, args, config_item, device, tests):
-        name = device['name']
         defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
 
         params = {
-            'name': name,
+            'name': device['slave-label'],
             'serial': device.get('serial', defserial),
             'publish': args.publish,
             'branch': args.branch,
@@ -129,7 +128,7 @@ if DEFINE_MEGA:
             'dashboard_key': args.dashboard_key,
         }
 
-        job = _get_job_name(args, name, config_item['image-type'])
+        job = _get_job_name(args, device['name'], config_item['image-type'])
         _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
 else:
     def _get_job_name(args, device, test, image_type):

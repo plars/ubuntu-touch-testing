@@ -10,7 +10,6 @@ JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 TRUSTY_MATRIX = [
     {
         'image-type': 'touch',
-        'node-label': 'touch-dev',
         'statsd-key': 'ubuntu-ci.test-execution-service.staging',
         'dashboard-host': '162.213.34.3',
         'dashboard-user': 'doanac',
@@ -18,6 +17,7 @@ TRUSTY_MATRIX = [
         'devices': [
             {
                 'name': 'mako',
+                'slave-label': 'test_execution_service-mako',
                 'trigger_url': 'http://system-image.ubuntu.com/trusty-proposed/mako/index.json'
             }
         ],
