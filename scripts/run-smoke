@@ -247,8 +247,8 @@ def main(args):
             shutil.rmtree(res_dir)
         os.mkdir(res_dir)
 
-        job_name = os.environ['JOB_NAME']
-        job_number = os.environ['BUILD_NUMBER']
+        job_name = os.environ.get('JOB_NAME', '')
+        job_number = os.environ.get('BUILD_NUMBER', '')
         build = dashboard_api.build_add(job_name, job_number)
 
         if args.install_url:
