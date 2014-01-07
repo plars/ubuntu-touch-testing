@@ -68,6 +68,7 @@ BZRDIR=$(readlink -f $BZRDIR)
 bzr branch ${BRANCH} ${BZRDIR}
 
 # the txstatsd package is too old, use the one from github:
+[ -d txstatsd ] &amp;&amp; rm -rf txstatsd
 git clone https://github.com/sidnei/txstatsd.git
 export PYTHONPATH=`pwd`/txstatsd
 
