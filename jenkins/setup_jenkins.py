@@ -45,6 +45,8 @@ def _get_parser():
                         help="username to use when logging into Jenkins.")
     parser.add_argument("-p", "--password",
                         help="username to use when logging into Jenkins")
+    parser.add_argument("--dashboard-key", default="",
+                        help="If using live-status and MEGA, the api-key")
     parser.add_argument("-b", "--branch", default="lp:ubuntu-test-cases/touch",
                         help="The branch this is located. default=%(default)s")
     parser.add_argument("-c", "--config", required=True,
@@ -103,7 +105,7 @@ if DEFINE_MEGA:
         if(args.prefix):
             prefix = args.prefix + "-"
 
-        return '{}{}-{}-{}-smoke'.format(
+        return '{}{}-{}-{}-smoke-daily'.format(
             prefix, args.series, image_type, device_type)
 
     def _configure_jobs(instance, env, args, config_item, device, tests):
@@ -116,9 +118,15 @@ if DEFINE_MEGA:
             'publish': args.publish,
             'branch': args.branch,
             'trigger_url': device['trigger_url'],
+            'wait': args.wait,
             'imagetype': config_item['image-type'],
             'image_opt': config_item.get('IMAGE_OPT', ''),
             'statsd_key': config_item.get('statsd-key', ''),
+            'dashboard_host': config_item.get('dashboard-host', ''),
+            'dashboard_port': config_item.get('dashboard-port', ''),
+            'dashboard_prefix': config_item.get('dashboard-prefix', ''),
+            'dashboard_user': config_item.get('dashboard-user', ''),
+            'dashboard_key': args.dashboard_key,
         }
 
         job = _get_job_name(args, name, config_item['image-type'])

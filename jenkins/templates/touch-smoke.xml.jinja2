@@ -10,17 +10,10 @@ The job is parameterized to give flexibility in what gets tested. A couple of
 common ways to run this job are:
 <dl>
   <dt>Full Test Run</dt>
-  <dd>TESTS=ALL</dd>
-  <dd>APPS=ALL</dd>
-  <dd>PACKAGES=ALL</dd>
-  <dt>Re-run a Failed Autopilot Test</dt>
-  <dd>INSTALL_URL=http://jenkins-dev-image-test:8080/job/saucy-touch_ro-mako/9</dd>
-  <dd>APPS=share_app</dd>
-  <dt>Run Several Autopilot Tests on Latest Build</dt>
-  <dd>APPS=share_app music_app</dd>
-  <dd>PACKAGES=share-app-autopilot</dd>
-  <dt>Run All Tests Under Utah</dt>
   <dd>TESTS=ALL_INCLUDING_AUTOPILOT</dd>
+  <dt>Re-run a Failed Autopilot Test</dt>
+  <dd>INSTALL_URL=http://dev-jenkins:8080/job/saucy-touch_ro-mako/9</dd>
+  <dd>TESTS=friends-app-autopilot</dd>
 </dl>
 <pre>
 #NOTE: Automatically created from a script as part of daily smoke testing
@@ -47,27 +40,9 @@ common ways to run this job are:
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>TESTS</name>
-          <description>A space separated list of utah tests to run. "ALL" can be used to run all known tests.
+          <description>A space separated list of utah tests to run. "ALL_INCLUDING_AUTOPILOT" can be used to run all known tests.
 	  </description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>APPS</name>
-          <description>A space separated list of autopilot tests to run. "ALL" can be used to run all known tests.
-	  </description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-	<hudson.model.StringParameterDefinition>
-          <name>PACKAGES</name>
-          <description>A space separated list of packages to install. "ALL" can be used to install required packages for all known autopilot tests.
-	  </description>
-          <defaultValue>ALL</defaultValue>
-        </hudson.model.StringParameterDefinition>
-	<hudson.model.StringParameterDefinition>
-          <name>PPAS</name>
-          <description>A space separated list of PPAs to configure on the device.
-	  </description>
-          <defaultValue></defaultValue>
+          <defaultValue>ALL_INCLUDING_AUTOPILOT</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -92,11 +67,34 @@ BZRDIR=$(readlink -f $BZRDIR)
 [ -d $BZRDIR ] &amp;&amp; rm -rf $BZRDIR
 bzr branch ${BRANCH} ${BZRDIR}
 
+# the txstatsd package is too old, use the one from github:
+git clone https://github.com/sidnei/txstatsd.git
+export PYTHONPATH=`pwd`/txstatsd
+
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
 {% if statsd_key %}
 export STATSD_KEY={{statsd_key}}.{{imagetype}}
 {% endif %}
+
+{% if dashboard_host %}
+export DASHBOARD_HOST="{{dashboard_host}}"
+{% endif %}
+{% if dashboard_user %}
+export DASHBOARD_USER="{{dashboard_user}}"
+{% endif %}
+{% if dashboard_key %}
+export DASHBOARD_KEY="{{dashboard_key}}"
+{% endif %}
+{% if dashboard_prefix %}
+export DASHBOARD_PREFIX="{{dashboard_prefix}}"
+{% endif %}
+{% if dashboard_port %}
+export DASHBOARD_PORT="{{dashboard_port}}"
+{% endif %}
+
+#Wait for images to actually show up on cdimage
+sleep {{wait}}
 
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke
@@ -109,7 +107,7 @@ ${BZRDIR}/scripts/run-smoke
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
     <hudson.tasks.junit.JUnitResultArchiver>
-      <testResults>clientlogs/**/test_results.xml</testResults>
+      <testResults>clientlogs/**/*.xml</testResults>
       <keepLongStdio>true</keepLongStdio>
       <testDataPublishers>
         <hudson.plugins.junitattachments.AttachmentPublisher/>
