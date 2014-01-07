@@ -10,7 +10,7 @@ JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 TRUSTY_MATRIX = [
     {
         'image-type': 'touch',
-        'statsd-key': 'ubuntu-ci.test-execution-service.staging',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
         'dashboard-host': '162.213.34.3',
         'dashboard-user': 'doanac',
         'dashboard-prefix': '/staging',
