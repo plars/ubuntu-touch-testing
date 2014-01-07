@@ -168,6 +168,10 @@ def _provision(args):
     if args.ppa:
         for p in args.ppa:
             cargs.extend(['-P', p])
+    if args.test and not args.ppa and not args.package:
+        # UTAH tests require a writeable system the -p and -P args
+        # implicitly create a writable system. so we have to ensure here:
+        cargs.append('-w')
 
     with statsd.time_it('provision'):
         _run(cargs)
