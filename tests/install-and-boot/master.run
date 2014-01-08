@@ -1,5 +1,0 @@
----
-testsuites:
-  - name: install-and-boot
-    fetch_method: dev
-    fetch_location: ./

@@ -99,8 +99,7 @@ def _handle_utah(args):
     tests = _get_tests(Test, args.image_type)
     if args.with_autopilot:
         tests = [t for t in TESTSUITES if t.fmt == DEF_FMT]
-    # NOTE: this is only called by MEGA jobs, so we can skip install-and-boot
-    print(' '.join([t.name for t in tests if t.name != 'install-and-boot']))
+    print(' '.join([t.name for t in tests]))
 
 
 def _handle_ap_apps(args):

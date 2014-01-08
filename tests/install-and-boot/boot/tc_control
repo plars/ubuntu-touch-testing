@@ -1,9 +1,0 @@
-description: Ensures the target system has booted
-dependencies: provision.sh was run
-action: |
-  1. checks adb-shell works
-expected_results: |
-  1. adb-shell is active to the target
-type: userland
-timeout: 60
-command: adb-shell /bin/true

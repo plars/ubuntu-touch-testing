@@ -1,10 +1,5 @@
 # The configuration matrix of our staging device testing
 
-import os
-
-if not os.environ.get('MEGA', False):
-    raise RuntimeError('staging server only supports MEGA jobs')
-
 JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 
 TRUSTY_MATRIX = [

@@ -25,10 +25,6 @@ import os
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
-import testconfig
-
-DEFINE_MEGA = os.environ.get('MEGA', False)
-
 
 def _get_parser():
     """Create and return command line parser.
@@ -46,7 +42,7 @@ def _get_parser():
     parser.add_argument("-p", "--password",
                         help="username to use when logging into Jenkins")
     parser.add_argument("--dashboard-key", default="",
-                        help="If using live-status and MEGA, the api-key")
+                        help="The api-key for dashboard updates")
     parser.add_argument("-b", "--branch", default="lp:ubuntu-test-cases/touch",
                         help="The branch this is located. default=%(default)s")
     parser.add_argument("-c", "--config", required=True,
@@ -99,94 +95,37 @@ def _publish(instance, env, args, template, jobname, **params):
         instance.create_job(jobname, cfg)
 
 
-if DEFINE_MEGA:
-    def _get_job_name(args, device_type, image_type):
-        prefix = ""
-        if(args.prefix):
-            prefix = args.prefix + "-"
+def _get_job_name(args, device_type, image_type):
+    prefix = ""
+    if(args.prefix):
+        prefix = args.prefix + "-"
 
-        return '{}{}-{}-{}-smoke-daily'.format(
-            prefix, args.series, image_type, device_type)
+    return '{}{}-{}-{}-smoke-daily'.format(
+        prefix, args.series, image_type, device_type)
 
-    def _configure_jobs(instance, env, args, config_item, device, tests):
-        defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
 
-        params = {
-            'name': device['slave-label'],
-            'serial': device.get('serial', defserial),
-            'publish': args.publish,
-            'branch': args.branch,
-            'trigger_url': device['trigger_url'],
-            'wait': args.wait,
-            'imagetype': config_item['image-type'],
-            'image_opt': config_item.get('IMAGE_OPT', ''),
-            'statsd_key': config_item.get('statsd-key', ''),
-            'dashboard_host': config_item.get('dashboard-host', ''),
-            'dashboard_port': config_item.get('dashboard-port', ''),
-            'dashboard_prefix': config_item.get('dashboard-prefix', ''),
-            'dashboard_user': config_item.get('dashboard-user', ''),
-            'dashboard_key': args.dashboard_key,
-        }
+def _configure_smoke(instance, env, args, config_item, device):
+    defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
 
-        job = _get_job_name(args, device['name'], config_item['image-type'])
-        _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
-else:
-    def _get_job_name(args, device, test, image_type):
-        prefix = ""
-        if(args.prefix):
-            prefix = args.prefix + "-"
-        return test.fmt.format(prefix=prefix,
-                               series=args.series,
-                               testname=test.name,
-                               imagetype=image_type,
-                               type=device[:device.index("-")])
+    params = {
+        'name': device['slave-label'],
+        'serial': device.get('serial', defserial),
+        'publish': args.publish,
+        'branch': args.branch,
+        'trigger_url': device['trigger_url'],
+        'wait': args.wait,
+        'imagetype': config_item['image-type'],
+        'image_opt': config_item.get('IMAGE_OPT', ''),
+        'statsd_key': config_item.get('statsd-key', ''),
+        'dashboard_host': config_item.get('dashboard-host', ''),
+        'dashboard_port': config_item.get('dashboard-port', ''),
+        'dashboard_prefix': config_item.get('dashboard-prefix', ''),
+        'dashboard_user': config_item.get('dashboard-user', ''),
+        'dashboard_key': args.dashboard_key,
+    }
 
-    def _configure_job(instance, env, args, config_item, device, test):
-        tmpl_name = 'touch-{}.xml.jinja2'.format(test.name)
-        if type(test) == testconfig.APTest:
-            tmpl_name = 'touch-autopilot-base.xml.jinja2'
-        defserial = '$(${BZRDIR}/scripts/get-adb-id %s)' % device['name']
-        params = {
-            'host': config_item['node-label'],
-            'name': device['name'],
-            'serial': device.get('serial', defserial),
-            'publish': args.publish,
-            'branch': args.branch,
-            'wait': args.wait,
-            'imagetype': config_item['image-type'],
-            'image_opt': config_item.get('IMAGE_OPT', ''),
-            'testname': test.name,
-        }
-        job = _get_job_name(args, params['name'], test, params['imagetype'])
-        _publish(instance, env, args, tmpl_name, job, **params)
-        return job
-
-    def _configure_master(instance, env, args, projects, config_item, device):
-        params = {
-            'host': config_item['node-label'],
-            'name': device['name'],
-            'publish': args.publish,
-            'branch': args.branch,
-            'projects': projects,
-            'trigger_url': device['trigger_url'],
-        }
-        image_type = config_item['image-type']
-        test = testconfig.Test('master')
-        job = _get_job_name(args, device['name'], test, image_type)
-        _publish(instance, env, args, 'touch-master.xml.jinja2', job, **params)
-
-        job = 'smoke-master-free'
-        _publish(instance, env, args,
-                 'touch-master-free.xml.jinja2', job, **params)
-
-    def _configure_jobs(instance, env, args, config_item, device, tests):
-        projects = []
-        for test in tests:
-            logging.debug("configuring %s job for %s",
-                          device['name'], test.name)
-            p = _configure_job(instance, env, args, config_item, device, test)
-            projects.append(p)
-        _configure_master(instance, env, args, projects, config_item, device)
+    job = _get_job_name(args, device['name'], config_item['image-type'])
+    _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
 
 
 def _dryrun_func(jobname, config):
@@ -212,9 +151,7 @@ def main():
 
     for item in config.MATRIX[args.series]:
         for device in item['devices']:
-            tests = testconfig.TESTSUITES
-            tests = testconfig.filter_tests(tests, item['image-type'])
-            _configure_jobs(jenkins_inst, env, args, item, device, tests)
+            _configure_smoke(jenkins_inst, env, args, item, device)
 
 if __name__ == '__main__':
     main()
