@@ -164,6 +164,7 @@ def _configure_master(instance, env, args, config_item, device, smoke, jobs):
     params = {
         'branch': args.branch,
         'trigger_url': device['trigger_url'],
+        'wait': args.wait,
         'projects': jobs,
         'smoke_job': smoke,
     }

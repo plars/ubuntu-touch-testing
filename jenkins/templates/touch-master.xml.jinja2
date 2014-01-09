@@ -32,6 +32,10 @@
   <builders>
     <hudson.tasks.Shell>
       <command><![CDATA[
+set -e
+
+# give the image time to show up before running tests
+sleep {{wait}}
       ]]></command>
     </hudson.tasks.Shell>
     <!-- our smoke job. this must run successfully or we won't continue -->
