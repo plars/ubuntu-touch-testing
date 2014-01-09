@@ -74,9 +74,9 @@ set -e
 
 # Grab the INSTALL_URL from the smoke-job to help avoid reflashing the
 # downstream jobs
-child_number=$(env | grep ^TRIGGERED_BUILD_NUMBER_ | cut -d= -f1)
+child_number=$(env | grep ^TRIGGERED_BUILD_NUMBER_ | cut -d= -f2)
 cat >child.params <<EOF
-INSTALL_URL="${JENKINS_URL}job/{{smoke_job}}/${child_number}"
+INSTALL_URL=${JENKINS_URL}job/{{smoke_job}}/${child_number}
 EOF
 
 echo params for downstream jobs:
