@@ -47,6 +47,10 @@ export IMAGE_TYPE={{imagetype}}
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke -t {{test}}
 
+# move results to base directory as expected by dashboard:
+mv {{test}}/* ./
+rmdir {{test}}
+
 {% if test == 'memevent' %}
 adb pull /tmp/memory_usage.json ./clientlogs/
 {% endif %}
