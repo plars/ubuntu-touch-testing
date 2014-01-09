@@ -21,5 +21,8 @@ if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
 		${BASEDIR}/scripts/provision.sh
 else
 	echo "= UUIDS match, reusing image on target"
+	echo $REQUIRED_UUID > clientlogs/.ci-uuid
+	curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-args > clientlogs/.ci-flash-args
+	curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations > clientlogs/.ci-customizations
 fi
 
