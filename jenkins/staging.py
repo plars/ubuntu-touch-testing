@@ -7,14 +7,11 @@ TRUSTY_MATRIX = [
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': True,
-        'dashboard-host': '162.213.34.3',
-        'dashboard-user': 'doanac',
-        'dashboard-prefix': '/staging',
         'devices': [
             {
                 'name': 'mako',
-                'slave-label': 'test_execution_service-mako',
-                'trigger_url': 'http://system-image.ubuntu.com/trusty-proposed/mako/index.json',
+                'slave-label': 'mako',
+                #'trigger_url': 'http://system-image.ubuntu.com/trusty-proposed/mako/index.json',
             }
         ],
     },
