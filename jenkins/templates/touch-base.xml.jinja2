@@ -47,7 +47,9 @@ export IMAGE_TYPE={{imagetype}}
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke -t {{test}}
 
-#TODO extra-pulls for memevent test
+{% if test == 'memevent' %}
+adb pull /tmp/memory_usage.json ./clientlogs/
+{% endif %}
       ]]></command>
     </hudson.tasks.Shell>
   </builders>
