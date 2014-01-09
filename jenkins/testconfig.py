@@ -25,6 +25,7 @@ class Test(object):
     def __init__(self, name, fmt=DEF_FMT):
         self.name = name
         self.fmt = fmt
+        self.smoke = fmt == DEF_FMT
 
 
 class APTest(Test):

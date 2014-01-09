@@ -1,5 +1,0 @@
----
-testsuites:
-  - name: upgrade
-    fetch_method: dev
-    fetch_location: ./

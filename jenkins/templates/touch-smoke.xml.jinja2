@@ -94,9 +94,6 @@ export DASHBOARD_PREFIX="{{dashboard_prefix}}"
 export DASHBOARD_PORT="{{dashboard_port}}"
 {% endif %}
 
-#Wait for images to actually show up on cdimage
-sleep {{wait}}
-
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke
       </command>

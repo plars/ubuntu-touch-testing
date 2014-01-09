@@ -22,6 +22,8 @@ import jinja2
 import logging
 import os
 
+import testconfig
+
 from distro_info import UbuntuDistroInfo
 DEV_SERIES = UbuntuDistroInfo().devel()
 
@@ -95,15 +97,6 @@ def _publish(instance, env, args, template, jobname, **params):
         instance.create_job(jobname, cfg)
 
 
-def _get_job_name(args, device_type, image_type):
-    prefix = ""
-    if(args.prefix):
-        prefix = args.prefix + "-"
-
-    return '{}{}-{}-{}-smoke-daily'.format(
-        prefix, args.series, image_type, device_type)
-
-
 def _configure_smoke(instance, env, args, config_item, device):
     defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
 
@@ -113,7 +106,6 @@ def _configure_smoke(instance, env, args, config_item, device):
         'publish': args.publish,
         'branch': args.branch,
         'trigger_url': device['trigger_url'],
-        'wait': args.wait,
         'imagetype': config_item['image-type'],
         'image_opt': config_item.get('IMAGE_OPT', ''),
         'statsd_key': config_item.get('statsd-key', ''),
@@ -124,8 +116,44 @@ def _configure_smoke(instance, env, args, config_item, device):
         'dashboard_key': args.dashboard_key,
     }
 
-    job = _get_job_name(args, device['name'], config_item['image-type'])
+    prefix = ""
+    if(args.prefix):
+        prefix = args.prefix + "-"
+
+    job = '{}{}-{}-{}-smoke-daily'.format(
+        prefix, args.series, config_item['image-type'], device['name'])
     _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
+
+
+def _configure_qa_job(instance, env, args, config_item, device, test):
+    defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
+    params = {
+        'name': device['slave-label'],
+        'serial': defserial,
+        'publish': args.publish,
+        'branch': args.branch,
+        'imagetype': config_item['image-type'],
+        'image_opt': config_item.get('IMAGE_OPT', ''),
+        'test': test.name,
+    }
+    prefix = ""
+    if(args.prefix):
+        prefix = args.prefix + "-"
+    job = test.fmt.format(prefix=prefix,
+                          series=args.series,
+                          testname=test.name,
+                          imagetype=config_item['image-type'],
+                          type=device['name'])
+    _publish(instance, env, args, 'touch-base.xml.jinja2', job, **params)
+    return job
+
+
+def _configure_qa_jobs(instance, env, args, config_item, device):
+    tests = testconfig.TESTSUITES
+    tests = testconfig.filter_tests(tests, config_item['image-type'])
+    tests = [t for t in tests if not t.smoke]
+    for t in tests:
+        _configure_qa_job(instance, env, args, config_item, device, t)
 
 
 def _dryrun_func(jobname, config):
@@ -152,6 +180,8 @@ def main():
     for item in config.MATRIX[args.series]:
         for device in item['devices']:
             _configure_smoke(jenkins_inst, env, args, item, device)
+            if item.get('include-qa'):
+                _configure_qa_jobs(jenkins_inst, env, args, item, device)
 
 if __name__ == '__main__':
     main()
