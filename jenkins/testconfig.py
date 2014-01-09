@@ -39,7 +39,6 @@ class APTest(Test):
 
 
 TESTSUITES = [
-    Test('install-and-boot'),
     Test('default'),
 ]
 TESTSUITES += [
