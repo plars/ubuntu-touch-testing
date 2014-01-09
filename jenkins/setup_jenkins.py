@@ -123,13 +123,14 @@ def _configure_smoke(instance, env, args, config_item, device):
     job = '{}{}-{}-{}-smoke-daily'.format(
         prefix, args.series, config_item['image-type'], device['name'])
     _publish(instance, env, args, 'touch-smoke.xml.jinja2', job, **params)
+    return job
 
 
 def _configure_qa_job(instance, env, args, config_item, device, test):
     defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
     params = {
         'name': device['slave-label'],
-        'serial': defserial,
+        'serial': device.get('serial', defserial),
         'publish': args.publish,
         'branch': args.branch,
         'imagetype': config_item['image-type'],
@@ -152,8 +153,30 @@ def _configure_qa_jobs(instance, env, args, config_item, device):
     tests = testconfig.TESTSUITES
     tests = testconfig.filter_tests(tests, config_item['image-type'])
     tests = [t for t in tests if not t.smoke]
+    jobs = []
     for t in tests:
-        _configure_qa_job(instance, env, args, config_item, device, t)
+        j = _configure_qa_job(instance, env, args, config_item, device, t)
+        jobs.append(j)
+    return jobs
+
+
+def _configure_master(instance, env, args, config_item, device, smoke, jobs):
+    params = {
+        'branch': args.branch,
+        'trigger_url': device['trigger_url'],
+        'projects': jobs,
+        'smoke_job': smoke,
+    }
+    prefix = ""
+    if(args.prefix):
+        prefix = args.prefix + "-"
+    job = testconfig.DEF_FMT.format(prefix=prefix,
+                                    series=args.series,
+                                    testname='master',
+                                    imagetype=config_item['image-type'],
+                                    type=device['name'])
+    _publish(instance, env, args, 'touch-master.xml.jinja2', job, **params)
+    return job
 
 
 def _dryrun_func(jobname, config):
@@ -179,9 +202,12 @@ def main():
 
     for item in config.MATRIX[args.series]:
         for device in item['devices']:
-            _configure_smoke(jenkins_inst, env, args, item, device)
+            job = _configure_smoke(jenkins_inst, env, args, item, device)
+            jobs = []
             if item.get('include-qa'):
-                _configure_qa_jobs(jenkins_inst, env, args, item, device)
+                jobs = _configure_qa_jobs(
+                    jenkins_inst, env, args, item, device)
+            _configure_master(jenkins_inst, env, args, item, device, job, jobs)
 
 if __name__ == '__main__':
     main()

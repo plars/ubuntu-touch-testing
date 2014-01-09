@@ -1,84 +1,113 @@
-{% extends "touch-base.xml.jinja2" %}
-{% block triggers %}
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>
+&lt;pre&gt;
+#NOTE: Automatically created from a script as part of daily smoke testing&#xd;
+  {{branch}}&#xd;
+&lt;/pre&gt;
+  </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    <hudson.plugins.build__publisher.ExternalProjectProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <concurrentBuild>false</concurrentBuild>
   <triggers class="vector">
     <com.redfin.hudson.UrlChangeTrigger>
       <spec></spec>
       <url>{{trigger_url}}</url>
     </com.redfin.hudson.UrlChangeTrigger>
   </triggers>
-{% endblock %}
+  <builders>
+    <hudson.tasks.Shell>
+      <command><![CDATA[
+      ]]></command>
+    </hudson.tasks.Shell>
+    <!-- our smoke job. this must run successfully or we won't continue -->
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder>
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <configs class="empty-list"/>
+          <projects>{{smoke_job}}</projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+          <block>
+            <buildStepFailureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+            </buildStepFailureThreshold>
+            <unstableThreshold>
+              <name>UNSTABLE</name>
+              <ordinal>1</ordinal>
+              <color>YELLOW</color>
+            </unstableThreshold>
+            <failureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+            </failureThreshold>
+          </block>
+          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
 
-{% block shellcmds %}
-      <command>set -e
-rm -rf *
-{% include "touch-setup.xml.jinja2" %}
+    <hudson.tasks.Shell>
+      <command><![CDATA[
+set -e
+env
+# Grab the INSTALL_URL from the smoke-job to help avoid reflashing the
+# downstream jobs
+child_number=$(env | grep ^TRIGGERED_BUILD_NUMBER_ | cut -d= -f1)
+echo >child.params <<EOF
+INSTALL_URL="${JENKINS_URL}job/{{smoke_job}}/${child_number}"
+EOF
 
-mv .device.$$ device-lock
-      </command>
-{% endblock %}
+echo params for downstream jobs:
+cat child.params
+      ]]></command>
+    </hudson.tasks.Shell>
 
-{% block extrasteps %}
 {% for project in projects %}
     <hudson.plugins.parameterizedtrigger.TriggerBuilder>
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-	  <configs>
+          <configs>
             <hudson.plugins.parameterizedtrigger.FileBuildParameters>
-              <propertiesFile>device-lock</propertiesFile>
+              <propertiesFile>child.params</propertiesFile>
               <failTriggerOnMissing>true</failTriggerOnMissing>
             </hudson.plugins.parameterizedtrigger.FileBuildParameters>
           </configs>
           <projects>{{project}}</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
-          <block>
-{% if "install-and-boot" in project %}
-            <buildStepFailureThreshold>
-              <name>FAILURE</name>
-              <ordinal>2</ordinal>
-              <color>RED</color>
-            </buildStepFailureThreshold>
-{% endif %}
-            <unstableThreshold>
-              <name>UNSTABLE</name>
-              <ordinal>1</ordinal>
-              <color>YELLOW</color>
-            </unstableThreshold>
-{% if "install-and-boot" in project or "default" in project %}
-            <failureThreshold>
-              <name>FAILURE</name>
-              <ordinal>2</ordinal>
-              <color>RED</color>
-            </failureThreshold>
-{% endif %}
-          </block>
           <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
         </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
       </configs>
     </hudson.plugins.parameterizedtrigger.TriggerBuilder>
 {% endfor %}
-{% endblock %}
-{% block timeout %}
-  <timeoutMinutes>300</timeoutMinutes>
-{% endblock timeout %}
-{% block artifactblock %}{% endblock %}
-{% block descriptionsetter %}{% endblock %}
-{% block buildpublisher %}{% endblock %}
-{% block mailer %}{% endblock %}
-{% block buildtrigger %}
-    <hudson.plugins.parameterizedtrigger.BuildTrigger>
-      <configs>
-        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
-          <configs>
-            <hudson.plugins.parameterizedtrigger.FileBuildParameters>
-              <propertiesFile>device-lock</propertiesFile>
-              <failTriggerOnMissing>true</failTriggerOnMissing>
-            </hudson.plugins.parameterizedtrigger.FileBuildParameters>
-          </configs>
-          <projects>smoke-master-free</projects>
-          <condition>ALWAYS</condition>
-          <triggerWithNoParameters>false</triggerWithNoParameters>
-        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
-      </configs>
-    </hudson.plugins.parameterizedtrigger.BuildTrigger>
-{% endblock %}
+  </builders>
+  <buildWrappers>
+      <hudson.plugins.build__timeout.BuildTimeoutWrapper>
+        <timeoutMinutes>300</timeoutMinutes>
+      <failBuild>true</failBuild>
+      <writingDescription>false</writingDescription>
+      <timeoutPercentage>0</timeoutPercentage>
+      <timeoutType>absolute</timeoutType>
+      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+</project>
+
