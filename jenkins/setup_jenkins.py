@@ -105,7 +105,6 @@ def _configure_smoke(instance, env, args, config_item, device):
         'serial': device.get('serial', defserial),
         'publish': args.publish,
         'branch': args.branch,
-        'trigger_url': device['trigger_url'],
         'imagetype': config_item['image-type'],
         'image_opt': config_item.get('IMAGE_OPT', ''),
         'statsd_key': config_item.get('statsd-key', ''),
@@ -163,7 +162,7 @@ def _configure_qa_jobs(instance, env, args, config_item, device):
 def _configure_master(instance, env, args, config_item, device, smoke, jobs):
     params = {
         'branch': args.branch,
-        'trigger_url': device['trigger_url'],
+        'trigger_url': device.get('trigger_url', ''),
         'wait': args.wait,
         'projects': jobs,
         'smoke_job': smoke,
