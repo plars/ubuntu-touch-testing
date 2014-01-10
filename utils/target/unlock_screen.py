@@ -20,6 +20,7 @@ def start_unity_in_testability():
     override_file = "~/.config/upstart/unity8.override"
 
     os.system('echo "exec unity8 -testability" > ~/.config/upstart/unity8.override')
+    os.system('echo "kill timeout 30" >> ~/.config/upstart/unity8.override')    
 
     print "----------------------------------------------------------------------"
     print "Stopping Unity"
