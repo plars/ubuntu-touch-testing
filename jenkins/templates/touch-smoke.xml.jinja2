@@ -67,14 +67,15 @@ BZRDIR=$(readlink -f $BZRDIR)
 [ -d $BZRDIR ] &amp;&amp; rm -rf $BZRDIR
 bzr branch ${BRANCH} ${BZRDIR}
 
+export ANDROID_SERIAL={{serial}}
+export IMAGE_TYPE={{imagetype}}
+
+{% if statsd_key %}
 # the txstatsd package is too old, use the one from LP:
 [ -d txstatsd ] &amp;&amp; rm -rf txstatsd
 bzr branch -r 109 lp:txstatsd
 export PYTHONPATH=`pwd`/txstatsd
 
-export ANDROID_SERIAL={{serial}}
-export IMAGE_TYPE={{imagetype}}
-{% if statsd_key %}
 export STATSD_KEY={{statsd_key}}.{{imagetype}}
 {% endif %}
 
