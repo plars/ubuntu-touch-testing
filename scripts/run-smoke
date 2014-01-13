@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse
+import datetime
 import logging
 import os
 import shutil
@@ -180,6 +181,40 @@ def _assert_image(args):
     _run([os.path.join(script_dir, 'assert-image')])
 
 
+def _write_utah(start, end, passed):
+    passes = failures = rc = 0
+    if passed:
+        passes = 1
+    else:
+        rc = failures = 1
+
+    delta = '%s' % (end - start)
+    start = start.strftime('%Y-%m-%d %H:%M:%S')
+    data = {
+        'name': 'install-and-boot',
+        'errors': 0,
+        'failures': failures,
+        'passes': passes,
+        'ran_at': start,
+        'commands': [{
+            'cmd_type': 'testcase_test',
+            'command': 'provision',
+            'returncode': rc,
+            'start_time': start,
+            'time_delta': delta,
+            'stderr': '',
+            'stdout': '',
+            'testcase': 'boot',
+            'testsuite': 'install-and-boot',
+        }]
+    }
+    path = os.path.join(res_dir, 'install-and-boot')
+    if not os.path.exists(path):
+        os.mkdir(path)
+    with open(os.path.join(path, 'utah.yaml'), 'w') as f:
+        f.write(yaml.safe_dump(data, default_flow_style=False))
+
+
 def _provision(args):
     log.info('provisioning device ...')
     if args.image_opt:
@@ -200,7 +235,14 @@ def _provision(args):
         cargs.append('-w')
 
     with statsd.time_it('provision'):
-        _run(cargs)
+        start = datetime.datetime.utcnow()
+        passed = False
+        try:
+            _run(cargs)
+            passed = True
+        finally:
+            end = datetime.datetime.utcnow()
+            _write_utah(start, end, passed)
 
 
 def _test_autopilot(args, build, image):
