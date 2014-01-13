@@ -22,7 +22,7 @@ def _convert_testcase(tc):
         x['time_delta'] = t
 
     for e in tc.getchildren():
-        if e.tag == 'failure':
+        if e.tag in ('failure', 'error'):
             x['stderr'] = e.text
             x['returncode'] = 1
         elif e.tag == 'skip':
