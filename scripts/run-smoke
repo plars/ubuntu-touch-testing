@@ -247,8 +247,10 @@ def _provision(args):
 
 def _test_autopilot(args, build, image):
     if args.app:
-        os.environ['DASHBOARD_BUILD'] = build
-        os.environ['DASHBOARD_IMAGE'] = image
+        if build:
+            os.environ['DASHBOARD_BUILD'] = build
+        if image:
+            os.environ['DASHBOARD_IMAGE'] = image
         cargs = [os.path.join(script_dir, 'run-autopilot-tests.sh')]
         for app in args.app:
             cargs.extend(['-a', app])
