@@ -311,9 +311,8 @@ def main(args):
             for x in args.app:
                 dashboard_api.result_queue(image, build, x)
 
-        _test_autopilot(args, build, image)
-
         _test_utah(args, build, image)
+        _test_autopilot(args, build, image)
 
     return 0
 
