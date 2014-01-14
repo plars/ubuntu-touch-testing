@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import datetime
 import sys
 
 from xml.etree import ElementTree
@@ -41,6 +42,16 @@ def _get_results(stream):
         'errors': int(tree.attrib.get('errors', '0')),
         'failures': int(tree.attrib.get('failures', '0')),
         'commands': [],
+        'fetch_errors': 0,
+        'uname': 'n/a',
+        'media-info': 'n/a',
+        'install_type': 'n/a',
+        'arch': 'n/a',
+        'release': 'n/a',
+        'build_number': 'n/a',
+        'name': 'unamed',
+        'runlist': 'n/a',
+        'ran_at': datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
     }
     results['passes'] = \
         int(tree.attrib['tests']) - results['errors'] - results['failures']
