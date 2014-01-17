@@ -78,7 +78,7 @@ test_app() {
 reboot_wait() {
 	if [ -z $QUICK ] ; then
 		${BASEDIR}/scripts/reboot-and-wait
-		files="/var/crash/* /home/phablet/.cache/upstart/*.log"
+		FILES="/var/crash/* /home/phablet/.cache/upstart/*.log"
 		if ! adb shell rm -rf "$FILES" ; then
 			log_error "unable to remove crash and log files, retrying"
 			adb wait-for-device
