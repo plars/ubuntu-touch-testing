@@ -37,10 +37,15 @@ system_settle() {
 	label=$1
 	odir=$2
 	rc=0
+	timeout=120s
+	if [ "$label" = "before" ] ; then
+		timeout=300s
+	fi
+
 	settle=${BASEDIR}/tests/systemsettle/systemsettle.sh
 	{
 		export UTAH_PROBE_DIR=${odir}  # needed for log file location
-		timeout 120s $settle -c5 -d6 -p 97.5 -l $label || rc=1
+		timeout $timeout $settle -c5 -d6 -p 97.5 -l $label || rc=1
 		echo $rc > ${odir}/settle_${label}.rc
 	} 2>&1 | tee ${odir}/settle_${label}.log
 
@@ -79,10 +84,10 @@ reboot_wait() {
 	if [ -z $QUICK ] ; then
 		${BASEDIR}/scripts/reboot-and-wait
 		FILES="/var/crash/* /home/phablet/.cache/upstart/*.log*"
-		if ! adb shell rm -rf "$FILES" ; then
+		if ! adb shell "rm -rf $FILES" ; then
 			log_error "unable to remove crash and log files, retrying"
 			adb wait-for-device
-			adb shell rm -rf "$FILES"
+			adb shell "rm -rf $FILES"
 		fi
 	else
 		echo "SKIPPING phone reboot..."
