@@ -68,6 +68,9 @@ def _get_parser():
                         help='Autopilot tests tor run.')
     parser.add_argument('-t', '--test', action='append',
                         help='UTAH tests tor run.')
+    parser.add_argument('--post-install-hooks',
+                        help='''A directory containing script to be run after
+                        the target has been provisioned and before testing.''')
     parser.add_argument('--image-opt',
                         help='Options to pass to phablet-flash')
     parser.add_argument('--image-type', default='touch',
@@ -215,6 +218,23 @@ def _write_utah(start, end, passed):
         f.write(yaml.safe_dump(data, default_flow_style=False))
 
 
+def _post_install_hooks(args):
+    if not args.post_install_hooks:
+        return
+    log.info('running post install hooks ...')
+    if not os.path.isdir(args.post_install_hooks):
+        log.warn('hooks directory (%s) does not exist ... skipping',
+                 args.post_install_hooks)
+    for hook in sorted(os.listdir(args.post_install_hooks)):
+        s = os.stat(os.path.join(args.post_install_hooks, hook))
+        if s.st_mode & os.path.stat.S_IXUSR == 0:
+            log.warn('skipping hook (%s) - not executable', hook)
+            continue
+        log.info('executing hook: %s', hook)
+        hook = os.path.join(args.post_install_hooks, hook)
+        subprocess.check_call([hook])
+
+
 def _provision(args):
     log.info('provisioning device ...')
     if args.image_opt:
@@ -239,6 +259,7 @@ def _provision(args):
         passed = False
         try:
             _run(cargs)
+            _post_install_hooks(args)
             passed = True
         finally:
             end = datetime.datetime.utcnow()
