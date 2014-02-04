@@ -1,0 +1,4 @@
+-
+  discovery_cmd: autopilot-list ubuntu_system_settings
+  test_cmd: autopilot-run ubuntu_system_settings.tests.{}
+

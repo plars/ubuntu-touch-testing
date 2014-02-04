@@ -63,6 +63,7 @@ TESTSUITES += [
     APTest('ubuntu-weather-app-autopilot'),
     APTest('ubuntu-ui-toolkit-autopilot', 'ubuntuuitoolkit',
            ['ubuntu-ui-toolkit-autopilot']),
+    APTest('ubuntu-system-settings-autopilot'),
     APTest('ubuntu-system-settings-online-accounts-autopilot',
            'online_accounts_ui',
            ['ubuntu-system-settings-online-accounts-autopilot']),
