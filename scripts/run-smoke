@@ -68,8 +68,8 @@ def _get_parser():
                         help='Autopilot tests tor run.')
     parser.add_argument('-t', '--test', action='append',
                         help='UTAH tests tor run.')
-    parser.add_argument('--post-install-hooks',
-                        help='''A directory containing script to be run after
+    parser.add_argument('--hooks-dir',
+                        help='''A directory containing scripts to be run after
                         the target has been provisioned and before testing.''')
     parser.add_argument('--image-opt',
                         help='Options to pass to phablet-flash')
@@ -219,19 +219,19 @@ def _write_utah(start, end, passed):
 
 
 def _post_install_hooks(args):
-    if not args.post_install_hooks:
+    if not args.hooks_dir:
         return
     log.info('running post install hooks ...')
-    if not os.path.isdir(args.post_install_hooks):
+    if not os.path.isdir(args.hooks_dir):
         log.warn('hooks directory (%s) does not exist ... skipping',
-                 args.post_install_hooks)
-    for hook in sorted(os.listdir(args.post_install_hooks)):
-        s = os.stat(os.path.join(args.post_install_hooks, hook))
+                 args.hooks_dir)
+    for hook in sorted(os.listdir(args.hooks_dir)):
+        s = os.stat(os.path.join(args.hooks_dir, hook))
         if s.st_mode & os.path.stat.S_IXUSR == 0:
             log.warn('skipping hook (%s) - not executable', hook)
             continue
         log.info('executing hook: %s', hook)
-        hook = os.path.join(args.post_install_hooks, hook)
+        hook = os.path.join(args.hooks_dir, hook)
         subprocess.check_call([hook])
 
 
