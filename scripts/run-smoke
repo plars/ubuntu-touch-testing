@@ -282,8 +282,7 @@ def _test_autopilot(args, build, image):
 def _sync_results(build, image, test, fname):
     with open(fname) as f:
         d = yaml.safe_load(f)
-        dashboard_api.result_syncing(
-            image, build, test, d['passes'], d['failures'], d['errors'])
+        dashboard_api.result_syncing(image, build, test, d)
 
 
 def _test_utah(args, build, image):

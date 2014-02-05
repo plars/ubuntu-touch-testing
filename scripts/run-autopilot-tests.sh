@@ -129,17 +129,10 @@ dashboard_result_running() {
 dashboard_result_syncing() {
 	xunit=${RESDIR}/${app}/test_results.xml
 	[ -f $xunit ] || return 0
-	summary=$(cat $xunit | grep "<testsuite")
-	errors=$(echo $summary | grep -Po '(?<=errors=")\d+')
-	tests=$(echo $summary | grep -Po '(?<=tests=")\d+')
-	fails=$(echo $summary | grep -Po '(?<=failures=")\d+')
-	errors=$(echo $summary | grep -Po '(?<=errors=")\d+')
-
-	dashboard_update result-syncing --test $1 \
-		--errors $errors --fails $fails --tests $tests
 
 	# save a utah.yaml version of the results so the dashboard can process
 	cat $xunit | ${BASEDIR}/scripts/junit2utah.py > ${RESDIR}/${app}/utah.yaml
+	dashboard_update result-syncing --test $1 --results ${RESDIR}/${app}/utah.yaml
 }
 
 main() {

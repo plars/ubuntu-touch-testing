@@ -6,6 +6,8 @@ import json
 import logging
 import os
 
+import yaml
+
 from httplib import ACCEPTED, HTTPConnection, HTTPException, OK, CREATED
 from urllib import urlencode
 from urlparse import urlparse
@@ -193,18 +195,15 @@ class API(object):
         })
         return self._http_get(resource)
 
-    def _result_status(self, image, build, test, status,
-                       passes=0, fails=0, errors=0):
+    def _result_status(self, image, build, test, status, results=None):
         create = False
         params = {
             'ran_at': datetime.datetime.now().isoformat(),
             'status': status,
-            'total_count': passes + fails + errors,
-            'pass_count': passes,
-            'error_count': errors,
-            'fail_count': fails,
             'jenkins_build': build,
         }
+        if results:
+            params['results'] = results
 
         try:
             resource = self.result_get(image, test)
@@ -225,9 +224,8 @@ class API(object):
     def result_running(self, image, build, test):
         return self._result_status(image, build, test, 1)
 
-    def result_syncing(self, image, build, test, passes, fails, errors):
-        return self._result_status(
-            image, build, test, 2, passes, fails, errors)
+    def result_syncing(self, image, build, test, results):
+        return self._result_status(image, build, test, 2, results)
 
 
 def _result_running(api, args):
@@ -235,9 +233,10 @@ def _result_running(api, args):
 
 
 def _result_syncing(api, args):
-    passes = args.tests - args.fails - args.errors
-    return api.result_syncing(args.image, args.build, args.test,
-                              passes, args.fails, args.errors)
+    results = {}
+    with open(args.results) as f:
+        results = yaml.safe_load(f.read())
+    return api.result_syncing(args.image, args.build, args.test, results)
 
 
 def _set_args(parser, names, func):
@@ -258,9 +257,7 @@ def _get_parser():
 
     p = sub.add_parser('result-syncing', help='Set a SmokeResult "Syncing".')
     _set_args(p, args, _result_syncing)
-    p.add_argument('--tests', type=int, default=0)
-    p.add_argument('--fails', type=int, default=0)
-    p.add_argument('--errors', type=int, default=0)
+    p.add_argument('--results', required=True, help='UTAH yaml file')
 
     return parser
 
