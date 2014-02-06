@@ -11,38 +11,49 @@ def _url(channel, device):
 TRUSTY_MATRIX = [
     {
         'image-type': 'touch_sf4p',
-        'node-label': 'touch-daily',
+        'include-qa': False,
+        'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-user': 'doanac',
         'devices': [
             {
-                'name': 'mako-05',
+                'name': 'mako',
+                'slave-label': 'daily-mako',
                 'trigger_url': _url('trusty-proposed', 'mako'),
             },
             {
-                'name': 'maguro-02',
+                'name': 'maguro',
+                'slave-label': 'daily-maguro',
                 'trigger_url': _url('trusty-proposed', 'maguro'),
             },
         ],
     },
     {
         'image-type': 'touch',
-        'node-label': 'touch-daily',
+        'include-qa': True,
+        'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-user': 'doanac',
         'devices': [
             {
-                'name': 'mako-02',
+                'name': 'mako',
+                'slave-label': 'daily-mako',
                 'trigger_url': _url('trusty-proposed', 'mako'),
             },
             {
-                'name': 'maguro-01',
+                'name': 'maguro',
+                'slave-label': 'daily-maguro',
                 'trigger_url': _url('trusty-proposed', 'maguro'),
             },
         ],
     },
     {
         'image-type': 'touch_custom',
-        'node-label': 'touch-daily',
+        'include-qa': False,
+        'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-user': 'doanac',
         'devices': [
             {
-                'name': 'mako-10',
+                'name': 'mako',
+                'slave-label': 'daily-mako',
                 'trigger_url': _url('trusty-proposed-customized', 'mako'),
             },
         ],
@@ -54,15 +65,18 @@ TRUSTY_MATRIX = [
 SAUCY_MATRIX = [
     {
         'image-type': 'touch_mir',
-        'node-label': 'touch-daily',
+        'include-qa': True,
+        'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-user': 'doanac',
         'devices': [
             {
-                # mako-11 should be the least utilized trusty device
-                'name': 'mako-11',
+                'name': 'mako',
+                'slave-label': 'daily-mako',
                 'trigger_url': _url('saucy-proposed', 'mako'),
             },
             {
-                'name': 'maguro-03',
+                'name': 'maguro',
+                'slave-label': 'daily-maguro',
                 'trigger_url': _url('saucy-proposed', 'maguro'),
             },
         ],
