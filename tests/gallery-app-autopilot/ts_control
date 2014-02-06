@@ -1,1 +1,0 @@
-ts_setup: PKGS=gallery-app-autopilot prepare-autopilot-test.sh

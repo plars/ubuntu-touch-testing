@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list gallery_app
-  test_cmd: autopilot-run gallery_app.tests.{}
-

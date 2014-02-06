@@ -1,1 +1,0 @@
-ts_setup: PKGS=ubuntu-system-settings-autopilot prepare-autopilot-test.sh

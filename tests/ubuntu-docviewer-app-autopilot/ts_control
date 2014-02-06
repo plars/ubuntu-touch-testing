@@ -1,1 +1,0 @@
-ts_setup: PKGS=ubuntu-docviewer-app-autopilot prepare-autopilot-test.sh

@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list ubuntu_filemanager_app
-  test_cmd: autopilot-run ubuntu_filemanager_app.tests.{}
-

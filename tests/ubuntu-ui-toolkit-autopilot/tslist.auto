@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list ubuntuuitoolkit
-  test_cmd: autopilot-run ubuntuuitoolkit.tests.{}
-

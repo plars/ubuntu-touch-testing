@@ -1,1 +1,0 @@
-ts_setup: PKGS=friends-app-autopilot prepare-autopilot-test.sh

@@ -1,2 +1,0 @@
-ts_setup: TARGET_PREFIX=$TARGET_PREFIX ./setup.sh
-#ts_cleanup: $TARGET_PREFIX sudo -i -u phablet start unity8

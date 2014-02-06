@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list ubuntu_rssreader_app
-  test_cmd: autopilot-run ubuntu_rssreader_app.tests.{}
-

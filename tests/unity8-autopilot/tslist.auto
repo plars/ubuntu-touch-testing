@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list unity8 unity8 unity8.
-  test_cmd: autopilot-run unity8.{}
-

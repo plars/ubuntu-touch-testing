@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list messaging_app
-  test_cmd: autopilot-run messaging_app.tests.{}
-

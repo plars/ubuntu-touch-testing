@@ -1,1 +1,0 @@
-ts_setup: PKGS=webbrowser-app-autopilot prepare-autopilot-test.sh

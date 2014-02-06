@@ -1,1 +1,0 @@
-ts_setup: PKGS=python-mock prepare-autopilot-test.sh

@@ -1,4 +1,0 @@
--
-  discovery_cmd: autopilot-list ubuntu_weather_app
-  test_cmd: autopilot-run ubuntu_weather_app.tests.{}
-
