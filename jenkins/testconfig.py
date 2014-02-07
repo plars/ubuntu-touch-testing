@@ -92,9 +92,12 @@ def filter_tests(tests, image_type):
 
 
 def _get_tests(test_type, image_type):
-    tests = [t for t in TESTSUITES
+    # take all our known tests, then call filter tests which should give
+    # us a list of tests customized for things like sf4p or touch_custom.
+    # then eliminate tests that aren't of the proper test_type
+    tests = [t for t in filter_tests(TESTSUITES, image_type)
              if type(t) == test_type and t.fmt == DEF_FMT]
-    return filter_tests(tests, image_type)
+    return tests
 
 
 def _handle_utah(args):
