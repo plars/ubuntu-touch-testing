@@ -13,6 +13,7 @@ TRUSTY_MATRIX = [
         'image-type': 'touch_sf4p',
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-port': '80',
         'dashboard-user': 'doanac',
         'devices': [
             {
@@ -31,6 +32,7 @@ TRUSTY_MATRIX = [
         'image-type': 'touch',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-port': '80',
         'dashboard-user': 'doanac',
         'devices': [
             {
@@ -49,6 +51,7 @@ TRUSTY_MATRIX = [
         'image-type': 'touch_custom',
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-port': '80',
         'dashboard-user': 'doanac',
         'devices': [
             {
@@ -67,6 +70,7 @@ SAUCY_MATRIX = [
         'image-type': 'touch_mir',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-port': '80',
         'dashboard-user': 'doanac',
         'devices': [
             {
