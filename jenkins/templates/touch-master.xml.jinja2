@@ -45,7 +45,7 @@ sleep {{wait}}
     <hudson.plugins.parameterizedtrigger.TriggerBuilder>
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-          <configs class="empty-list"/>
+	  <configs class="java.util.Collections$EmptyList"/>
           <projects>{{smoke_job}}</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
