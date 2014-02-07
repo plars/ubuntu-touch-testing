@@ -2,7 +2,6 @@
 
 import json
 import logging
-import os
 
 from autopilot.testcase import AutopilotTestCase
 
@@ -59,7 +58,7 @@ class MemoryUsageTests(AutopilotTestCase):
 
         with self.smem.probe('Media player app finished playback'):
             media_player = MediaPlayerApp(self)
-            media_player.launch('small.mp4')
+            media_player.launch('small.ogg')
             self.smem.pids.append(media_player.app.pid)
             media_player.assert_playback_finished()
 
