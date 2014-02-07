@@ -103,7 +103,9 @@ export DASHBOARD_HOST="{{dashboard_host}}"
 export DASHBOARD_USER="{{dashboard_user}}"
 {% endif %}
 {% if dashboard_key %}
+set +x   # don't let this leak into the public
 export DASHBOARD_KEY="{{dashboard_key}}"
+set -x
 {% endif %}
 {% if dashboard_prefix %}
 export DASHBOARD_PREFIX="{{dashboard_prefix}}"
