@@ -27,6 +27,10 @@ scripts/provision.sh command. Running::
 
 will list supported options.
 
+NOTE: provision.sh requires a path to a network-manager wifi connection that
+can be copied to the target device. By default this is set to
+/home/ubuntu/magners-wifi. This can be overriden with the -n parameter.
+
 Executing Tests
 ---------------
 

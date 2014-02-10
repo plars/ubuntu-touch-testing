@@ -92,6 +92,11 @@ if [ -z $ANDROID_SERIAL ] ; then
 	fi
 fi
 
+if [ ! -f $NETWORK_FILE ] ; then
+	echo "ERROR: NETWORK_FILE, $NETWORK_FILE, not found"
+	exit 1
+fi
+
 set -x
 [ -d $RESDIR ] && rm -rf $RESDIR
 mkdir -p $RESDIR
