@@ -20,9 +20,7 @@ class MediaPlayerApp(App):
 
     def assert_playback_finished(self):
         """Media player memory usage after playing a file."""
-        time_line = self.window.select_single(
-            "Slider",
-            objectName="TimeLine.Slider")
+        time_line = self.window.get_slider()
 
         # Time line value isn't set to maximum value after playback is finished
         # (LP: #1190555)
