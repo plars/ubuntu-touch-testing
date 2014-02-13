@@ -49,7 +49,7 @@ ${BZRDIR}/scripts/run-smoke -t {{test}}
 
 # move results to base directory as expected by dashboard:
 mv clientlogs/{{test}}/* ./clientlogs/
-rmdir clientlogs/{{test}}
+rm -rf clientlogs/{{test}}
 
 {% if test == 'memevent' %}
 adb pull /tmp/memory_usage.json ./clientlogs/
