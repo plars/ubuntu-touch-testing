@@ -26,10 +26,11 @@ function show_usage() {
    echo " -m  maximum loops of top before giving up if minimum idle"
    echo "     percent is not reached (Default: 10)"
    echo " -l  label to include for the top_log file"
+   echo " -s  sleep timeout for %cpu calculation (Default: 10)"
    exit 129
 }
 
-while getopts "h?rp:c:d:i:m:l:" opt; do
+while getopts "h?rp:c:d:i:m:l:s:" opt; do
     case "$opt" in
         h|\?) show_usage
               ;;
@@ -47,9 +48,13 @@ while getopts "h?rp:c:d:i:m:l:" opt; do
               ;;
         l)    top_log_label=$OPTARG
               ;;
+        s)    sleep_len=$OPTARG
+              ;;
     esac
 done
 
+sleep_len=${sleep_len:-10}
+HZ=`getconf CLK_TCK`
 # minimum average idle level required to succeed
 idle_avg_min=${idle_avg_min:-99}
 # measurement details: top $top_wait $top_repeat
@@ -89,23 +94,26 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   cat $top_log | grep '.Cpu.*' | tail -n $top_tail > $top_log.reduced
   echo >> $top_log
 
-  # calc average of idle field for this measurement
-  sum=0
-  count=0
-  while read line; do
-     idle=`echo $line | sed -e 's/.* \([0-9\.]*\) id.*/\1/'`
-     sum=`calc $sum + $idle`
-     count=`calc $count + 1`
-  done < $top_log.reduced
-
-  idle_avg=`calc $sum / $count`
+  # Instead of using top, we need to use /proc/stat and compensate for
+  # the number of cpus and any frequency scaling that could be in effect
+  cpu_avg=$({
+    cat /proc/stat
+    sleep "$sleep_len"
+    cat /proc/stat
+  } | awk '
+    BEGIN       { iter = 0 }
+    /^cpu /     { iter = iter + 1; count = 0; next }
+    /^cpu/      { S[iter] = S[iter] + ($2+$3+$4+$6); count = count + 1;
+next }
+    END     { print (S[2] - S[1]) * 100 / ('"$HZ"' * count * '"$sleep_len"') }
+  ')
+  idle_avg=`calc 100 - $cpu_avg`
   settle_count=`calc $settle_count + 1`
 
   echo " DONE."
   echo
   echo "Measurement:"
   echo "  + idle level: $idle_avg"
-  echo "  + idle sum: $sum / count: $count"
   echo
 done
 
