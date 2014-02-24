@@ -27,6 +27,9 @@ DEVICES = {
     "manta-02": "R32D102RPPK",
     "manta-04": "R32D203DDZR",
     "manta-05": "R32D203DMBY",
+    "flo-01": "09f306dc",
+    "flo-02": "08dbee36",
+    "flo-03": "09d55fa8",
 }
 
 if __name__ == '__main__':
