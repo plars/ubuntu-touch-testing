@@ -41,6 +41,11 @@ TRUSTY_MATRIX = [
                 'trigger_url': _url('trusty-proposed', 'mako'),
             },
             {
+                'name': 'flo',
+                'slave-label': 'daily-flo',
+                'trigger_url': _url('trusty-proposed', 'flo'),
+            },
+            {
                 'name': 'maguro',
                 'slave-label': 'daily-maguro',
                 'trigger_url': _url('trusty-proposed', 'maguro'),
