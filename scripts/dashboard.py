@@ -283,6 +283,9 @@ def _main(args):
     try:
         val = args.func(api, args)
         if val:
+            if '/?' in val:
+                log.debug('stripping api-key from response')
+                val = val.split('/?')[0] + '/'
             print(val)
     except HTTPException as e:
         print('ERROR: %s' % e)
