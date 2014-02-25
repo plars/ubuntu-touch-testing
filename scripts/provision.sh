@@ -125,7 +125,7 @@ image_info
 
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
-	phablet-config writable-image $CUSTOMIZE
+	phablet-config writable-image
         # Make sure whoopsie-upload-all can work (bug #1245524)
         adb shell "sed -i '/Waiting for whoopsie/ a\    subprocess.call([\"restart\", \"whoopsie\"])' /usr/share/apport/whoopsie-upload-all"
 fi

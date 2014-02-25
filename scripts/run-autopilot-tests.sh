@@ -31,6 +31,21 @@ log_error() {
 	echo ERROR: $* >> ${RESDIR}/runner-errors.txt
 }
 
+setup_test() {
+	app=$1
+	label=$2
+	odir=$3
+	{
+		pkgs=$(${BASEDIR}/jenkins/testconfig.py packages -a $app)
+		if [ "$label" = "setup" ] ; then
+			adb-shell sudo apt-get install -yq --force-yes $pkgs
+		else
+			adb-shell sudo apt-get purge -y $pkgs
+		fi
+		echo $? > ${odir}/setup_${label}.rc
+	} 2>&1 | tee ${odir}/setup_${label}.log
+}
+
 system_settle() {
 	[ -z $NOSETTLE ] || return 0
 
@@ -48,10 +63,6 @@ system_settle() {
 		timeout $timeout $settle -c5 -d6 -p 97.5 -l $label || rc=1
 		echo $rc > ${odir}/settle_${label}.rc
 	} 2>&1 | tee ${odir}/settle_${label}.log
-
-	if [ "$label" = "after" ] ; then
-		${BASEDIR}/scripts/combine_results ${odir}
-	fi
 }
 
 test_app() {
@@ -64,6 +75,8 @@ test_app() {
 	system_settle before $odir
 	phablet-config autopilot --dbus-probe enable || \
 		(log_error "'autopilot dbus-probe enable' failed"; return 1)
+
+	setup_test $app setup $odir
 
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
@@ -78,6 +91,8 @@ test_app() {
 		log_error "screen unlock failed, skipping $app"
 	fi
 	system_settle after $odir
+	setup_test $app teardown $odir
+	${BASEDIR}/scripts/combine_results ${odir}
 }
 
 reboot_wait() {

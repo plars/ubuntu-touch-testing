@@ -13,10 +13,25 @@ import sys
 from xml.etree import ElementTree
 
 
+PRE_COMBINE = [
+    ('settle_before', 'settle_before'),
+    ('setup_setup', 'setup'),
+]
+
+POST_COMBINE = [
+    ('settle_after', 'settle_after'),
+    ('setup_teardown', 'teardown'),
+]
+
+
 def _build_node(classname, name, rcfile, stdout):
     e = ElementTree.Element('testcase')
     e.attrib['classname'] = classname
-    e.attrib['name'] = 'settle_%s' % name
+    e.attrib['name'] = name
+
+    if not os.path.exists(rcfile):
+        return None, False
+
     rc = int(open(rcfile).read())
     if rc != 0:
         f = ElementTree.Element('failure')
@@ -60,26 +75,33 @@ def combine(resdir):
     ap_file = os.path.join(resdir, 'test_results.xml')
     tree = _get_results(ap_file)
     ap_results = tree.getroot()
+    added_results = 0
 
     errors = int(ap_results.attrib['errors'])
 
     classname = _get_classname(ap_results)
 
-    rc = os.path.join(resdir, 'settle_before.rc')
-    log = os.path.join(resdir, 'settle_before.log')
-    node, failed = _build_node(classname, 'before', rc, log)
-    ap_results.insert(0, node)
-    if failed:
-        errors += 1
+    for basename, label in PRE_COMBINE:
+        rc = os.path.join(resdir, basename + '.rc')
+        log = os.path.join(resdir, basename + '.log')
+        node, failed = _build_node(classname, label, rc, log)
+        if node is not None:
+            ap_results.insert(0, node)
+            if failed:
+                errors += 1
+            added_results += 1
 
-    rc = os.path.join(resdir, 'settle_after.rc')
-    log = os.path.join(resdir, 'settle_after.log')
-    node, failed = _build_node(classname, 'after', rc, log)
-    ap_results.append(node)
-    if failed:
-        errors += 1
+    for basename, label in POST_COMBINE:
+        rc = os.path.join(resdir, basename + '.rc')
+        log = os.path.join(resdir, basename + '.log')
+        node, failed = _build_node(classname, label, rc, log)
+        if node is not None:
+            ap_results.append(node)
+            if failed:
+                errors += 1
+            added_results += 1
 
-    num = int(ap_results.attrib['tests']) + 2
+    num = int(ap_results.attrib['tests']) + added_results
     ap_results.attrib['tests'] = str(num)
     ap_results.attrib['errors'] = str(errors)
 
