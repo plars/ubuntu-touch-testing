@@ -40,7 +40,7 @@ setup_test() {
 		if [ "$label" = "setup" ] ; then
 			adb-shell sudo apt-get install -yq --force-yes $pkgs
 		else
-			adb-shell sudo apt-get remove -y $pkgs
+			adb-shell sudo apt-get purge -y $pkgs
 		fi
 		echo $? > ${odir}/setup_${label}.rc
 	} 2>&1 | tee ${odir}/setup_${label}.log
