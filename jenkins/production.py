@@ -21,11 +21,6 @@ TRUSTY_MATRIX = [
                 'slave-label': 'daily-mako',
                 'trigger_url': _url('trusty-proposed', 'mako'),
             },
-            {
-                'name': 'maguro',
-                'slave-label': 'daily-maguro',
-                'trigger_url': _url('trusty-proposed', 'maguro'),
-            },
         ],
     },
     {
@@ -49,11 +44,6 @@ TRUSTY_MATRIX = [
                 'name': 'manta',
                 'slave-label': 'daily-manta',
                 'trigger_url': _url('trusty-proposed', 'manta'),
-            },
-            {
-                'name': 'maguro',
-                'slave-label': 'daily-maguro',
-                'trigger_url': _url('trusty-proposed', 'maguro'),
             },
         ],
     },
@@ -87,11 +77,6 @@ SAUCY_MATRIX = [
                 'name': 'mako',
                 'slave-label': 'daily-mako',
                 'trigger_url': _url('saucy-proposed', 'mako'),
-            },
-            {
-                'name': 'maguro',
-                'slave-label': 'daily-maguro',
-                'trigger_url': _url('saucy-proposed', 'maguro'),
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system -b '
