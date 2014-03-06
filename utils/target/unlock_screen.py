@@ -28,14 +28,14 @@ def _get_powerd_interface():
 
 
 def _take_powerd_screen_lock(powerd):
-    logging.info('Taking screen lock (#1235000).')
+    logging.info('Taking screen lock (http://pad.lv/1236525).')
     return powerd.requestSysState(
         "autopilot-lock", 1, dbus_interface='com.canonical.powerd'
     )
 
 
 def _release_powerd_screen_lock(powerd, powerd_cookie):
-    logging.info('Releasing screen lock (#1235000)')
+    logging.info('Releasing screen lock (http://pad.lv/1236525)')
     powerd.clearSysState(
         powerd_cookie, dbus_interface='com.canonical.powerd'
     )
