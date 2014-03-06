@@ -44,11 +44,11 @@ TESTSUITES = [
 TESTSUITES += [
     APTest('friends-app-autopilot', pkgs=['friends-app-autopilot']),
     APTest('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
-    APTest('gallery-app-autopilot', pkgs=['gallery-app-autopilot']),
+    APTest('gallery-app-autopilot'),
     APTest('webbrowser-app-autopilot', pkgs=['webbrowser-app-autopilot']),
     APTest('unity8-autopilot', 'unity8', pkgs=['python-gi']),
     APTest('notes-app-autopilot'),
-    APTest('camera-app-autopilot', pkgs=['camera-app-autopilot']),
+    APTest('camera-app-autopilot'),
     APTest('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
     APTest('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
     APTest('address-book-app-autopilot', pkgs=['address-book-app-autopilot']),
