@@ -23,7 +23,7 @@ TRUSTY_MATRIX = [
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system -b '
-                     '--channel trusty-proposed-customized-demo"'
+                     '--channel ubuntu-touch/trusty-proposed-customized-demo"'
     },
 ]
 

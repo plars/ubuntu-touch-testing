@@ -61,7 +61,7 @@ TRUSTY_MATRIX = [
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system -b '
-                     '--channel trusty-proposed-customized"'
+                     '--channel ubuntu-touch/trusty-proposed-customized"'
     },
 ]
 
@@ -80,7 +80,7 @@ SAUCY_MATRIX = [
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system -b '
-                     '--channel saucy-proposed"'
+                     '--channel ubuntu-touch/saucy-proposed"'
     },
 ]
 
