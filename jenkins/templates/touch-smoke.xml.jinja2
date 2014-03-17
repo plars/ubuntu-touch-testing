@@ -12,7 +12,6 @@ common ways to run this job are:
   <dt>Full Test Run</dt>
   <dd>TESTS=ALL</dd>
   <dd>APPS=ALL</dd>
-  <dd>PACKAGES=ALL</dd>
   <dt>Re-run a Failed Autopilot Test</dt>
   <dd>INSTALL_URL=http://dev-jenkins:8080/job/saucy-touch_ro-mako/9</dd>
   <dd>APPS=friends_app</dd>
@@ -52,12 +51,6 @@ common ways to run this job are:
 	<hudson.model.StringParameterDefinition>
           <name>APPS</name>
           <description>A space separated list of autopilot tests to run. "ALL" can be used to run all known tests.
-	  </description>
-          <defaultValue>ALL</defaultValue>
-        </hudson.model.StringParameterDefinition>
-	<hudson.model.StringParameterDefinition>
-          <name>PACKAGES</name>
-          <description>A space separated list of packages required by autopilot tests. "ALL" can be used to install all known packages required.
 	  </description>
           <defaultValue>ALL</defaultValue>
         </hudson.model.StringParameterDefinition>
