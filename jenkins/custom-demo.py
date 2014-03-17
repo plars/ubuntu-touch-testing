@@ -4,7 +4,7 @@ JENKINS = 'http://q-jenkins.ubuntu-ci:8080'
 
 
 def _url(channel, device):
-    return 'http://system-image.ubuntu.com/%s/%s/index.json' \
+    return 'http://system-image.ubuntu.com/ubuntu-touch/%s/%s/index.json' \
            % (channel, device)
 
 
