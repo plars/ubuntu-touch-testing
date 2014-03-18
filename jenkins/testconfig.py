@@ -55,6 +55,7 @@ TESTSUITES += [
     APTest('calendar-app-autopilot'),
     APTest('music-app-autopilot'),
     APTest('dropping-letters-app-autopilot'),
+    APTest('sudoku-app-autopilot'),
     APTest('ubuntu-calculator-app-autopilot'),
     APTest('ubuntu-clock-app-autopilot'),
     APTest('ubuntu-filemanager-app-autopilot'),
