@@ -68,7 +68,12 @@ def _get_results(apfile):
 
 
 def _get_classname(results):
-    return results[0].attrib.get('classname', '???').split('.')[0]
+    cname = results[0].attrib.get('classname')
+    if cname:
+        cname = cname.split('.')[0]
+    else:
+        cname = '???'
+    return cname
 
 
 def combine(resdir):
