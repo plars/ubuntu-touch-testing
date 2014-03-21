@@ -300,7 +300,8 @@ def _test_utah(args, build, image):
             for test in args.test:
                 os.environ['RESDIR'] = os.path.join(res_dir, test)
                 dashboard_api.result_running(image, build, test)
-                _run(cargs + ['-a', test], ignore_error=True)
+                _run(cargs + ['-a', test, '-p', '/tmp/results'],
+                     ignore_error=True)
                 fname = os.path.join(res_dir, test, 'utah.yaml')
                 _sync_results(build, image, test, fname)
 
