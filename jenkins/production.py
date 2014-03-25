@@ -60,8 +60,8 @@ TRUSTY_MATRIX = [
                 'trigger_url': _url('trusty-proposed-customized', 'mako'),
             },
         ],
-        'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system -b '
-                     '--channel ubuntu-touch/trusty-proposed-customized"'
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
+                     '--channel trusty-proposed-customized"'
     },
 ]
 
@@ -79,8 +79,8 @@ SAUCY_MATRIX = [
                 'trigger_url': _url('saucy-proposed', 'mako'),
             },
         ],
-        'IMAGE_OPT': 'export IMAGE_OPT="ubuntu-system -b '
-                     '--channel ubuntu-touch/saucy-proposed"'
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
+                     '--channel saucy-proposed"'
     },
 ]
 

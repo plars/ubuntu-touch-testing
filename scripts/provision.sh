@@ -10,7 +10,7 @@ RESDIR=`pwd`/clientlogs
 
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
-IMAGE_OPT="${IMAGE_OPT-ubuntu-system -b --channel ubuntu-touch/trusty-proposed}"
+IMAGE_OPT="${IMAGE_OPT---bootstrap --channel trusty-proposed}"
 UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
@@ -102,7 +102,8 @@ set -x
 mkdir -p $RESDIR
 
 log "FLASHING DEVICE"
-phablet-flash $IMAGE_OPT
+adb reboot bootloader
+ubuntu-device-flash $IMAGE_OPT
 adb wait-for-device
 sleep 20  #give the system a little time
 
