@@ -68,7 +68,7 @@ def _get_parser():
                         help='Autopilot tests tor run.')
     parser.add_argument('-t', '--test', action='append',
                         help='UTAH tests tor run.')
-    parser.add_argument('-n', '--no-provision',
+    parser.add_argument('-n', '--no-provision', action='store_true',
                         help='Skip provisioning of the target device')
     parser.add_argument('--hooks-dir',
                         help='''A directory containing scripts to be run after
