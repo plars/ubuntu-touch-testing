@@ -68,6 +68,8 @@ def _get_parser():
                         help='Autopilot tests tor run.')
     parser.add_argument('-t', '--test', action='append',
                         help='UTAH tests tor run.')
+    parser.add_argument('-n', '--no-provision', action='store_true',
+                        help='Skip provisioning of the target device')
     parser.add_argument('--hooks-dir',
                         help='''A directory containing scripts to be run after
                         the target has been provisioned and before testing.''')
@@ -326,7 +328,9 @@ def main(args):
         job_number = os.environ.get('BUILD_NUMBER', '')
         build = dashboard_api.build_add(job_name, job_number)
 
-        if args.install_url:
+        if args.no_provision:
+            logging.info('Skipping the provisioning step as requested')
+        elif args.install_url:
             _assert_image(args)
         else:
             _provision(args)
