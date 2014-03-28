@@ -94,7 +94,7 @@ def filter_tests(tests, image_type):
 
 def _get_tests(test_type, image_type):
     # take all our known tests, then call filter tests which should give
-    # us a list of tests customized for things like sf4p or touch_custom.
+    # us a list of tests customized for things like touch_custom.
     # then eliminate tests that aren't of the proper test_type
     tests = [t for t in filter_tests(TESTSUITES, image_type)
              if type(t) == test_type and t.fmt == DEF_FMT]
@@ -121,18 +121,6 @@ def _handle_ap_packages(args):
             if test.pkgs:
                 pkgs.extend(test.pkgs)
     print(' '.join(pkgs))
-
-
-def get_tests_touch_sf4p(common_tests):
-    tests = []
-    test_set = [
-        'install-and-boot',
-        'default',
-        'unity8-autopilot',
-    ]
-
-    tests = [t for t in common_tests if t.name in test_set]
-    return tests
 
 
 def get_tests_touch_custom(common_tests):

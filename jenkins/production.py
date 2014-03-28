@@ -10,20 +10,6 @@ def _url(channel, device):
 
 TRUSTY_MATRIX = [
     {
-        'image-type': 'touch_sf4p',
-        'include-qa': False,
-        'dashboard-host': 'ci.ubuntu.com',
-        'dashboard-port': '80',
-        'dashboard-user': 'doanac',
-        'devices': [
-            {
-                'name': 'mako',
-                'slave-label': 'daily-mako',
-                'trigger_url': _url('trusty-proposed', 'mako'),
-            },
-        ],
-    },
-    {
         'image-type': 'touch',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',

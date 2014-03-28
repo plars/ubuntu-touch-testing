@@ -113,10 +113,6 @@ phablet-click-test-setup
 log "SETTING UP WIFI"
 phablet-network -n $NETWORK_FILE
 
-if [ "$IMAGE_TYPE" = "touch_sf4p" ]; then
-    adb shell rm -f /home/phablet/.display-mir
-fi
-
 phablet-config edges-intro --disable
 
 # get our target-based utilities into our PATH
