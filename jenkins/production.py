@@ -51,26 +51,7 @@ TRUSTY_MATRIX = [
     },
 ]
 
-SAUCY_MATRIX = [
-    {
-        'image-type': 'touch_mir',
-        'include-qa': True,
-        'dashboard-host': 'ci.ubuntu.com',
-        'dashboard-port': '80',
-        'dashboard-user': 'doanac',
-        'devices': [
-            {
-                'name': 'mako',
-                'slave-label': 'daily-mako',
-                'trigger_url': _url('saucy-proposed', 'mako'),
-            },
-        ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
-                     '--channel saucy-proposed"'
-    },
-]
 
 MATRIX = {
     'trusty': TRUSTY_MATRIX,
-    'saucy': SAUCY_MATRIX,
 }

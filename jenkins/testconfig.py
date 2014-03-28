@@ -86,7 +86,7 @@ def filter_tests(tests, image_type):
         func = globals().get('get_tests_%s' % image_type)
         if func:
             tests = func(tests)
-        elif image_type not in ['touch', 'touch_mir', 'touch_custom_demo']:
+        elif image_type not in ['touch', 'touch_custom_demo']:
             print('Unsupported image type: %s' % image_type)
             exit(1)
     return tests
