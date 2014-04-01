@@ -15,7 +15,7 @@ UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
 cat <<EOF
-usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-P ppa] [-p package] [-r] [-w]
+usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-P ppa] [-p package] [-r revision] [-w]
 
 Provisions the given device with the latest build
 
