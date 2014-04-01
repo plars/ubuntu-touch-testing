@@ -15,7 +15,7 @@ UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
 cat <<EOF
-usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-P ppa] [-p package] [-w]
+usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-P ppa] [-p package] [-r revision] [-w]
 
 Provisions the given device with the latest build
 
@@ -25,6 +25,7 @@ OPTIONS:
   -n    Select network file
   -P    add the ppa to the target (can be repeated)
   -p    add the package to the target (can be repeated)
+  -r    Specify the image revision to flash
   -w    make the system writeable (implied with -p and -P arguments)
 
 EOF
@@ -53,7 +54,7 @@ log() {
 	echo = $(date): $*
 }
 
-while getopts i:s:n:P:p:wh opt; do
+while getopts i:s:n:P:p:r:wh opt; do
 	case $opt in
 	h)
 		usage
@@ -78,6 +79,10 @@ while getopts i:s:n:P:p:wh opt; do
 	p)
 		CUSTOMIZE="$CUSTOMIZE -p $OPTARG"
 		;;
+	r)
+		IMAGE_OPT="$IMAGE_OPT --revision $OPTARG"
+		;;
+
 	esac
 done
 
