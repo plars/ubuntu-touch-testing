@@ -106,6 +106,7 @@ def _merge_env(args):
     _arg_from_env(args, 'image_opt', 'IMAGE_OPT', False)
     _arg_from_env(args, 'image_type', 'IMAGE_TYPE', False)
     _arg_from_env(args, 'install_url', 'INSTALL_URL', False)
+    _arg_from_env(args, 'revision', 'REVISION', False)
 
 
 def _assert_args(args):
