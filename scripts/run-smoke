@@ -68,6 +68,7 @@ def _get_parser():
                         help='Autopilot tests tor run.')
     parser.add_argument('-t', '--test', action='append',
                         help='UTAH tests tor run.')
+    parser.add_argument('-r', '--revision', help='Image revision to install.')
     parser.add_argument('-n', '--no-provision', action='store_true',
                         help='Skip provisioning of the target device')
     parser.add_argument('--hooks-dir',
@@ -263,6 +264,8 @@ def _provision(args):
         # All tests require a writeable system the -p and -P args
         # implicitly create a writable system. so we have to ensure here:
         cargs.append('-w')
+    if args.revision:
+        cargs.extend(['-r', args.revision])
 
     with statsd.time_it('provision'):
         start = datetime.datetime.utcnow()
