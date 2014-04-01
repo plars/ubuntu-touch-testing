@@ -35,8 +35,8 @@ def get_install_list():
 
 def get_image_list():
     click_list = subprocess.check_output(
-        ['adb', 'shell', 'sudo', '-u', 'phablet',
-         'bash', '-ic', 'click list']).decode('utf-8').split('\n')
+        ['adb', 'shell', 'sudo', '-iu', 'phablet',
+         'click', 'list']).decode('utf-8').split('\n')
     click_entries = [x for x in click_list if x]
     click_apps = {}
     for entry in click_entries:
