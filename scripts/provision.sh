@@ -54,7 +54,7 @@ log() {
 	echo = $(date): $*
 }
 
-while getopts i:s:n:P:p:wh opt; do
+while getopts i:s:n:P:p:r:wh opt; do
 	case $opt in
 	h)
 		usage
