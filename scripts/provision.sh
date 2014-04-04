@@ -110,7 +110,7 @@ log "FLASHING DEVICE"
 adb reboot bootloader
 ubuntu-device-flash $IMAGE_OPT
 adb wait-for-device
-sleep 20  #give the system a little time
+sleep 60  #give the system a little time
 
 log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup
