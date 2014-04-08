@@ -127,8 +127,10 @@ def _configure_smoke(instance, env, args, config_item, device):
 
 def _configure_qa_job(instance, env, args, config_item, device, test):
     defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
+    #If the slave is specified for this test, set it
+    slave = getattr(test, 'device', device['slave-label'])
     params = {
-        'name': device['slave-label'],
+        'name': slave,
         'serial': device.get('serial', defserial),
         'publish': args.publish,
         'branch': args.branch,
@@ -149,8 +151,9 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
 
 
 def _configure_qa_jobs(instance, env, args, config_item, device):
-    tests = testconfig.TESTSUITES
-    tests = testconfig.filter_tests(tests, config_item['image-type'])
+    tests = list(testconfig.TESTSUITES)
+    tests = testconfig.filter_tests(tests, config_item['image-type'],
+                                    device['name'])
     tests = [t for t in tests if not t.smoke]
     jobs = []
     for t in tests:

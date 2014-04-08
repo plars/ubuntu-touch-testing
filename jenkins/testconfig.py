@@ -28,6 +28,12 @@ class Test(object):
         self.smoke = fmt == DEF_FMT
 
 
+class DevTest(Test):
+    def __init__(self, name, device):
+        Test.__init__(self, name, fmt=IDLE_FMT)
+        self.device = device
+
+
 class APTest(Test):
     def __init__(self, name, app=None, pkgs=None):
         Test.__init__(self, name)
@@ -81,7 +87,7 @@ TESTSUITES += [
 ]
 
 
-def filter_tests(tests, image_type):
+def filter_tests(tests, image_type, device_type=None):
     if image_type:
         func = globals().get('get_tests_%s' % image_type)
         if func:
@@ -89,6 +95,10 @@ def filter_tests(tests, image_type):
         elif image_type not in ['touch', 'touch_custom_demo']:
             print('Unsupported image type: %s' % image_type)
             exit(1)
+    if device_type:
+        func = globals().get('get_tests_%s' % device_type)
+        if func:
+            tests = func(tests)
     return tests
 
 
@@ -121,6 +131,12 @@ def _handle_ap_packages(args):
             if test.pkgs:
                 pkgs.extend(test.pkgs)
     print(' '.join(pkgs))
+
+
+def get_tests_mako(common_tests):
+    tests = common_tests
+    tests.extend([DevTest('suspend-blocker', 'mako-01')])
+    return tests
 
 
 def get_tests_touch_custom(common_tests):

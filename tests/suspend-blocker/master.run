@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: suspend-blocker
+    fetch_method: dev
+    fetch_location: ./
