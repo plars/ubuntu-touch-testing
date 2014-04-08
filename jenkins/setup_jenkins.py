@@ -166,6 +166,7 @@ def _configure_master(instance, env, args, config_item, device, smoke, jobs):
         'wait': args.wait,
         'projects': jobs,
         'smoke_job': smoke,
+        'num_workers': config_item.get('num-workers', 1),
     }
     prefix = ""
     if(args.prefix):
