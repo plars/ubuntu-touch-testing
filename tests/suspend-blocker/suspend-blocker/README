@@ -1,0 +1,7 @@
+More information about suspend-blocker can be found at:
+  http://kernel.ubuntu.com/~cking/suspend-blocker/
+
+The suspend-blocker binary was pull from the suspend-blocker package in
+ppa:colin-king/white.
+
+The current version used is 0.01.17

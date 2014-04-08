@@ -1,9 +1,13 @@
-description: Gather memory usage information
+description: Let a device sleep and parse the kernel log to explain any wakeups or wakelocks that blocked suspend
 dependencies: none
 action: |
-  1. gather eventstat data
+  1. Clear /var/log/kern.log
+  2. start suspend-blocker
+  3. disconnect the device and sleep for 30 min
+  4. reconnect to the device and stop suspend-blocker
+  5. use suspend-blocker to parse /var/log/kern.log
 expected_results: |
-  1. eventstat.log should be saved to /tmp/results
+  1. kern.json and wakelock-stats.json should be saved to /tmp/results
 type: userland
 timeout: 2000
 command: ./suspend-blocker.sh
