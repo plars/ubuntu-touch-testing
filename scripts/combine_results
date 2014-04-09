@@ -68,6 +68,9 @@ def _get_results(apfile):
 
 
 def _get_classname(results):
+    if len(results) < 1:
+        return '???'
+
     cname = results[0].attrib.get('classname')
     if cname:
         cname = cname.split('.')[0]
