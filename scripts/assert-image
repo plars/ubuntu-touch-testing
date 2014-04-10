@@ -17,8 +17,9 @@ if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
 	CUST=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations | tr -d '\r\n')
 	echo "reprovisioning device with: $ARGS"
 	echo "customizing device with: $CUST"
+        #Make the image writable if we reprovision
 	UUID=$REQUIRED_UUID IMAGE_OPT=$ARGS CUSTOMIZE=$CUST \
-		${BASEDIR}/scripts/provision.sh
+		${BASEDIR}/scripts/provision.sh -w
 else
 	echo "= UUIDS match, reusing image on target"
 	echo $REQUIRED_UUID > clientlogs/.ci-uuid
