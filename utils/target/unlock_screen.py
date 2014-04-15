@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# This script is deprecated, in favor of utils/host/reboot-and-unlock.sh.
+# When all users of this script are ported, it should be removed.
+
 import logging
 import sys
 

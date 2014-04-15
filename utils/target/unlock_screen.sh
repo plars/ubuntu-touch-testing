@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This script is deprecated, in favor of utils/host/reboot-and-unlock.sh.
+# When all users of this script are ported, it should be removed.
+
 basedir=$(dirname $(readlink -f $0))
 
 if ! dpkg -s unity8-autopilot 2>/dev/null >/dev/null ; then

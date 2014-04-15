@@ -2,4 +2,6 @@
 
 set -e
 
-adb-shell NO_UNLOCK=\"$NO_UNLOCK\" PKGS=\"$PKGS\" /home/phablet/bin/prepare-autopilot-test.sh
+adb-shell PKGS=\"$PKGS\" /home/phablet/bin/prepare-autopilot-test.sh
+
+[ -n "$NO_UNLOCK" ] || reboot-and-unlock.sh
