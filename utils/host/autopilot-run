@@ -1,7 +1,12 @@
 #!/bin/sh
 
+AUTOPILOT="autopilot"
+if [ "$1" = "-3" ]; then
+	AUTOPILOT="autopilot3"
+	shift
+fi
 
 UTAH_PROBE_DIR="${UTAH_PROBE_DIR-/var/cache/utah-probes}"
 adb-shell mkdir -p /tmp/xmlresults
 
-adb-shell sudo -i -u phablet bash -ic \"cd /home/phablet/autopilot \; UTAH_PROBE_DIR=$UTAH_PROBES_DIR autopilot run -v -f xml -o /tmp/xmlresults/$*.xml $*\"
+adb-shell sudo -i -u phablet bash -ic \"cd /home/phablet/autopilot \; UTAH_PROBE_DIR=$UTAH_PROBES_DIR $AUTOPILOT run -v -f xml -o /tmp/xmlresults/$*.xml $*\"
