@@ -84,6 +84,8 @@ TESTSUITES += [
     Test('smem', IDLE_FMT),
     Test('memevent',
          '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
+    Test('bootspeed',
+         '{prefix}{testname}-{series}-{imagetype}-{type}-{type}'),
 ]
 
 
