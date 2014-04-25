@@ -2,7 +2,7 @@
 
 JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 
-TRUSTY_MATRIX = [
+UTOPIC_MATRIX = [
     {
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
@@ -11,12 +11,12 @@ TRUSTY_MATRIX = [
             {
                 'name': 'mako',
                 'slave-label': 'mako',
-                #'trigger_url': 'http://system-image.ubuntu.com/trusty-proposed/mako/index.json',
+                #'trigger_url': 'http://system-image.ubuntu.com/utopic-proposed/mako/index.json',
             }
         ],
     },
 ]
 
 MATRIX = {
-    'trusty': TRUSTY_MATRIX,
+    'utopic': UTOPIC_MATRIX,
 }

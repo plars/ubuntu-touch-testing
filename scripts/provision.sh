@@ -10,7 +10,7 @@ RESDIR=`pwd`/clientlogs
 
 NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
 
-IMAGE_OPT="${IMAGE_OPT---bootstrap --channel trusty-proposed}"
+IMAGE_OPT="${IMAGE_OPT---bootstrap --channel utopic-proposed}"
 UUID="${UUID-$(uuidgen -r)}"
 
 usage() {
