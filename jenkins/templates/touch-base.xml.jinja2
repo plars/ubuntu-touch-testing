@@ -54,9 +54,6 @@ rm -rf clientlogs/{{test}}
 {% if test == 'memevent' %}
 adb pull /tmp/memory_usage.json ./clientlogs/
 {% endif %}
-{% if test == 'bootspeed' %}
-sudo mv /tmp/results/* ./clientlogs/
-{% endif %}
       ]]></command>
     </hudson.tasks.Shell>
   </builders>

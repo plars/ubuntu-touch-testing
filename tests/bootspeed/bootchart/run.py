@@ -67,8 +67,7 @@ def chart(results_dir):
         json.dump(data, f, indent=4)
 
 if __name__ == '__main__':
-    if os.path.exists('/tmp/results'):
-        shutil.rmtree('/tmp/results')
-    os.mkdir('/tmp/results')
+    # run_utah_phablet will pass us a "UTAH_PROBE_DIR":
+    resdir = os.environ.get('UTAH_PROBE_DIR', '/tmp/results')
     for x in range(3):
-        chart('/tmp/results/%d' % (x + 1))
+        chart(os.path.join(resdir, str(x)))
