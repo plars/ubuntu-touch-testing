@@ -34,7 +34,7 @@
     <hudson.tasks.Shell>
       <command><![CDATA[
 set -e
-rm -rf *
+sudo rm -rf *
 
 BRANCH="{{branch}}"
 BZRDIR=`echo "$BRANCH" | awk -F/ '{ print $(NF) }'`
