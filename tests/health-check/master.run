@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: health-check
+    fetch_method: dev
+    fetch_location: ./

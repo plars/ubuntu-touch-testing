@@ -1,0 +1,2 @@
+timeout: 27000
+ts_setup: ./setup.sh
