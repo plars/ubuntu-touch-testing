@@ -1,44 +1,13 @@
 #!/usr/bin/python
 
 import sys
-
-DEVICES = {
-    "maguro-01": "0149BD7E0A019003",
-    "maguro-02": "0149BD7E0200E00F",
-    "maguro-03": "0149C7A50A00C011",
-    "maguro-04": "0149BDCC0500701B",
-    "maguro-05": "0149BD3418014013",
-    "maguro-06": "014E058C0F00C013",
-    "maguro-07": "01498FE717002014",
-    "ps-mako-01": "0090f741e3d141bc",
-    "ps-mako-04": "04cbcc545f5328a5",
-    "mako-01": "01aa3d7a5dcba4a2",
-    "mako-02": "01ade38b552014d4",
-    "mako-03": "04c6714ed7c863f2",
-    "mako-05": "01b22f82dc5cec63",
-    "mako-06": "04ed70928fdc13ba",
-    "mako-07": "01e2f64788556934",
-    "mako-08": "04ea16a163930769",
-    "mako-10": "01ce848e48dfa6a2",
-    "mako-11": "04ed727c929709ba",
-    "grouper-02": "015d1884951c020e",
-    "grouper-03": "015d18ad5c27f80d",
-    "grouper-04": "015d188445242611",
-    "grouper-05": "015d21d9151c0019",
-    "manta-01": "R32D102RPZL",
-    "manta-02": "R32D102RPPK",
-    "manta-04": "R32D203DDZR",
-    "manta-05": "R32D203DMBY",
-    "flo-01": "09f306dc",
-    "flo-02": "08dbee36",
-    "flo-03": "09d55fa8",
-}
+from device_info import get_serial
 
 if __name__ == '__main__':
     name = sys.argv[1]
 
     try:
-        print(DEVICES[name])
-    except KeyError:
+        print(get_serial(name))
+    except:
         print("Unknown device name: '%s'" % name)
         sys.exit(-1)
