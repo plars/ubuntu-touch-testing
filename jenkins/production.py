@@ -93,7 +93,7 @@ UTOPIC_MATRIX = [
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
-                     '--channel utopic-proposed-customized"'
+                     '--channel ubuntu-touch/utopic-proposed-customized"'
     },
 ]
 
