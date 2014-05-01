@@ -113,15 +113,25 @@ def _get_tests(test_type, image_type):
     return tests
 
 
+def _split_work(tests, total_workers, worker_idx):
+    assigned = []
+    for x in range(len(tests)):
+        if x % total_workers == worker_idx:
+            assigned.append(tests[x])
+    return assigned
+
+
 def _handle_utah(args):
     tests = _get_tests(Test, args.image_type)
     if args.with_autopilot:
         tests = [t for t in TESTSUITES if t.fmt == DEF_FMT]
+    tests = _split_work(tests, args.total_workers, args.worker)
     print(' '.join([t.name for t in tests]))
 
 
 def _handle_ap_apps(args):
     tests = _get_tests(APTest, args.image_type)
+    tests = _split_work(tests, args.total_workers, args.worker)
     print(' '.join([t.app for t in tests]))
 
 
@@ -158,11 +168,21 @@ def _get_parser():
                    help='Return list of test configured for an image type.')
     p.add_argument('-a', '--with-autopilot', action='store_true',
                    help='Include autopilot tests that can be run under UTAH.')
+    p.add_argument('-t', '--total-workers', type=int, default=1,
+                   help='''The total number of workers available for running
+                        tests.''')
+    p.add_argument('-w', '--worker', type=int, default=0,
+                   help='The worker to allocate applications for testing to.')
 
     p = sub.add_parser('apps', help='List autopilot application names')
     p.set_defaults(func=_handle_ap_apps)
     p.add_argument('-i', '--image-type',
                    help='Return list of test configured for an image type.')
+    p.add_argument('-t', '--total-workers', type=int, default=1,
+                   help='''The total number of workers available for running
+                        tests.''')
+    p.add_argument('-w', '--worker', type=int, default=0,
+                   help='The worker to allocate applications for testing to.')
 
     p = sub.add_parser('packages', help='List packages required for autopilot')
     p.set_defaults(func=_handle_ap_packages)
