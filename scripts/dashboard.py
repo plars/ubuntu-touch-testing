@@ -182,7 +182,14 @@ class API(object):
             'variant': variant,
             'arch': arch,
         }
-        return self._http_post(resource, params)
+        try:
+            return self._http_post(resource, params)
+        except HTTPException:
+            # race situation. Both callers saw _image_get fail and tried to
+            # create. Only one of them can succeed, so the failed call should
+            # now safely be able to get the image created by the other
+            img = self._image_get(build_number, release, variant, arch, flavor)
+            return img
 
     def result_get(self, image, test):
         # deal with getting resource uri's as parameters instead of id's
