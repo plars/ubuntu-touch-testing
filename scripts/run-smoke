@@ -142,6 +142,7 @@ def _assert_args(args):
             [script, 'apps', '-i', args.image_type,
              '-t', str(args.num_workers), '-w', str(args.worker_idx)])
         args.app = [x for x in out.decode().split()]
+        logging.info('Autopilot test list: {}'.format(' '.join(args.app)))
 
     if args.test and args.test[0].startswith('ALL'):
         logging.info('Discovering all UTAH tests')
@@ -151,6 +152,7 @@ def _assert_args(args):
             argv.append('-a')
         out = subprocess.check_output(argv)
         args.test = [x for x in out.decode().split()]
+        logging.info('Utah test list: {}'.format(' '.join(args.test)))
 
     logging.debug('ARGS: %r', args)
 
