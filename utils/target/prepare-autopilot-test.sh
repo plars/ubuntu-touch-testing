@@ -2,7 +2,7 @@
 
 set -e
 
-#installs dependencies and unlocks screen so an autopilot test case can run
+#installs dependencies so an autopilot test case can run
 
 if [ -n "$PKGS" ] ; then
 	MISSING=0
@@ -13,5 +13,4 @@ if [ -n "$PKGS" ] ; then
 		echo "setup not needed"
 	fi
 fi
-[ -z $NO_UNLOCK ] && /home/phablet/bin/unlock_screen.sh
 exit 0

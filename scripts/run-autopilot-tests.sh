@@ -81,15 +81,12 @@ test_app() {
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
 
-	if adb-shell /home/phablet/bin/unlock_screen.sh ; then
-		phablet-test-run \
-			$NOSHELL \
-			-o ${odir} \
-			-a /var/crash -a /home/phablet/.cache/upstart \
-			-v $app || true
-	else
-		log_error "screen unlock failed, skipping $app"
-	fi
+	phablet-test-run \
+		$NOSHELL \
+		-o ${odir} \
+		-a /var/crash -a /home/phablet/.cache/upstart \
+		-v $app || true
+
 	system_settle after $odir
 	setup_test $app teardown $odir
 	${BASEDIR}/scripts/combine_results ${odir}
@@ -97,7 +94,7 @@ test_app() {
 
 reboot_wait() {
 	if [ -z $QUICK ] ; then
-		${BASEDIR}/scripts/reboot-and-wait
+		reboot-and-unlock.sh
 		FILES="/var/crash/* /home/phablet/.cache/upstart/*.log*"
 		if ! adb shell "rm -rf $FILES" ; then
 			log_error "unable to remove crash and log files, retrying"
