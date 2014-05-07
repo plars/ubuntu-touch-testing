@@ -50,11 +50,11 @@ class ClickPreinstalled(unittest.TestCase):
     def setUp(self):
         self.image_list = get_image_list()
         self.install_list = get_install_list()
-        print('Search for %s on image' % self.install_list.keys())
+        print('Search for {} on image'.format(list(self.install_list.keys())))
 
     def testPreinstalled(self):
         for entry in self.install_list:
-            self.assertIn(entry, self.image_list.keys())
+            self.assertIn(entry, list(self.image_list.keys()))
 
 
 if __name__ == '__main__':
