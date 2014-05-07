@@ -44,6 +44,8 @@ bzr branch ${BRANCH} ${BZRDIR}
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
 
+${BZRDIR}/scripts/recover.py ${NODE_NAME}
+
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke -t {{test}}
 
