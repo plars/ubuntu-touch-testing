@@ -3,6 +3,7 @@
 import device_info
 import logging
 import subprocess
+import sys
 import time
 from ncd_usb import set_relay
 from timeout import TimeoutCommand, TimeoutError
@@ -98,7 +99,7 @@ def recover(device):
     try:
         serial = device_info.get_serial(device)
     except AttributeError:
-        print("No device found for '{}'".format(device))
+        log.error("No device found for '{}'".format(device))
         raise
     state = device_info.get_state(serial)
     if state in ('device', 'recovery'):
@@ -114,3 +115,11 @@ def recover(device):
     raise DeviceError("Device '{}' is in an unknown state!".format(device))
 
 
+if __name__ == '__main__':
+    name = sys.argv[1]
+    try:
+        print(recover(name))
+    except AttributeError:
+        #This is what we'll get if it's an unknown device, raise for
+        #everything else so we get better debugging information
+        sys.exit(-1)
