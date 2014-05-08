@@ -83,12 +83,15 @@ test_app() {
 
 	phablet-test-run \
 		$NOSHELL \
-		-o ${odir} \
+		-o ${odir} -f subunit \
 		-a /var/crash -a /home/phablet/.cache/upstart \
 		-v $app || true
 
 	system_settle after $odir
 	setup_test $app teardown $odir
+	if [ -f ${odir}/test_results.subunit ] ; then
+		cat ${odir}/test_results.subunit | subunit2junitxml > ${odir}/test_results.xml
+	fi
 	${BASEDIR}/scripts/combine_results ${odir}
 }
 
