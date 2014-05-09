@@ -6,7 +6,6 @@ import subprocess
 import sys
 import time
 from ncd_usb import set_relay
-from timeout import TimeoutCommand, TimeoutError
 
 log = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -28,10 +27,10 @@ def _reimage_from_fastboot(serial):
 def _wait_for_device(serial, timeout=120):
     # Wait for the device to come up to a good/booted state
     log.info("Waiting for the device to become available")
-    cmd = TimeoutCommand(['adb', '-s', serial, 'wait-for-device'])
     try:
-        cmd.run(timeout)
-    except TimeoutError:
+        subprocess.check_call(['timeout', str(timeout), 'adb', '-s',
+                               serial, 'wait-for-device'])
+    except:
         log.error("Timed out waiting for reboot. Recover device manually")
         raise
     dev_state = device_info.get_state(serial)
