@@ -86,6 +86,8 @@ bzr branch ${BRANCH} ${BZRDIR}
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
 
+${BZRDIR}/scripts/recover.py ${NODE_NAME}
+
 {% if statsd_key %}
 # the txstatsd package is too old, use the one from LP:
 [ -d txstatsd ] &amp;&amp; rm -rf txstatsd

@@ -29,7 +29,6 @@ DEVICES = {
     "mako-12": TouchDevice("mako", "00693fd555c9186a",
                            relay_url="http://qa-relay-control.ubuntu-ci",
                            bank=0, power_pin=1, volume_pin=2),
-    "ps-manta-01": TouchDevice("manta", "R32D203DDZR"),
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
     "manta-02": TouchDevice("manta", "R32D102RPPK"),
     "manta-04": TouchDevice("manta", "R32D203DDZR"),
@@ -66,4 +65,4 @@ def get_serial(name):
 
 def get_power(name):
     device = DEVICES.get(name)
-    return (device.relay_url, device.power_pin, device.volume_pin)
+    return (device.relay_url, device.bank, device.power_pin, device.volume_pin)
