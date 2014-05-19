@@ -12,4 +12,4 @@ adb pull /usr/share/unity8/unlock-device "${basedir}"
 chmod +x "${basedir}/unlock-device"
 
 # unlock-device will reboot for us
-exec "${basedir}/unlock-device"
+exec "${basedir}/unlock-device" -w $basedir/../../scripts/reboot-and-wait
