@@ -97,7 +97,7 @@ if [ -z $ANDROID_SERIAL ] ; then
 	fi
 fi
 
-if [ ! -f $NETWORK_FILE ] ; then
+if [ ! -f $NETWORK_FILE ] && [ -z $USE_EMULATOR ] ; then
 	echo "ERROR: NETWORK_FILE, $NETWORK_FILE, not found"
 	exit 1
 fi
@@ -106,17 +106,26 @@ set -x
 [ -d $RESDIR ] && rm -rf $RESDIR
 mkdir -p $RESDIR
 
-log "FLASHING DEVICE"
-adb reboot bootloader
-ubuntu-device-flash $IMAGE_OPT
-adb wait-for-device
-sleep 60  #give the system a little time
+if [ -z $USE_EMULATOR ] ; then
+	log "FLASHING DEVICE"
+	adb reboot bootloader
+	ubuntu-device-flash $IMAGE_OPT
+	adb wait-for-device
+	sleep 60  #give the system a little time
+else
+	log "CREATING EMULATOR"
+	ubuntu-emulator destroy --yes $ANDROID_SERIAL || true
+	sudo ubuntu-emulator create $ANDROID_SERIAL $IMAGE_OPT
+	${BASEDIR}/reboot-and-wait
+fi
 
 log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup
 
-log "SETTING UP WIFI"
-phablet-network -n $NETWORK_FILE
+if [ -z $USE_EMULATOR ] ; then
+	log "SETTING UP WIFI"
+	phablet-network -n $NETWORK_FILE
+fi
 
 phablet-config edges-intro --disable
 

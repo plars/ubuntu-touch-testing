@@ -14,6 +14,18 @@ from phabletutils.environment import detect_device
 import dashboard
 import statsd
 
+EMULATOR = os.environ.get('USE_EMULATOR')
+if EMULATOR:
+    def fake_detect(serial, device=None):
+        log.info('faking detect device for emulator')
+        return 'emulator'
+
+    # detect_device doesn't support the emulator
+    globals()['detect_device'] = fake_detect
+    if 'ANDROID_SERIAL' not in os.environ:
+        # we need something here or "serial required" logic fails
+        os.environ['ANDROID_SERIAL'] = 'emulator-5554'
+
 log = logging.getLogger()
 script_dir = os.path.dirname(__file__)
 res_dir = os.path.join(os.getcwd(), 'clientlogs')
@@ -190,6 +202,8 @@ def _image_info():
         elif key == 'channel':
             channel = val.strip()
     ver = '%s:%s:%s' % (v_ver, u_ver, d_ver)
+    # required for the jenkins job's build description
+    print('= TOUCH IMAGE VERSION:' + ver)
     return ver, channel
 
 
