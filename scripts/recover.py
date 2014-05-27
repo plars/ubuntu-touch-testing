@@ -107,7 +107,7 @@ def recover(device):
     if state == 'fastboot':
         #The device is in fastboot right now, we need it booted first
         return _reimage_from_fastboot(serial)
-    if state == 'unknown':
+    if state in ('unknown', 'disconnected'):
         #The device is in an unknown state, we need full recovery
         return _full_recovery(device)
     #In theory, we should never get here, but....
