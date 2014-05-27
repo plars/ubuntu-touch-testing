@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # smem - a tool for meaningful memory reporting
 #
@@ -21,7 +21,7 @@ class procdata(object):
     def _list(self):
         return os.listdir(self.source + "/proc")
     def _read(self, f):
-        return file(self.source + '/proc/' + f).read()
+        return open(self.source + '/proc/' + f).read()
     def _readlines(self, f):
         return self._read(f).splitlines(True)
     def _stat(self, f):
