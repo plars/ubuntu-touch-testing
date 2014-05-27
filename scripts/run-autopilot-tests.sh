@@ -237,7 +237,7 @@ if [ -z "$APPS" ] ; then
 fi
 
 trap release_powerd TERM INT EXIT
-if [ -n $USE_EMULATOR ] ; then
+if [ -n "$USE_EMULATOR" ] ; then
 	echo "disabling system-settle testing for emulator"
 	NOSETTLE=1
 fi
