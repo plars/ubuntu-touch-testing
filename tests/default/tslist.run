@@ -8,3 +8,5 @@
 - test: ping
 - test: install
 - test: unity8
+- test: apport
+- test: whoopsie
