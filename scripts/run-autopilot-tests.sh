@@ -40,9 +40,9 @@ setup_test() {
 		if [ "$label" = "setup" ] ; then
 			adb-shell sudo apt-get install -yq --force-yes $pkgs
 		else
-                        #Always remove dbus-x11 because it causes
-                        #problems when we leave it around
-                        pkgs="$pkgs dbus-x11"
+			#Always remove dbus-x11 because it causes
+			#problems when we leave it around
+			pkgs="$pkgs dbus-x11"
 			adb-shell sudo apt-get autoremove --purge -y $pkgs \
 				|| /bin/true
 		fi
