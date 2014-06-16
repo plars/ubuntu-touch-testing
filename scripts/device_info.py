@@ -44,8 +44,7 @@ DEVICES = {
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
     "manta-02": TouchDevice("manta", "R32D102RPPK"),
     "manta-03": TouchDevice("manta", "R32D200N4YH"),
-    "manta-04": TouchDevice("manta", "R32D203DDZR"),
-    "manta-05": TouchDevice("manta", "R32D203DMBY"),
+    "manta-05": TouchDevice("manta", "R32D203DMBY"),  # Out of lab for now
     "flo-01": TouchDevice("flo", "09f306dc"),
     "flo-02": TouchDevice("flo", "08dbee36"),
     "flo-03": TouchDevice("flo", "09d55fa8"),
