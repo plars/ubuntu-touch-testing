@@ -43,6 +43,7 @@ DEVICES = {
     "ps-manta-01": TouchDevice("manta", "R32D203DDZR"),
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
     "manta-02": TouchDevice("manta", "R32D102RPPK"),
+    "manta-03": TouchDevice("manta", "R32D200N4YH"),
     "manta-04": TouchDevice("manta", "R32D203DDZR"),
     "manta-05": TouchDevice("manta", "R32D203DMBY"),
     "flo-01": TouchDevice("flo", "09f306dc"),
