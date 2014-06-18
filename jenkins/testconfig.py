@@ -82,6 +82,7 @@ TESTSUITES += [
     Test('security'),
     Test('eventstat', IDLE_FMT),
     Test('smem', IDLE_FMT),
+    Test('health-check', IDLE_FMT),
     Test('memevent',
          '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
 ]
