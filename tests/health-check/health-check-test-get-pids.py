@@ -14,7 +14,7 @@ ignore_procs = [
     'pulseaudio', 'hud-service', 'indicator-bluetooth-service',
     'indicator-location-service', 'indicator-sound-service',
     'indicator-secret-agent', 'mtp-server', 'address-book-service',
-    'dnsmasq', 'systemd-logind' ]
+    'dnsmasq', 'systemd-logind', 'systemd-udevd' ]
 
 with open(os.path.join(basedir, 'procmapping.txt'), 'w') as mapping:
     procnames = {}
