@@ -5,7 +5,7 @@
 #
 # Length of test in seconds
 #
-duration 150
+duration 300
 #
 # CPU loading, should be really low for idle processes
 #
