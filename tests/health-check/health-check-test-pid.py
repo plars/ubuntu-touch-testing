@@ -38,7 +38,8 @@ import platform
 #
 default_duration = 60
 
-default_threshold_path = os.path.join(os.path.join(os.path.dirname(__file__), 'thresholds'), platform.machine())
+default_threshold_path = os.path.join(
+    os.path.join(os.path.dirname(__file__), 'thresholds'), platform.machine())
 
 default_pass_unknown_process = True
 
