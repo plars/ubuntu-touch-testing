@@ -34,7 +34,7 @@
     <hudson.tasks.Shell>
       <command><![CDATA[
 set -e
-rm -rf *
+sudo rm -rf *
 
 BRANCH="{{branch}}"
 BZRDIR=`echo "$BRANCH" | awk -F/ '{ print $(NF) }'`
@@ -43,6 +43,8 @@ bzr branch ${BRANCH} ${BZRDIR}
 
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
+
+${BZRDIR}/scripts/recover.py ${NODE_NAME}
 
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke -t {{test}}

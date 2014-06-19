@@ -14,6 +14,18 @@ from phabletutils.environment import detect_device
 import dashboard
 import statsd
 
+EMULATOR = os.environ.get('USE_EMULATOR')
+if EMULATOR:
+    def fake_detect(serial, device=None):
+        log.info('faking detect device for emulator')
+        return 'emulator'
+
+    # detect_device doesn't support the emulator
+    globals()['detect_device'] = fake_detect
+    if 'ANDROID_SERIAL' not in os.environ:
+        # we need something here or "serial required" logic fails
+        os.environ['ANDROID_SERIAL'] = 'emulator-5554'
+
 log = logging.getLogger()
 script_dir = os.path.dirname(__file__)
 res_dir = os.path.join(os.getcwd(), 'clientlogs')
@@ -80,6 +92,11 @@ def _get_parser():
                         help='''Image type being tested. This can be changed
                         to 'touch_sf4p' so that SurfaceFlinger will be used
                         instead of Mir. default=%(default)s''')
+    parser.add_argument('--num-workers', type=int, default=1,
+                        help='''The total number of workers available for
+                        running tests.''')
+    parser.add_argument('--worker-idx', type=int, default=0,
+                        help='The worker to allocate testing work to.')
     return parser
 
 
@@ -107,6 +124,8 @@ def _merge_env(args):
     _arg_from_env(args, 'image_type', 'IMAGE_TYPE', False)
     _arg_from_env(args, 'install_url', 'INSTALL_URL', False)
     _arg_from_env(args, 'revision', 'REVISION', False)
+    _arg_from_env(args, 'num_workers', 'workers', False)
+    _arg_from_env(args, 'worker_idx', 'worker_idx', False)
 
 
 def _assert_args(args):
@@ -132,16 +151,20 @@ def _assert_args(args):
     if args.app and args.app[0] == 'ALL':
         logging.info('Discovering all autopilot tests')
         out = subprocess.check_output(
-            [script, 'apps', '-i', args.image_type])
+            [script, 'apps', '-i', args.image_type,
+             '-t', str(args.num_workers), '-w', str(args.worker_idx)])
         args.app = [x for x in out.decode().split()]
+        logging.info('Autopilot test list: {}'.format(' '.join(args.app)))
 
     if args.test and args.test[0].startswith('ALL'):
         logging.info('Discovering all UTAH tests')
-        argv = [script, 'utah', '-i', args.image_type]
+        argv = [script, 'utah', '-i', args.image_type,
+                '-t', str(args.num_workers), '-w', str(args.worker_idx)]
         if args.test[0] == 'ALL_INCLUDING_AUTOPILOT':
             argv.append('-a')
         out = subprocess.check_output(argv)
         args.test = [x for x in out.decode().split()]
+        logging.info('Utah test list: {}'.format(' '.join(args.test)))
 
     logging.debug('ARGS: %r', args)
 
@@ -179,6 +202,8 @@ def _image_info():
         elif key == 'channel':
             channel = val.strip()
     ver = '%s:%s:%s' % (v_ver, u_ver, d_ver)
+    # required for the jenkins job's build description
+    print('= TOUCH IMAGE VERSION:' + ver)
     return ver, channel
 
 
@@ -314,8 +339,8 @@ def _test_utah(args, build, image):
 
 def _image_add(args):
     build_number, channel = _image_info()
-    # channel is: ubuntu-touch/trusty-proposed
-    # we need "trusty"
+    # channel is: ubuntu-touch/utopic-proposed
+    # we need "utopic"
     release = channel.split('/')[1].split('-')[0]
     return dashboard_api.image_add(
         build_number, release, args.image_type, detect_device(None), 'ubuntu')

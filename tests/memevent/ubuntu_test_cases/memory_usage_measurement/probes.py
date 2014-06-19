@@ -68,7 +68,7 @@ class SmemProbe(object):
         parser = SmemParser()
         pids_info = parser.parse(output)
         threshold_exceeded_pids = self._calculate_threshold_exceeded(pids_info)
-        print '{:-^72}'.format(event)
+        print('{:-^72}'.format(event))
         for pid in self.pids:
             print('PID: {pid}, command: {command}, PSS: {pss}, USS: {uss}'
                   .format(**pids_info[pid]))
@@ -144,9 +144,8 @@ class SmemParser(object):
         :rtype: dict(dict)
 
         """
-        pids_info = filter(None,
-                           [self._parse_line(line)
-                            for line in output.splitlines()[1:]])
+        pids_info = [_f for _f in [self._parse_line(line)
+                            for line in output.splitlines()[1:]] if _f]
         return {pid_info['pid']: pid_info for pid_info in pids_info}
 
     def _parse_line(self, line):

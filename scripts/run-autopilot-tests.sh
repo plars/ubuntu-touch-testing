@@ -40,7 +40,11 @@ setup_test() {
 		if [ "$label" = "setup" ] ; then
 			adb-shell sudo apt-get install -yq --force-yes $pkgs
 		else
-			adb-shell sudo apt-get autoremove --purge -y $pkgs
+			#Always remove dbus-x11 because it causes
+			#problems when we leave it around
+			pkgs="$pkgs dbus-x11"
+			adb-shell sudo apt-get autoremove --purge -y $pkgs \
+				|| /bin/true
 		fi
 		echo $? > ${odir}/setup_${label}.rc
 	} 2>&1 | tee ${odir}/setup_${label}.log
@@ -80,15 +84,20 @@ test_app() {
 
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
+	EXTRA=""
+	[ -z $USE_EMULATOR ] && EXTRA="-A '--timeout-profile=long'"
 
 	phablet-test-run \
-		$NOSHELL \
-		-o ${odir} \
+		$NOSHELL $EXTRA \
+		-o ${odir} -f subunit \
 		-a /var/crash -a /home/phablet/.cache/upstart \
 		-v $app || true
 
 	system_settle after $odir
 	setup_test $app teardown $odir
+	if [ -f ${odir}/test_results.subunit ] ; then
+		cat ${odir}/test_results.subunit | subunit2junitxml > ${odir}/test_results.xml
+	fi
 	${BASEDIR}/scripts/combine_results ${odir}
 }
 
@@ -106,6 +115,7 @@ reboot_wait() {
 	fi
 }
 
+if [ -z $USE_EMULATOR ] ; then
 grab_powerd() {
 	echo "grabbing powerd cli locks..."
 	adb shell powerd-cli active &
@@ -123,6 +133,18 @@ release_powerd() {
 		PIDS=""
 	fi
 }
+
+else
+grab_powerd() {
+	#emulator does not use powerd, so this is noop
+	return 0
+}
+
+release_powerd() {
+	#emulator does not use powerd, so this is noop
+	return 0
+}
+fi
 
 dashboard_update() {
 	# only try and update the dashboard if we are configured to
@@ -148,11 +170,6 @@ dashboard_result_syncing() {
 }
 
 main() {
-	# print the build date so the jenkins job can use it as the
-	# build description
-	BUILDID=$(adb shell cat /home/phablet/.ci-version)
-	echo "= TOUCH IMAGE VERSION:$BUILDID"
-
 	[ -d $RESDIR ] || mkdir -p $RESDIR
 
 	set -x
@@ -224,4 +241,8 @@ if [ -z "$APPS" ] ; then
 fi
 
 trap release_powerd TERM INT EXIT
+if [ -n "$USE_EMULATOR" ] ; then
+	echo "disabling system-settle testing for emulator"
+	NOSETTLE=1
+fi
 main

@@ -13,10 +13,10 @@ common ways to run this job are:
   <dd>TESTS=ALL</dd>
   <dd>APPS=ALL</dd>
   <dt>Re-run a Failed Autopilot Test</dt>
-  <dd>INSTALL_URL=http://dev-jenkins:8080/job/trusty-touch_ro-mako/9</dd>
+  <dd>INSTALL_URL=http://dev-jenkins:8080/job/utopic-touch_ro-mako/9</dd>
   <dd>APPS=friends_app</dd>
   <dt>Re-run a Failed UTAH Test</dt>
-  <dd>INSTALL_URL=http://dev-jenkins:8080/job/trusty-touch_ro-mako/9</dd>
+  <dd>INSTALL_URL=http://dev-jenkins:8080/job/utopic-touch_ro-mako/9</dd>
   <dd>TESTS=security</dd>
 </dl>
 <pre>
@@ -85,6 +85,8 @@ bzr branch ${BRANCH} ${BZRDIR}
 
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
+
+${BZRDIR}/scripts/recover.py ${NODE_NAME}
 
 {% if statsd_key %}
 # the txstatsd package is too old, use the one from LP:

@@ -1,0 +1,12 @@
+description: run phablet-bootchart on a phone
+dependencies: none
+action: |
+  1. setup bootchart
+  2. reboot 3 times
+  3. collect
+expected_results: |
+  1. boot chart data
+type: userland
+timeout: 2000
+command: ./run.py
+tc_setup: ./setup.sh

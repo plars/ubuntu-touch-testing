@@ -1,0 +1,9 @@
+description: check that apport is enabled
+dependencies: none
+action: |
+  1. status apport | grep running
+expected_results: |
+  1. status apport says that it is running
+type: userland
+timeout: 60
+command: $TARGET_PREFIX status apport | grep running

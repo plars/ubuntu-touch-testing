@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project>
+<com.cloudbees.plugins.flow.BuildFlow>
   <actions/>
   <description>
 &lt;pre&gt;
@@ -32,80 +32,7 @@
   </triggers>
 {% endif %}
   <concurrentBuild>false</concurrentBuild>
-  <builders>
-    <hudson.tasks.Shell>
-      <command><![CDATA[
-set -e
-
-# give the image time to show up before running tests
-sleep {{wait}}
-      ]]></command>
-    </hudson.tasks.Shell>
-    <!-- our smoke job. this must run successfully or we won't continue -->
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder>
-      <configs>
-        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-	  <configs class="java.util.Collections$EmptyList"/>
-          <projects>{{smoke_job}}</projects>
-          <condition>ALWAYS</condition>
-          <triggerWithNoParameters>false</triggerWithNoParameters>
-          <block>
-            <buildStepFailureThreshold>
-              <name>FAILURE</name>
-              <ordinal>2</ordinal>
-              <color>RED</color>
-            </buildStepFailureThreshold>
-            <unstableThreshold>
-              <name>UNSTABLE</name>
-              <ordinal>1</ordinal>
-              <color>YELLOW</color>
-            </unstableThreshold>
-            <failureThreshold>
-              <name>FAILURE</name>
-              <ordinal>2</ordinal>
-              <color>RED</color>
-            </failureThreshold>
-          </block>
-          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
-        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-      </configs>
-    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
-
-    <hudson.tasks.Shell>
-      <command><![CDATA[
-set -e
-
-# Grab the INSTALL_URL from the smoke-job to help avoid reflashing the
-# downstream jobs
-child_number=$(env | grep ^TRIGGERED_BUILD_NUMBER_ | cut -d= -f2)
-cat >child.params <<EOF
-INSTALL_URL=${JENKINS_URL}job/{{smoke_job}}/${child_number}
-EOF
-
-echo params for downstream jobs:
-cat child.params
-      ]]></command>
-    </hudson.tasks.Shell>
-
-{% for project in projects %}
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder>
-      <configs>
-        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-          <configs>
-            <hudson.plugins.parameterizedtrigger.FileBuildParameters>
-              <propertiesFile>child.params</propertiesFile>
-              <failTriggerOnMissing>true</failTriggerOnMissing>
-            </hudson.plugins.parameterizedtrigger.FileBuildParameters>
-          </configs>
-          <projects>{{project}}</projects>
-          <condition>ALWAYS</condition>
-          <triggerWithNoParameters>false</triggerWithNoParameters>
-          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
-        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-      </configs>
-    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
-{% endfor %}
-  </builders>
+  <builders/>
   <publishers/>
   <buildWrappers>
       <hudson.plugins.build__timeout.BuildTimeoutWrapper>
@@ -117,5 +44,26 @@ cat child.params
       <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
     </hudson.plugins.build__timeout.BuildTimeoutWrapper>
   </buildWrappers>
-</project>
+  <dsl><![CDATA[
+// give the image time to show up before running tests
+out.println("sleeping for a bit")
+build.sleep({{wait * 1000}})
 
+ignore(UNSTABLE) {
+    join = parallel ([
+{% for x in range(num_workers) %}
+        worker_{{x}}:  { build("{{smoke_job}}", worker_idx: {{x}}, workers: {{num_workers}}) },
+{% endfor %}
+    ])
+}
+{% if projects %}
+out.println("kicking off downstream projects in parellel")
+install_url = build.environment.get("HUDSON_URL") + join.worker_0.lastBuild.build.url
+parallel (
+{% for project in projects %}
+    {build("{{project}}", INSTALL_URL: install_url)},
+{% endfor %}
+)
+{% endif %}
+  ]]></dsl>
+</com.cloudbees.plugins.flow.BuildFlow>

@@ -2,9 +2,13 @@
 
 import argparse
 import logging
+import os
+import subprocess
 import time
 
 from phabletutils.device import AndroidBridge
+
+EMULATOR = os.environ.get('USE_EMULATOR', '')
 
 
 def _get_arg_parser():
@@ -34,8 +38,17 @@ def main(args):
     return 1
 
 
+def emulator_main(args):
+    emulator = os.path.join(os.path.dirname(__file__), 'run-emulator')
+    subprocess.check_call([emulator])
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logging.getLogger().name = 'reboot-and-wait'
     args = _get_arg_parser().parse_args()
-    exit(main(args))
+    if EMULATOR:
+        logging.info('using emulator logic for reboot')
+        exit(emulator_main(args))
+    else:
+        exit(main(args))

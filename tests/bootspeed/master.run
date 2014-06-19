@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: bootspeed
+    fetch_method: dev
+    fetch_location: ./

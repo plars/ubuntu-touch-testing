@@ -1,0 +1,9 @@
+description: check for whoopsie process
+dependencies: None
+action: |
+  1. pgrep whoopsie
+expected_results: |
+  1. pgrep exits with 0, indicating it found a matching process
+type: userland
+timeout: 60
+command: $TARGET_PREFIX /usr/bin/pgrep whoopsie
