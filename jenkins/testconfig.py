@@ -82,7 +82,9 @@ TESTSUITES += [
     Test('security'),
     Test('eventstat', IDLE_FMT),
     Test('smem', IDLE_FMT),
-    Test('health-check', IDLE_FMT),
+    Test('health-check',
+         '{prefix}smoke-{testname}-{series}-{imagetype}-armhf-install-idle-'
+         '{type}'),
     Test('memevent',
          '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
     Test('bootspeed',
