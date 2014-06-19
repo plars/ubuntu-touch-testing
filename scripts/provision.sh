@@ -127,6 +127,7 @@ if [ -z $USE_EMULATOR ] ; then
 	phablet-network -n $NETWORK_FILE
 fi
 
+phablet-config welcome-wizard --disable
 phablet-config edges-intro --disable
 
 # get our target-based utilities into our PATH
