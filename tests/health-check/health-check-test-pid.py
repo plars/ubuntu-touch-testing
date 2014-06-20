@@ -171,7 +171,7 @@ def get_proc(pid):
     except OSError as e:
         if e.errno == 3:
             sys.stderr.write("Cannot find pgid on process with PID %d\n" % pid)
-    return proc
+    return proc.as_dict(attrs=['pid', 'name'])
 
 
 def main(pid):
@@ -183,7 +183,7 @@ def main(pid):
     if not p:
         exit(1)
 
-    procname = os.path.basename(p.name)
+    procname = os.path.basename(p['name'])
     if (health_check(pid, procname)):
         exit(1)
     else:
