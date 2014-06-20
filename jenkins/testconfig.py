@@ -22,15 +22,16 @@ IDLE_FMT = '{prefix}{testname}-{series}-{imagetype}-armhf-install-idle-{type}'
 
 
 class Test(object):
-    def __init__(self, name, fmt=DEF_FMT):
+    def __init__(self, name, timeout=60, fmt=DEF_FMT, smoke=True):
         self.name = name
+        self.timeout = timeout
         self.fmt = fmt
-        self.smoke = fmt == DEF_FMT
+        self.smoke = smoke
 
 
 class DevTest(Test):
     def __init__(self, name, device):
-        Test.__init__(self, name, fmt=IDLE_FMT)
+        Test.__init__(self, name, fmt=IDLE_FMT, smoke=False)
         self.device = device
 
 
@@ -80,12 +81,15 @@ TESTSUITES += [
     Test('click_image_tests'),
     Test('sdk'),
     Test('security'),
-    Test('eventstat', IDLE_FMT),
-    Test('smem', IDLE_FMT),
+    Test('eventstat', fmt=IDLE_FMT, smoke=False),
+    Test('smem', fmt=IDLE_FMT, smoke=False),
+    Test('health-check', timeout=300, smoke=False),
     Test('memevent',
-         '{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}'),
+         fmt='{prefix}{testname}-{series}-{imagetype}-armhf-default-{type}',
+         smoke=False),
     Test('bootspeed',
-         '{prefix}{testname}-{series}-{imagetype}-{type}-{type}'),
+         fmt='{prefix}{testname}-{series}-{imagetype}-{type}-{type}',
+         smoke=False),
 ]
 
 

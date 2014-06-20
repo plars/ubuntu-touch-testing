@@ -1,0 +1,73 @@
+#
+# Default "IDLE" process thresholds.  Typically, an idle process
+# should be doing very little, so this profile checks some simple
+# process specific settings to see if we can find "busy" idle processes
+#
+# Length of test in seconds
+#
+duration 600
+#
+# CPU loading, should be really low for idle processes
+#
+health-check.cpu-load.cpu-load-total.total-cpu-percent	0.20
+health-check.cpu-load.cpu-load-total.user-cpu-percent	0.10
+health-check.cpu-load.cpu-load-total.system-cpu-percent	0.10
+#
+# Page faults, ignore these
+#
+#health-check.page-faults.page-faults-total.minor-page-faults-total-rate 10
+#health-check.page-faults.page-faults-total.major-page-faults-total-rate 10
+#health-check.page-faults.page-faults-total.total-page-faults-total-rate 10
+#
+# Wakeup Events, anything more than 1 a second is busy
+#
+health-check.wakeup-events.wakeup-events-total.wakeup-total-rate 0.05
+#
+# Context Switches, ignore these
+#
+#health-check.context-switches.context-switches-total.context-switch-total-rate 10
+#
+# Files, really should not be doing much so allow for 1 a minute top
+#
+health-check.file-access.file-access-total.access-count-total-rate 5.0
+health-check.file-io-operations.file-io-operations-total.open-call-total-rate 2.0
+health-check.file-io-operations.file-io-operations-total.close-call-total-rate 2.0
+health-check.file-io-operations.file-io-operations-total.read-call-total-rate 2.0
+health-check.file-io-operations.file-io-operations-total.write-call-total-rate 2.0
+#
+# System calls, ignore these
+#
+#health-check.system-calls.system-calls-total.system-call-count-total-rate 10
+#health-check.polling-system-calls.polling-system-calls-total.system-call-total-rate 10
+#health-check.polling-system-calls.polling-system-calls-total.poll-count-infinite-total-rate 10
+#health-check.polling-system-calls.polling-system-calls-total.poll-count-zero-total-rate 0
+#
+# File system syncs, an idle process should not do any
+#
+health-check.file-system-syncs.sync-system-calls-total.fdatasync-call-count-total-rate 0
+health-check.file-system-syncs.sync-system-calls-total.fsync-call-count-total-rate 0
+health-check.file-system-syncs.sync-system-calls-total.sync-call-count-total-rate 0
+health-check.file-system-syncs.sync-system-calls-total.syncfs-call-count-total-rate 0
+#
+# Memory usage, can't have a generic memory limit, so ignore
+#
+#health-check.memory-usage.memory-usage-total.stack-size-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.stack-rss-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.stack-pss-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.heap-size-total-kbytes 8192
+#health-check.memory-usage.memory-usage-total.heap-rss-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.heap-pss-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.mapped-size-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.mapped-rss-total-kbytes 1000000
+#health-check.memory-usage.memory-usage-total.mapped-pss-total-kbytes 1000000
+#
+# Memory change,  should not grow more than say 10K an hour
+#
+# health-check.memory-change.memory-change-total.
+health-check.heap-usage-via-brk.heap-usage-via-brk-total.brk-size-total-Kbytes-rate   0.002777778
+health-check.memory-usage-via-mmap.memory-usage-via-mmap-total.mmap-total-Kbytes-rate 0.002777778
+#
+# Network, should be fairly idle
+#
+health-check.network-connections.network-connections-total.send-total-rate 1024
+health-check.network-connections.network-connections-total.receive-total-rate 1024

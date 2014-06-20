@@ -136,6 +136,7 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
         'branch': args.branch,
         'imagetype': config_item['image-type'],
         'image_opt': config_item.get('IMAGE_OPT', ''),
+        'timeout': test.timeout,
         'test': test.name,
     }
     prefix = ""

@@ -84,7 +84,7 @@ adb pull /tmp/memory_usage.json ./clientlogs/
   </publishers>
   <buildWrappers>
       <hudson.plugins.build__timeout.BuildTimeoutWrapper>
-        <timeoutMinutes>60</timeoutMinutes>
+        <timeoutMinutes>{{timeout}}</timeoutMinutes>
       <failBuild>true</failBuild>
       <writingDescription>false</writingDescription>
       <timeoutPercentage>0</timeoutPercentage>
