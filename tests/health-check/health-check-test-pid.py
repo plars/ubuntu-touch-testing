@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 #
 # Copyright (C) 2013 Canonical
@@ -95,9 +95,9 @@ def check_threshold(data, key, fullkey, threshold):
 
 
 def check_thresholds(procname, data, thresholds):
-    print "process: " + procname
+    print("process: " + procname)
     failed = False
-    for key in sorted(thresholds.iterkeys()):
+    for key in sorted(thresholds.keys()):
         if key.startswith("health-check"):
             threshold = float(thresholds[key])
             (ret, str) = check_threshold(data, key.split('.'), key, threshold)
