@@ -16,6 +16,8 @@ class TouchDevice(object):
 
 DEVICES = {
     "ps-mako-01": TouchDevice("mako", "0090f741e3d141bc"),
+    "ps-mako-02": TouchDevice("mako", "04ccca120acd4dea"),
+    "ps-mako-03": TouchDevice("mako", "04cb53b598546534"),
     "ps-mako-04": TouchDevice("mako", "04cbcc545f5328a5"),
     "mako-01": TouchDevice("mako", "01aa3d7a5dcba4a2"),
     "mako-02": TouchDevice("mako", "01ade38b552014d4"),
