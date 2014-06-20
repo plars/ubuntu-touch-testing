@@ -16,14 +16,18 @@ class TouchDevice(object):
 
 DEVICES = {
     "ps-mako-01": TouchDevice("mako", "0090f741e3d141bc"),
+    "ps-mako-02": TouchDevice("mako", "04ccca120acd4dea"),
+    "ps-mako-03": TouchDevice("mako", "04cb53b598546534"),
     "ps-mako-04": TouchDevice("mako", "04cbcc545f5328a5"),
     "mako-01": TouchDevice("mako", "01aa3d7a5dcba4a2"),
     "mako-02": TouchDevice("mako", "01ade38b552014d4"),
     "mako-03": TouchDevice("mako", "04c6714ed7c863f2"),
+    "mako-04": TouchDevice("mako", "04df89cf0f9d0933"),
     "mako-05": TouchDevice("mako", "01b22f82dc5cec63"),
     "mako-06": TouchDevice("mako", "04ed70928fdc13ba"),
     "mako-07": TouchDevice("mako", "01e2f64788556934"),
     "mako-08": TouchDevice("mako", "04ea16a163930769"),
+    "mako-09": TouchDevice("mako", "04fda12ea08fe3c7"),
     "mako-10": TouchDevice("mako", "01ce848e48dfa6a2"),
     "mako-11": TouchDevice("mako", "04ed727c929709ba"),
     #If looking at the LAB wiki page, subtract 1 from the bank and pin numbers
@@ -40,6 +44,11 @@ DEVICES = {
     "mako-15": TouchDevice("mako", "00763b4a61ce0f87",
                            relay_url="http://qa-relay-control.ubuntu-ci",
                            bank=1, power_pin=0, volume_pin=1),
+    "mako-16": TouchDevice("mako", "017121eacf5282c4",
+                           relay_url="http://qa-relay-control.ubuntu-ci",
+                           bank=1, power_pin=2, volume_pin=3),
+    #mako-17 has a broken screen but should work, on ashes
+    "mako-17": TouchDevice("mako", "04e0d2f6d3cab77d"),
     "ps-manta-01": TouchDevice("manta", "R32D203DDZR"),
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
     "manta-02": TouchDevice("manta", "R32D102RPPK"),
