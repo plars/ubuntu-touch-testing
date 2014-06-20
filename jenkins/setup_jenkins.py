@@ -136,6 +136,7 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
         'branch': args.branch,
         'imagetype': config_item['image-type'],
         'image_opt': config_item.get('IMAGE_OPT', ''),
+        'timeout': test.timeout,
         'test': test.name,
     }
     prefix = ""
@@ -151,10 +152,12 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
 
 
 def _configure_qa_jobs(instance, env, args, config_item, device):
+    #Whitelist of test names that look like smoke tests, but they are qa tests
+    whitelist = ['health-check']
     tests = list(testconfig.TESTSUITES)
     tests = testconfig.filter_tests(tests, config_item['image-type'],
                                     device['name'])
-    tests = [t for t in tests if not t.smoke]
+    tests = [t for t in tests if t.name in whitelist or not t.smoke]
     jobs = []
     for t in tests:
         j = _configure_qa_job(instance, env, args, config_item, device, t)
