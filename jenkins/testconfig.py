@@ -130,7 +130,7 @@ def _handle_utah(args):
     if args.with_autopilot:
         tests = [t for t in TESTSUITES if t.fmt == DEF_FMT]
     tests = _split_work(tests, args.total_workers, args.worker)
-    print(' '.join([t.name for t in tests]))
+    print(' '.join([t.name for t in tests if t.smoke is True]))
 
 
 def _handle_ap_apps(args):
