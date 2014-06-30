@@ -85,7 +85,8 @@ test_app() {
 	NOSHELL=""
 	[ "$app" = "unity8" ] && NOSHELL="-n"
 	EXTRA=""
-	[ -z $USE_EMULATOR ] && EXTRA="-A '--timeout-profile=long'"
+        # Use --timeout-profile=long only if we are using the emulator
+	[ -z $USE_EMULATOR ] || EXTRA="-A '--timeout-profile=long'"
 
 	phablet-test-run \
 		$NOSHELL $EXTRA \
