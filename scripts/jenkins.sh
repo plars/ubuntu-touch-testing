@@ -55,6 +55,7 @@ test_from_host() {
 		--pull /var/crash \
 		--pull /home/phablet/.cache/upstart \
 		--pull /tmp/xmlresults \
+		--pull /var/log/syslog \
 		$EXTRA_PULL \
 		-l ${TESTSUITE_HOST}/master.run
 
