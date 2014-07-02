@@ -92,6 +92,7 @@ test_app() {
 		$NOSHELL $EXTRA \
 		-o ${odir} -f subunit \
 		-a /var/crash -a /home/phablet/.cache/upstart \
+                -a /var/log/syslog -a /var/log/kern.log \
 		-v $app || true
 
 	system_settle after $odir
