@@ -34,8 +34,8 @@ EOF
 image_info() {
 	# mark the version we installed in /home/phablet/.ci-[uuid,flash-args]
 	# adb shell messes up \n's with \r\n's so do the whole of the regex on the target
-	IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
-	CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+	IMAGEVER=$(adb shell "sudo system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
+	CHAN=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
 	REV=$(echo $IMAGEVER | cut -d: -f1)
 	echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
 	echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
@@ -119,6 +119,9 @@ else
 	${BASEDIR}/reboot-and-wait
 fi
 
+log "SETTING UP SUDO"
+adb shell "echo phablet |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
+
 log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup
 
@@ -139,5 +142,5 @@ if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
 	phablet-config writable-image $CUSTOMIZE
         # Make sure whoopsie-upload-all can work (bug #1245524)
-        adb shell "sed -i '/Waiting for whoopsie/ a\    subprocess.call([\"restart\", \"whoopsie\"])' /usr/share/apport/whoopsie-upload-all"
+        adb shell "sudo sed -i '/Waiting for whoopsie/ a\    subprocess.call([\"restart\", \"whoopsie\"])' /usr/share/apport/whoopsie-upload-all"
 fi

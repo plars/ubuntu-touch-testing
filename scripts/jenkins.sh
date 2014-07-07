@@ -93,7 +93,7 @@ main() {
 	adb shell "top -n1 -b" > ${RESDIR}/top.log
 
 	set -x
-	adb shell 'rm -f /var/crash/*'
+	adb shell 'sudo rm -f /var/crash/*'
 	if [ -z $QUICK ] ; then
 		# get the phone in sane place
 		adb reboot
@@ -104,19 +104,19 @@ main() {
 		sleep 5
 		adb wait-for-device
 		phablet-network --skip-setup -t 90s
-		adb shell powerd-cli active &
+		adb shell sudo powerd-cli active &
 		PIDS="$PIDS $!"
-		adb shell powerd-cli display on &
+		adb shell sudo powerd-cli display on &
 		PIDS="$PIDS $!"
 	else
 		echo "SKIPPING phone reboot..."
 	fi
 
-	${BASEDIR}/utils/host/adb-shell "aa-clickhook -f --include=/usr/share/autopilot-touch/apparmor/click.rules"
+	${BASEDIR}/utils/host/adb-shell "sudo aa-clickhook -f --include=/usr/share/autopilot-touch/apparmor/click.rules"
 
 	echo "launching test from the host...."
 	test_from_host
-	adb shell 'rm -f /var/crash/*'
+	adb shell 'sudo rm -f /var/crash/*'
 
 	if ! `grep "^errors: [!0]" < $UTAHFILE >/dev/null` ; then
 		echo "errors found"
