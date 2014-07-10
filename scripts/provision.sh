@@ -124,6 +124,10 @@ phablet-click-test-setup
 
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
+        # temp workaround for bug 1321627
+        adb shell "/usr/share/urfkill/scripts/flight-mode 0"
+        adb shell "restart urfkill"
+        sleep 20
 	phablet-network -n $NETWORK_FILE
 fi
 
