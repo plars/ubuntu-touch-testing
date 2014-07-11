@@ -49,7 +49,6 @@ TESTSUITES = [
     Test('default'),
 ]
 TESTSUITES += [
-    APTest('friends-app-autopilot', pkgs=['friends-app-autopilot']),
     APTest('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
     APTest('gallery-app-autopilot'),
     APTest('webbrowser-app-autopilot', pkgs=['webbrowser-app-autopilot']),
