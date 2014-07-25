@@ -15,6 +15,20 @@ UTOPIC_MATRIX = [
             }
         ],
     },
+    {
+        'image-type': 'touch_stable',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
+        'include-qa': True,
+        'devices': [
+            {
+                'name': 'mako',
+                'slave-label': 'mako',
+                #'trigger_url': 'http://system-image.ubuntu.com/utopic-proposed/mako/index.json',
+            }
+        ],
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
+                     '--channel ubuntu-touch/staging-stable-proposed"'
+    },
 ]
 
 MATRIX = {
