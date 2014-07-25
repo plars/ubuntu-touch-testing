@@ -11,7 +11,7 @@ def _url(channel, device):
 UTOPIC_MATRIX = [
     {
         'image-type': 'touch',
-        'statsd-key': 'ubuntu-ci.daily-image.staging',
+        'statsd-key': 'ubuntu-ci.daily-image.production',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -39,7 +39,7 @@ UTOPIC_MATRIX = [
     },
     {
         'image-type': 'touch_stable',
-        'statsd-key': 'ubuntu-ci.daily-image.staging',
+        'statsd-key': 'ubuntu-ci.daily-image.production',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -69,7 +69,7 @@ UTOPIC_MATRIX = [
     },
     {
         'image-type': 'touch_custom',
-        'statsd-key': 'ubuntu-ci.daily-image.staging',
+        'statsd-key': 'ubuntu-ci.daily-image.production',
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
