@@ -8,54 +8,6 @@ def _url(channel, device):
            % (channel, device)
 
 
-TRUSTY_MATRIX = [
-    {
-        'image-type': 'touch',
-        'statsd-key': 'ubuntu-ci.daily-image.staging',
-        'include-qa': True,
-        'dashboard-host': 'ci.ubuntu.com',
-        'dashboard-port': '80',
-        'dashboard-user': 'doanac',
-        'devices': [
-            {
-                'name': 'mako',
-                'slave-label': 'daily-mako',
-                'trigger_url': _url('trusty-proposed', 'mako'),
-            },
-            {
-                'name': 'flo',
-                'slave-label': 'daily-flo',
-                'trigger_url': _url('trusty-proposed', 'flo'),
-            },
-            {
-                'name': 'manta',
-                'slave-label': 'daily-manta',
-                'trigger_url': _url('trusty-proposed', 'manta'),
-            },
-        ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
-                     '--channel trusty-proposed"'
-    },
-    {
-        'image-type': 'touch_custom',
-        'statsd-key': 'ubuntu-ci.daily-image.staging',
-        'include-qa': False,
-        'dashboard-host': 'ci.ubuntu.com',
-        'dashboard-port': '80',
-        'dashboard-user': 'doanac',
-        'devices': [
-            {
-                'name': 'mako',
-                'slave-label': 'daily-mako',
-                'trigger_url': _url('trusty-proposed-customized', 'mako'),
-            },
-        ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
-                     '--channel trusty-proposed-customized"'
-    },
-]
-
-
 UTOPIC_MATRIX = [
     {
         'image-type': 'touch',
@@ -106,6 +58,5 @@ UTOPIC_MATRIX = [
 
 
 MATRIX = {
-    'trusty': TRUSTY_MATRIX,
     'utopic': UTOPIC_MATRIX,
 }
