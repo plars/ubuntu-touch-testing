@@ -11,6 +11,7 @@ def _url(channel, device):
 TRUSTY_MATRIX = [
     {
         'image-type': 'touch',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -37,6 +38,7 @@ TRUSTY_MATRIX = [
     },
     {
         'image-type': 'touch_custom',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -57,6 +59,7 @@ TRUSTY_MATRIX = [
 UTOPIC_MATRIX = [
     {
         'image-type': 'touch',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -84,6 +87,7 @@ UTOPIC_MATRIX = [
     },
     {
         'image-type': 'touch_custom',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
