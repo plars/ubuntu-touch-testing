@@ -8,55 +8,10 @@ def _url(channel, device):
            % (channel, device)
 
 
-TRUSTY_MATRIX = [
-    {
-        'image-type': 'touch',
-        'include-qa': True,
-        'dashboard-host': 'ci.ubuntu.com',
-        'dashboard-port': '80',
-        'dashboard-user': 'doanac',
-        'devices': [
-            {
-                'name': 'mako',
-                'slave-label': 'daily-mako',
-                'trigger_url': _url('trusty-proposed', 'mako'),
-            },
-            {
-                'name': 'flo',
-                'slave-label': 'daily-flo',
-                'trigger_url': _url('trusty-proposed', 'flo'),
-            },
-            {
-                'name': 'manta',
-                'slave-label': 'daily-manta',
-                'trigger_url': _url('trusty-proposed', 'manta'),
-            },
-        ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
-                     '--channel trusty-proposed"'
-    },
-    {
-        'image-type': 'touch_custom',
-        'include-qa': False,
-        'dashboard-host': 'ci.ubuntu.com',
-        'dashboard-port': '80',
-        'dashboard-user': 'doanac',
-        'devices': [
-            {
-                'name': 'mako',
-                'slave-label': 'daily-mako',
-                'trigger_url': _url('trusty-proposed-customized', 'mako'),
-            },
-        ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap '
-                     '--channel trusty-proposed-customized"'
-    },
-]
-
-
 UTOPIC_MATRIX = [
     {
         'image-type': 'touch',
+        'statsd-key': 'ubuntu-ci.daily-image.production',
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -65,25 +20,56 @@ UTOPIC_MATRIX = [
             {
                 'name': 'mako',
                 'slave-label': 'daily-mako',
-                'trigger_url': _url('utopic-proposed', 'mako'),
+                'trigger_url': _url('devel-proposed', 'mako'),
                 'num-workers': 3,
             },
             {
                 'name': 'flo',
                 'slave-label': 'daily-flo',
-                'trigger_url': _url('utopic-proposed', 'flo'),
+                'trigger_url': _url('devel-proposed', 'flo'),
                 'num-workers': 2,
             },
             {
                 'name': 'manta',
                 'slave-label': 'daily-manta',
-                'trigger_url': _url('utopic-proposed', 'manta'),
+                'trigger_url': _url('devel-proposed', 'manta'),
                 'num-workers': 2,
             },
         ],
     },
     {
+        'image-type': 'touch_stable',
+        'statsd-key': 'ubuntu-ci.daily-image.production',
+        'include-qa': True,
+        'dashboard-host': 'ci.ubuntu.com',
+        'dashboard-port': '80',
+        'dashboard-user': 'doanac',
+        'devices': [
+            {
+                'name': 'mako',
+                'slave-label': 'daily-mako',
+                'trigger_url': _url('stable-staging-proposed', 'mako'),
+                'num-workers': 3,
+            },
+            {
+                'name': 'flo',
+                'slave-label': 'daily-flo',
+                'trigger_url': _url('stable-staging-proposed', 'flo'),
+                'num-workers': 2,
+            },
+            {
+                'name': 'manta',
+                'slave-label': 'daily-manta',
+                'trigger_url': _url('stable-staging-proposed', 'manta'),
+                'num-workers': 2,
+            },
+        ],
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
+                     '--channel ubuntu-touch/stable-staging-proposed"'        
+    },
+    {
         'image-type': 'touch_custom',
+        'statsd-key': 'ubuntu-ci.daily-image.production',
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
@@ -102,6 +88,5 @@ UTOPIC_MATRIX = [
 
 
 MATRIX = {
-    'trusty': TRUSTY_MATRIX,
     'utopic': UTOPIC_MATRIX,
 }
