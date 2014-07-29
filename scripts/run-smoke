@@ -339,11 +339,12 @@ def _test_utah(args, build, image):
 
 def _image_add(args):
     build_number, channel = _image_info()
-    # channel is: ubuntu-touch/utopic-proposed
-    # we need "utopic"
-    release = channel.split('/')[1].split('-')[0]
-    return dashboard_api.image_add(
-        build_number, release, args.image_type, detect_device(None), 'ubuntu')
+    # get the release series (ex. trusty, utopic)
+    # this is set in the job environment variable IMAGE_SERIES
+    release = os.environ.get('IMAGE_SERIES')
+    if release:
+        return dashboard_api.image_add(build_number, release, args.image_type,
+                                       detect_device(None), 'ubuntu')
 
 
 def main(args):

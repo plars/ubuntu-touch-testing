@@ -15,7 +15,7 @@ UTOPIC_MATRIX = [
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
-        'dashboard-user': 'doanac',
+        'dashboard-user': 'ci-bot',
         'devices': [
             {
                 'name': 'mako',
@@ -43,7 +43,7 @@ UTOPIC_MATRIX = [
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
-        'dashboard-user': 'doanac',
+        'dashboard-user': 'ci-bot',
         'devices': [
             {
                 'name': 'mako',
@@ -73,7 +73,7 @@ UTOPIC_MATRIX = [
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
-        'dashboard-user': 'doanac',
+        'dashboard-user': 'ci-bot',
         'devices': [
             {
                 'name': 'mako',
