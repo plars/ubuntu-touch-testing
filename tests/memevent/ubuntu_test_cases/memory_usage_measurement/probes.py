@@ -64,7 +64,7 @@ class SmemProbe(object):
         """
         LOGGER.debug('smem stop: {}'.format(event))
         LOGGER.debug('Running {!r}...'.format(self.BINARY))
-        output = subprocess.check_output(self.BINARY)
+        output = subprocess.check_output(self.BINARY, universal_newlines=True)
         parser = SmemParser()
         pids_info = parser.parse(output)
         threshold_exceeded_pids = self._calculate_threshold_exceeded(pids_info)
@@ -145,7 +145,7 @@ class SmemParser(object):
 
         """
         pids_info = [_f for _f in [self._parse_line(line)
-                            for line in output.splitlines()[1:]] if _f]
+                     for line in output.splitlines()[1:]] if _f]
         return {pid_info['pid']: pid_info for pid_info in pids_info}
 
     def _parse_line(self, line):
