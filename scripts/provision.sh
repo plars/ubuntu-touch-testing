@@ -111,6 +111,7 @@ if [ -z $USE_EMULATOR ] ; then
         if [ "${DEVICE_TYPE}" = "krillin" ]; then
 		# reboot to recovery for krillin
 		adb reboot recovery
+                adb wait-for-device
         else
 		adb reboot bootloader
 	fi
