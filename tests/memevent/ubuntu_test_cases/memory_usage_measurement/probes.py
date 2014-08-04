@@ -27,6 +27,7 @@ class SmemProbe(object):
         self.readings = []  # List of readings
         self.current_reading = None
         self.threshold_exceeded_summary = []
+        self._appname_to_pid = {}
 
     @contextmanager
     def probe(self, event):
@@ -34,6 +35,14 @@ class SmemProbe(object):
         self.start(event)
         yield
         self.stop(event)
+
+    def follow(self, pid, app_name=""):
+        """Inform probe that we are interested in this pid, optionally assign
+        an application name against it for ease of reporting.
+
+        """
+        self.pids.append(pid)
+        self._appname_to_pid[pid] = app_name
 
     def start(self, event):
         """Start measurement.
@@ -117,9 +126,11 @@ class SmemProbe(object):
     @property
     def report(self):
         """Return report with all the readings that have been made."""
-        return {'pids': self.pids,
-                'thresholds': self.THRESHOLDS,
-                'readings': self.readings}
+        return {
+            'pids': self.pids,
+            'named_pids': self._appname_to_pid,
+            'thresholds': self.THRESHOLDS,
+            'readings': self.readings}
 
 
 class SmemParser(object):
