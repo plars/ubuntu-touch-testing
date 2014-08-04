@@ -79,8 +79,8 @@ test_app() {
 	system_settle before $odir
 	phablet-config autopilot --dbus-probe enable || \
 		(log_error "'autopilot dbus-probe enable' failed"; return 1)
-        adb-shell /home/phablet/bin/check-clickhook-rules || \
-                (log_error "some click profiles missing autopilot rules")
+	adb-shell /home/phablet/bin/check-clickhook-rules || \
+		(log_error "some click profiles missing autopilot rules")
 
 	setup_test $app setup $odir
 
