@@ -1,22 +1,30 @@
-"""Browser application to write autopilot test cases easily."""
-
-from testtools.matchers import Contains, Equals
-
-from ubuntuuitoolkit.emulators import UbuntuUIToolkitEmulatorBase
-from webbrowser_app.emulators.browser import Browser
 from autopilot.platform import model
 
-from ubuntu_test_cases.memory_usage_measurement.apps import App
+from testtools.matchers import Contains, Equals
+from webbrowser_app.emulators.browser import Browser
+from ubuntuuitoolkit.emulators import UbuntuUIToolkitEmulatorBase
+
+from ubuntu_test_cases.memory_usage_measurement.tests import MemoryUsageTests
 from ubuntu_test_cases.memory_usage_measurement.matchers import (
     Eventually,
 )
 
 
-class BrowserApp(App):
+class BrowserMemoryUsageTests(MemoryUsageTests):
+    def setUp(self):
+        super().setUp("webbrowser-app")
 
-    """Browser application."""
+    def test_browser_usage(self):
+        # browser = BrowserApp(self)
+        with self.smem.probe('Browser started'):
+            self.launch()
+            # self.smem.pids.append(self.app.pid)
+            self.smem.follow(self.app.pid, "webbrowser-app")
 
-    TYPING_DELAY = 0.01
+        with self.smem.probe('Browser finished loading'):
+            url = 'http://acid3.acidtests.org/'
+            self.go_to_url(url)
+            self.assert_page_eventually_loaded(url)
 
     def launch(self):
         """Launch application."""
@@ -26,7 +34,7 @@ class BrowserApp(App):
             ('--desktop_file_hint='
              '/usr/share/applications/webbrowser-app.desktop'),
         ]
-        self.app = self.tc.launch_test_application(
+        self.app = self.launch_test_application(
             *args,
             app_type='qt',
             emulator_base=UbuntuUIToolkitEmulatorBase
@@ -37,10 +45,10 @@ class BrowserApp(App):
     def assert_page_eventually_loaded(self, url):
         """Make sure page is eventually loaded."""
         webview = self.window.get_current_webview()
-        self.tc.assertThat(webview.url, Eventually(Equals(url)))
+        self.assertThat(webview.url, Eventually(Equals(url)))
         # loadProgress == 100 ensures that a page has actually loaded
-        self.tc.assertThat(webview.loadProgress, Eventually(Equals(100)))
-        self.tc.assertThat(webview.loading, Eventually(Equals(False)))
+        self.assertThat(webview.loadProgress, Eventually(Equals(100)))
+        self.assertThat(webview.loading, Eventually(Equals(False)))
 
     def go_to_url(self, url):
         self.clear_address_bar()
@@ -54,18 +62,18 @@ class BrowserApp(App):
         clear_button = address_bar.get_clear_button()
         self.pointer.click_object(clear_button)
         text_field = address_bar.get_text_field()
-        self.tc.assertThat(text_field.text, Eventually(Equals("")))
+        self.assertThat(text_field.text, Eventually(Equals("")))
 
     def focus_address_bar(self):
         address_bar = self.window.get_chrome().get_address_bar()
         self.pointer.click_object(address_bar)
-        self.tc.assertThat(address_bar.activeFocus, Eventually(Equals(True)))
+        self.assertThat(address_bar.activeFocus, Eventually(Equals(True)))
         self.assert_osk_eventually_shown()
 
     def assert_osk_eventually_shown(self):
         if model() != 'Desktop':
             keyboardRectangle = self.window.get_keyboard_rectangle()
-            self.tc.assertThat(
+            self.assertThat(
                 keyboardRectangle.state,
                 Eventually(Equals("shown"))
             )
@@ -73,14 +81,14 @@ class BrowserApp(App):
     def assert_osk_eventually_hidden(self):
         if model() != 'Desktop':
             keyboardRectangle = self.window.get_keyboard_rectangle()
-            self.tc.assertThat(
+            self.assertThat(
                 keyboardRectangle.state,
                 Eventually(Equals("hidden"))
             )
 
     def type_in_address_bar(self, text):
         address_bar = self.window.get_chrome().get_address_bar()
-        self.tc.assertThat(address_bar.activeFocus, Eventually(Equals(True)))
+        self.assertThat(address_bar.activeFocus, Eventually(Equals(True)))
         self.keyboard.type(text)
         text_field = address_bar.get_text_field()
-        self.tc.assertThat(text_field.text, Eventually(Contains(text)))
+        self.assertThat(text_field.text, Eventually(Contains(text)))
