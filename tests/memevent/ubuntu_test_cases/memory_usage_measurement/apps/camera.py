@@ -18,7 +18,7 @@ class CameraApp(App):
 
     """Camera application."""
 
-    IMAGE_FILENAME_PATTERN = os.path.expanduser('~/Pictures/image*')
+    IMAGE_FILENAME_PATTERN = os.path.expanduser('~/Pictures/camera/image*')
 
     def _remove_image_files(self):
         """Remove all image files.
