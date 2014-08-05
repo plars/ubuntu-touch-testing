@@ -9,6 +9,16 @@
   </description>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>sleep</name>
+          <description>Seconds to sleep before starting the job
+          </description>
+          <defaultValue>{{ wait }}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.throttleconcurrents.ThrottleJobProperty>
       <maxConcurrentPerNode>0</maxConcurrentPerNode>
       <maxConcurrentTotal>0</maxConcurrentTotal>
@@ -47,7 +57,8 @@
   <dsl><![CDATA[
 // give the image time to show up before running tests
 out.println("sleeping for a bit")
-build.sleep({{wait * 1000}})
+def sleep = build.environment.get("sleep").toLong()
+build.sleep(sleep * 1000)
 
 ignore(UNSTABLE) {
     join = parallel ([
