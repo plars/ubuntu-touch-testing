@@ -36,13 +36,12 @@ class SmemProbe(object):
         yield
         self.stop(event)
 
-    def follow(self, pid, app_name=""):
+    def follow(self, pid):
         """Inform probe that we are interested in this pid, optionally assign
         an application name against it for ease of reporting.
 
         """
         self.pids.append(pid)
-        self._appname_to_pid[pid] = app_name
 
     def start(self, event):
         """Start measurement.
@@ -79,8 +78,11 @@ class SmemProbe(object):
         threshold_exceeded_pids = self._calculate_threshold_exceeded(pids_info)
         print('{:-^72}'.format(event))
         for pid in self.pids:
-            print('PID: {pid}, command: {command}, PSS: {pss}, USS: {uss}'
-                  .format(**pids_info[pid]))
+            try:
+                print('PID: {pid}, command: {command}, PSS: {pss}, USS: {uss}'
+                      .format(**pids_info[pid]))
+            except KeyError:
+                print("PID {} no longer running".format(pid))
 
         self.current_reading['stop_time'] = time()
         self.current_reading['data'] = pids_info
@@ -128,7 +130,6 @@ class SmemProbe(object):
         """Return report with all the readings that have been made."""
         return {
             'pids': self.pids,
-            'named_pids': self._appname_to_pid,
             'thresholds': self.THRESHOLDS,
             'readings': self.readings}
 

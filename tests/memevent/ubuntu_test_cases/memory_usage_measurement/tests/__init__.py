@@ -16,7 +16,26 @@ class MemoryUsageTests(AutopilotTestCase):
 
     """Event based memory usage measurement scenario."""
 
-    def setUp(self, app_name):
+    @classmethod
+    def setUpClass(cls, appname):
+        cls._app_id_name = appname
+        cls.smem = SmemProbe()
+
+    @classmethod
+    def tearDownClass(cls):
+        """Write report to to results directory."""
+
+        report_filename = '/tmp/memory_usage_{}.json'.format(cls._app_id_name)
+        with open(report_filename, 'w') as report_file:
+            json.dump(
+                cls.smem.report,
+                report_file,
+                indent=4,
+                sort_keys=True
+            )
+            LOGGER.debug('Report written to {}'.format(report_file.name))
+
+    def setUp(self):
         super().setUp()
         """Scenario that takes measurements on some events."""
 
@@ -25,17 +44,3 @@ class MemoryUsageTests(AutopilotTestCase):
         else:
             input_device = Touch.create()
         self.pointer = Pointer(input_device)
-
-        self.smem = SmemProbe()
-
-        # Make sure report is written with the data collected
-        # even if the test failed to complete
-        self.addCleanup(self._write_report, app_name)
-
-    def _write_report(self, app_name):
-        """Write report to to results directory."""
-        report_filename = '/tmp/memory_usage_{}.json'.format(app_name)
-        with open(report_filename, 'w') as report_file:
-            json.dump(self.smem.report, report_file,
-                      indent=4, sort_keys=True)
-            LOGGER.debug('Report written to {}'.format(report_file.name))
