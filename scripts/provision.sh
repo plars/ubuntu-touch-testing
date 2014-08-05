@@ -145,6 +145,4 @@ image_info
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
 	phablet-config writable-image $CUSTOMIZE
-        # Make sure whoopsie can work
-        adb shell "touch /var/lib/apport/autoreport"
 fi
