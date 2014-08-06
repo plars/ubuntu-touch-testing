@@ -18,6 +18,12 @@ from collections import defaultdict
 from glob import glob
 
 json_results_filename_pattern = "/tmp/memory_usage_*.json"
+upload_script = "/home/max/nfss/staging/bin/q-jenkins_insert.py"
+
+
+def _set_upload_script(script_path):
+    global upload_script
+    upload_script = script_path
 
 
 def _get_run_details(app_name):
@@ -64,9 +70,21 @@ def _upload_data(test_name, run_json):
         print("Error: Data does not appear to be valid json: %s" % e)
         sys.exit(3)
 
-    print("...:memevent:-", test_name)
-    print(run_json_string)
-    print("...")
+    print("Uploading data for :memevent:-", test_name)
+    global upload_script
+    try:
+        upload_process = subprocess.Popen(
+            [upload_script, 'memevent', test_name],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        stdout, stderr = upload_process.communicate(
+            input=run_json_string.encode()
+        )
+        print("stdout: {}\n\nstderr: {}".format(stdout, stderr))
+    except Exception as e:
+        print("Something went terribly wrong: ", e)
     # try:
     #     output = subprocess.check_output(
     #         ['./quick_upload.py', 'memevent', test_name, run_json_string]
@@ -137,6 +155,11 @@ def map_files_to_applications():
 
 
 if __name__ == '__main__':
+    try:
+        _set_upload_script(sys.argv[1])
+    except IndexError:
+        print("Using default upload script")
+
     app_details = dict()
     file_map = map_files_to_applications()
     for app_name in file_map.keys():
