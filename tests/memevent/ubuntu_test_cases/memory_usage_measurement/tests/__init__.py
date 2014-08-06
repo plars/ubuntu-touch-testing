@@ -36,8 +36,6 @@ class MemoryUsageTests(TestCase):
         self.smem = SmemProbe()
 
     def memtest_run_test(self, test_class, test_id, eventname):
-        print("Overriding the method, and running the test:")
-
         TestClass = type(
             "MemTestTestClass",
             (MemoryUsageTestsMixin, test_class),
