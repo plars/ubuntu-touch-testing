@@ -24,6 +24,5 @@ if ! ${TARGET_PREFIX} sudo -iu phablet stop susblock; then
 	sleep 30
 	${TARGET_PREFIX} sudo -iu phablet stop susblock
 fi
-${TARGET_PREFIX} sudo -iu phablet stop susblock
 ${TARGET_PREFIX} /tmp/suspend-blocker/suspend-blocker -rbH -o /tmp/results/kern.json /var/log/kern.log
 ${TARGET_PREFIX} cp /var/log/kern.log /tmp/results
