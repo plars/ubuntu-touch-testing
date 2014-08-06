@@ -10,6 +10,7 @@ scheme: "/tmp/memory_usage_*.json"
 
 import datetime
 import json
+import os
 import re
 import sys
 import subprocess
@@ -17,13 +18,8 @@ import subprocess
 from collections import defaultdict
 from glob import glob
 
-json_results_filename_pattern = "/tmp/memory_usage_*.json"
-upload_script = "/home/max/nfss/staging/bin/q-jenkins_insert.py"
-
-
-def _set_upload_script(script_path):
-    global upload_script
-    upload_script = script_path
+upload_script = ""
+source_file_path = ""
 
 
 def _get_run_details(app_name):
@@ -147,6 +143,11 @@ def map_files_to_applications():
 
     """
 
+    global source_file_path
+    json_results_filename_pattern = os.path.join(
+        source_file_path,
+        "memory_usage_*.json"
+    )
     file_map = defaultdict(list)
     for json_result_file in glob(json_results_filename_pattern):
         app_name, test_name = _get_files_app_name_and_test(json_result_file)
@@ -154,11 +155,20 @@ def map_files_to_applications():
     return file_map
 
 
-if __name__ == '__main__':
-    try:
-        _set_upload_script(sys.argv[1])
-    except IndexError:
-        print("Using default upload script")
+def usage():
+    print("{} <source file path> <nfss upload script>".format(sys.argv[0]))
+
+
+def main():
+    if len(sys.argv) != 3:
+        usage()
+        exit(1)
+
+    global source_file_path
+    source_file_path = sys.argv[1]
+
+    global upload_script
+    upload_script = sys.argv[2]
 
     app_details = dict()
     file_map = map_files_to_applications()
@@ -168,3 +178,7 @@ if __name__ == '__main__':
     for app_name in app_details.keys():
         run_details = _get_run_details(app_name)
         upload_json_details(run_details, app_details[app_name])
+
+
+if __name__ == '__main__':
+    main()
