@@ -5,6 +5,7 @@
 set -e
 
 BASEDIR=$(dirname $(readlink -f $0))
+export PATH=${BASEDIR}/../utils/host:${PATH}
 
 RESDIR=`pwd`/clientlogs
 
@@ -52,6 +53,17 @@ EOF
 
 log() {
 	echo = $(date): $*
+}
+
+set_hwclock() {
+	log "SETTING HWCLOCK TO CURRENT TIME"
+	adb-shell ntpdate ntp.ubuntu.com || log "WARNING: could not set ntpdate"
+	# hwclock sync has to happen after we set writable image
+	adb-shell hwclock -w || log "WARNING: could not sync hwclock"
+	log "Current date on device is:"
+	adb shell date
+	log "Current hwclock on device is:"
+	adb shell hwclock
 }
 
 while getopts i:s:n:P:p:r:wh opt; do
@@ -146,3 +158,4 @@ if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
 	phablet-config writable-image $CUSTOMIZE
 fi
+set_hwclock
