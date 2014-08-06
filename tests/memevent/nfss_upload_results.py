@@ -41,7 +41,7 @@ def _get_package_version(appname):
 
     try:
         dpkg_output = subprocess.check_output(
-            ['dpkg', '-s', appname],
+            ['adb', 'shell', 'dpkg', '-s', appname],
             universal_newlines=True
         )
         version_line = [
@@ -49,7 +49,7 @@ def _get_package_version(appname):
         ]
         return version_line[0].split()[1]
     except (subprocess.CalledProcessError, IndexError):
-        return ""
+        return "Unknown"
 
 
 def upload_json_details(run_details, app_details):
