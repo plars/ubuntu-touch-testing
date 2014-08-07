@@ -58,7 +58,7 @@ TESTSUITES += [
     APTest('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
     APTest('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
     APTest('address-book-app-autopilot', pkgs=['address-book-app-autopilot']),
-    APTest('calendar-app-autopilot'),
+    APTest('calendar-app-autopilot', pkgs=['address-book-service-dummy']),
     APTest('music-app-autopilot'),
     APTest('dropping-letters-app-autopilot'),
     APTest('sudoku-app-autopilot'),
