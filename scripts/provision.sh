@@ -57,7 +57,8 @@ log() {
 
 set_hwclock() {
 	log "SETTING HWCLOCK TO CURRENT TIME"
-	adb-shell ntpdate ntp.ubuntu.com || log "WARNING: could not set ntpdate"
+        # Use ip for ntp.ubuntu.com in case resolving doesn't work yet
+	adb-shell ntpdate 91.189.94.4 || log "WARNING: could not set ntpdate"
 	# hwclock sync has to happen after we set writable image
 	adb-shell hwclock -w || log "WARNING: could not sync hwclock"
 	log "Current date on device is:"
