@@ -59,6 +59,7 @@ TESTSUITES += [
     APTest('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
     APTest('address-book-app-autopilot', pkgs=['address-book-app-autopilot']),
     APTest('calendar-app-autopilot', pkgs=['address-book-service-dummy']),
+    APTest('reminders-app-autopilot', pkgs=['python3-dbus', 'python3-dbusmock', 'python3-fixtures', 'python3-oauthlib', 'python3-requests-oauthlib', 'account-plugin-evernote-sandbox']),
     APTest('music-app-autopilot'),
     APTest('dropping-letters-app-autopilot'),
     APTest('sudoku-app-autopilot'),
