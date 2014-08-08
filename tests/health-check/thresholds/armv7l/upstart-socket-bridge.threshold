@@ -10,7 +10,7 @@ duration 300
 # CPU loading, should be really low for idle processes
 #
 health-check.cpu-load.cpu-load-total.total-cpu-percent	0.020
-health-check.cpu-load.cpu-load-total.user-cpu-percent	0.005
+health-check.cpu-load.cpu-load-total.user-cpu-percent	0.007
 health-check.cpu-load.cpu-load-total.system-cpu-percent	0.017
 #
 # Page faults, ignore these
@@ -21,7 +21,7 @@ health-check.cpu-load.cpu-load-total.system-cpu-percent	0.017
 #
 # Wakeup Events, anything more than 1 a second is busy
 #
-health-check.wakeup-events.wakeup-events-total.wakeup-total-rate 0.01
+health-check.wakeup-events.wakeup-events-total.wakeup-total-rate 0.016667
 #
 # Context Switches, ignore these
 #
