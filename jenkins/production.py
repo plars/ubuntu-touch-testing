@@ -65,7 +65,7 @@ UTOPIC_MATRIX = [
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-                     '--channel ubuntu-touch/stable-staging-proposed"'        
+                     '--channel ubuntu-touch/ubuntu-rtm/14.09-proposed"'
     },
     {
         'image-type': 'touch_custom',
