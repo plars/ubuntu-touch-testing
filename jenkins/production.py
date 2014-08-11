@@ -48,19 +48,19 @@ UTOPIC_MATRIX = [
             {
                 'name': 'mako',
                 'slave-label': 'daily-mako',
-                'trigger_url': _url('stable-staging-proposed', 'mako'),
+                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'mako'),
                 'num-workers': 3,
             },
             {
                 'name': 'flo',
                 'slave-label': 'daily-flo',
-                'trigger_url': _url('stable-staging-proposed', 'flo'),
+                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'flo'),
                 'num-workers': 2,
             },
             {
                 'name': 'manta',
                 'slave-label': 'daily-manta',
-                'trigger_url': _url('stable-staging-proposed', 'manta'),
+                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'manta'),
                 'num-workers': 2,
             },
         ],
