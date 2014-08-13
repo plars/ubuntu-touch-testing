@@ -35,8 +35,8 @@ EOF
 image_info() {
 	# mark the version we installed in /home/phablet/.ci-[uuid,flash-args]
 	# adb shell messes up \n's with \r\n's so do the whole of the regex on the target
-	IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
-	CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+	IMAGEVER=$(adb shell "sudo system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
+	CHAN=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
 	REV=$(echo $IMAGEVER | cut -d: -f1)
 	echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
 	echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
@@ -138,6 +138,9 @@ else
 	sudo ubuntu-emulator create $ANDROID_SERIAL $IMAGE_OPT
 	${BASEDIR}/reboot-and-wait
 fi
+
+log "SETTING UP SUDO"
+adb shell "echo phablet |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
 
 log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup

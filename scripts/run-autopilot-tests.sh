@@ -109,10 +109,10 @@ reboot_wait() {
 	if [ -z $QUICK ] ; then
 		reboot-and-unlock.sh
 		FILES="/var/crash/* /home/phablet/.cache/upstart/*.log*"
-		if ! adb shell "rm -rf $FILES" ; then
+		if ! adb shell "sudo rm -rf $FILES" ; then
 			log_error "unable to remove crash and log files, retrying"
 			adb wait-for-device
-			adb shell "rm -rf $FILES"
+			adb shell "sudo rm -rf $FILES"
 		fi
 	else
 		echo "SKIPPING phone reboot..."
@@ -122,9 +122,9 @@ reboot_wait() {
 if [ -z $USE_EMULATOR ] ; then
 grab_powerd() {
 	echo "grabbing powerd cli locks..."
-	adb shell powerd-cli active &
+	adb shell sudo powerd-cli active &
 	PIDS="$!"
-	adb shell powerd-cli display on &
+	adb shell sudo powerd-cli display on &
 	PIDS="$PIDS $!"
 }
 
