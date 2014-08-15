@@ -62,6 +62,9 @@ DEVICES = {
     "flo-01": TouchDevice("flo", "09f306dc"),
     "flo-02": TouchDevice("flo", "08dbee36"),
     "flo-03": TouchDevice("flo", "09d55fa8"),
+    "flo-04": TouchDevice("flo", "09e68682"),
+    "flo-05": TouchDevice("flo", "0a22f7cf"),
+    "flo-06": TouchDevice("flo", "08f09bb0"),
 }
 
 
