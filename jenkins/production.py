@@ -81,7 +81,7 @@ UTOPIC_MATRIX = [
                 'trigger_url': _url('utopic-proposed-customized', 'mako'),
             },
         ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode'
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
                      '--channel ubuntu-touch/utopic-proposed-customized"'
     },
 ]
