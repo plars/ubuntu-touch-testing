@@ -64,7 +64,7 @@ TESTSUITES += [
     APTest('sudoku-app-autopilot'),
     APTest('ubuntu-calculator-app-autopilot'),
     APTest('ubuntu-clock-app-autopilot'),
-    APTest('filemanager'),
+    APTest('filemanager', pkgs=['python3-lxml']),
     APTest('shorts-app-autopilot'),
     APTest('ubuntu-terminal-app-autopilot'),
     APTest('ubuntu-weather-app-autopilot'),
