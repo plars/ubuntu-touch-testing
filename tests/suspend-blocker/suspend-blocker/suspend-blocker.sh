@@ -17,6 +17,9 @@ ncd_usb.py -u http://qa-relay-control -b 0 -r 0 off
 sleep 1800
 #Turn on the USB port for this device
 ncd_usb.py -u http://qa-relay-control -b 0 -r 0 on
-${TARGET_PREFIX} sudo -iu phablet stop susblock
+# Wait for the device to come back
+timeout 300 adb wait-for-device
+# If we can't stop susblock, it's probably because it already stopped itself
+${TARGET_PREFIX} sudo -iu phablet stop susblock || /bin/true
 ${TARGET_PREFIX} /tmp/suspend-blocker/suspend-blocker -rbH -o /tmp/results/kern.json /var/log/kern.log
 ${TARGET_PREFIX} cp /var/log/kern.log /tmp/results

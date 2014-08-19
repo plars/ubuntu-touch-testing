@@ -27,9 +27,9 @@ health-check.wakeup-events.wakeup-events-total.wakeup-total-rate 0.125
 #
 #health-check.context-switches.context-switches-total.context-switch-total-rate 10
 #
-# Files, really should not be doing much so allow for 1 a minute top
+# rsyslog frequently sees as many as 30/min on file-access
 #
-health-check.file-access.file-access-total.access-count-total-rate 0.016666667
+health-check.file-access.file-access-total.access-count-total-rate 0.6
 #health-check.file-io-operations.file-io-operations-total.open-call-total-rate 0
 #health-check.file-io-operations.file-io-operations-total.close-call-total-rate 0
 #health-check.file-io-operations.file-io-operations-total.read-call-total-rate 0

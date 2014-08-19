@@ -102,6 +102,7 @@ def _configure_smoke(instance, env, args, config_item, device):
 
     params = {
         'name': device['slave-label'],
+        'device_type': device['name'],
         'serial': device.get('serial', defserial),
         'publish': args.publish,
         'branch': args.branch,
@@ -132,6 +133,7 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
     slave = getattr(test, 'device', device['slave-label'])
     params = {
         'name': slave,
+        'device_type': device['name'],
         'serial': device.get('serial', defserial),
         'publish': args.publish,
         'branch': args.branch,

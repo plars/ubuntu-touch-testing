@@ -7,6 +7,9 @@ UTOPIC_MATRIX = [
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': True,
+        'dashboard-host': 'dashboard.ubuntu-ci',
+        'dashboard-port': '8080',
+        'dashboard-user': 'ci-bot',
         'devices': [
             {
                 'name': 'mako',
@@ -19,6 +22,9 @@ UTOPIC_MATRIX = [
         'image-type': 'touch_stable',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
         'include-qa': True,
+        'dashboard-host': 'dashboard.ubuntu-ci',
+        'dashboard-port': '8080',
+        'dashboard-user': 'ci-bot',
         'devices': [
             {
                 'name': 'mako',

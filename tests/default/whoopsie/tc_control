@@ -1,9 +1,9 @@
-description: check for whoopsie process
+description: verify whoopsie functionality
 dependencies: None
 action: |
-  1. pgrep whoopsie
+  1. trigger a segfault and verify that whoopsie uploads it
 expected_results: |
-  1. pgrep exits with 0, indicating it found a matching process
+  1. /var/crash/_bin_sleep.0.uploaded is created, indicating a successful upload
 type: userland
-timeout: 60
-command: $TARGET_PREFIX /usr/bin/pgrep whoopsie
+timeout: 720
+command: ./whoopsie-test.sh

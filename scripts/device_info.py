@@ -15,6 +15,11 @@ class TouchDevice(object):
         self.volume_pin = volume_pin
 
 DEVICES = {
+    "krillin-01": TouchDevice("krillin", "JB011018"),
+    "krillin-02": TouchDevice("krillin", "JB010894"),
+    "krillin-03": TouchDevice("krillin", "JB015156"),
+    "krillin-04": TouchDevice("krillin", "JB006885"),
+    "krillin-05": TouchDevice("krillin", "JB015256"),
     "ps-mako-01": TouchDevice("mako", "0090f741e3d141bc"),
     "ps-mako-02": TouchDevice("mako", "04ccca120acd4dea"),
     "ps-mako-03": TouchDevice("mako", "04cb53b598546534"),
@@ -57,6 +62,9 @@ DEVICES = {
     "flo-01": TouchDevice("flo", "09f306dc"),
     "flo-02": TouchDevice("flo", "08dbee36"),
     "flo-03": TouchDevice("flo", "09d55fa8"),
+    "flo-04": TouchDevice("flo", "09e68682"),
+    "flo-05": TouchDevice("flo", "0a22f7cf"),
+    "flo-06": TouchDevice("flo", "08f09bb0"),
 }
 
 

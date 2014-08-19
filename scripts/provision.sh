@@ -5,6 +5,7 @@
 set -e
 
 BASEDIR=$(dirname $(readlink -f $0))
+export PATH=${BASEDIR}/../utils/host:${PATH}
 
 RESDIR=`pwd`/clientlogs
 
@@ -34,8 +35,8 @@ EOF
 image_info() {
 	# mark the version we installed in /home/phablet/.ci-[uuid,flash-args]
 	# adb shell messes up \n's with \r\n's so do the whole of the regex on the target
-	IMAGEVER=$(adb shell "system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
-	CHAN=$(adb shell "system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+	IMAGEVER=$(adb shell "sudo system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
+	CHAN=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
 	REV=$(echo $IMAGEVER | cut -d: -f1)
 	echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
 	echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
@@ -52,6 +53,18 @@ EOF
 
 log() {
 	echo = $(date): $*
+}
+
+set_hwclock() {
+	log "SETTING HWCLOCK TO CURRENT TIME"
+        # Use ip for ntp.ubuntu.com in case resolving doesn't work yet
+	adb-shell ntpdate 91.189.94.4 || log "WARNING: could not set ntpdate"
+	# hwclock sync has to happen after we set writable image
+	adb-shell hwclock -w || log "WARNING: could not sync hwclock"
+	log "Current date on device is:"
+	adb shell date
+	log "Current hwclock on device is:"
+	adb shell hwclock
 }
 
 while getopts i:s:n:P:p:r:wh opt; do
@@ -108,7 +121,14 @@ mkdir -p $RESDIR
 
 if [ -z $USE_EMULATOR ] ; then
 	log "FLASHING DEVICE"
-	adb reboot bootloader
+        if [ "${DEVICE_TYPE}" = "krillin" ]; then
+		# reboot to recovery for krillin
+		adb reboot recovery
+                # Wait for recovery to boot
+                sleep 30
+        else
+		adb reboot bootloader
+	fi
 	ubuntu-device-flash $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
@@ -118,6 +138,9 @@ else
 	sudo ubuntu-emulator create $ANDROID_SERIAL $IMAGE_OPT
 	${BASEDIR}/reboot-and-wait
 fi
+
+log "SETTING UP SUDO"
+adb shell "echo phablet |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
 
 log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup
@@ -138,6 +161,5 @@ image_info
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
 	phablet-config writable-image $CUSTOMIZE
-        # Make sure whoopsie can work
-        adb shell "touch /var/lib/apport/autoreport"
 fi
+set_hwclock
