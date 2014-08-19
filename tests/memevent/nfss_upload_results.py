@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
-"""This script takes memevent-test result json filse and uploads the
+"""This script takes memevent-test result json files and uploads the
 interesting data contained within to a nfss backend.
 
-It will process any memory result files found in /tmp/ matching the naming
-scheme: "/tmp/memory_usage_*.json"
+It will process any memory result files found in 'source_file_path matching the
+naming scheme: "memory_usage_*.json"
 
 """
 
@@ -23,7 +23,6 @@ source_file_path = ""
 
 
 def _get_run_details(app_name):
-    # Add extra details as per bootspeeds' run.py
     return dict(
         image_arch='',
         ran_at=datetime.datetime.utcnow().isoformat(),
@@ -81,12 +80,6 @@ def _upload_data(test_name, run_json):
         print("stdout: {}\n\nstderr: {}".format(stdout, stderr))
     except Exception as e:
         print("Something went terribly wrong: ", e)
-    # try:
-    #     output = subprocess.check_output(
-    #         ['./quick_upload.py', 'memevent', test_name, run_json_string]
-    #     )
-    # except subprocess.CalledProcessError as e:
-    #     print("Unable to upload data: ", e)
 
 
 def _get_files_app_name_and_test(filename):
