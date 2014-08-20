@@ -128,6 +128,9 @@ export DASHBOARD_PREFIX="{{dashboard_prefix}}"
 {% if dashboard_port %}
 export DASHBOARD_PORT="{{dashboard_port}}"
 {% endif %}
+{% if nfss_config %}
+export NFSS_CONFIG="{{nfss_config}}"
+{% endif %}
 
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke
