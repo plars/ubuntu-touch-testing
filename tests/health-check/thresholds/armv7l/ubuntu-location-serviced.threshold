@@ -9,7 +9,7 @@ duration 300
 #
 # CPU loading, should be really low for idle processes
 #
-health-check.cpu-load.cpu-load-total.total-cpu-percent	0.03
+health-check.cpu-load.cpu-load-total.total-cpu-percent	0.06
 health-check.cpu-load.cpu-load-total.user-cpu-percent	0.04
 health-check.cpu-load.cpu-load-total.system-cpu-percent	0.06
 #
