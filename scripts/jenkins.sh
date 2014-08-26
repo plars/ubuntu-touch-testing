@@ -57,6 +57,7 @@ test_from_host() {
 		--pull /tmp/xmlresults \
                 --pull /var/log/syslog \
                 --pull /var/log/kern.log \
+                --pull /var/log/whoopsie.log \
 		$EXTRA_PULL \
 		-l ${TESTSUITE_HOST}/master.run
 
