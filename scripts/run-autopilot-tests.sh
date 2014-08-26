@@ -95,7 +95,7 @@ test_app() {
 		-o ${odir} -f subunit \
 		-a /var/crash -a /home/phablet/.cache/upstart \
                 -a /var/log/syslog -a /var/log/kern.log \
-                -a /var/log/whoopsie.log \
+                -a /var/log/upstart/whoopsie.log \
 		-v $app || true
 
 	system_settle after $odir
