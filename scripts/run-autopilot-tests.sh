@@ -137,6 +137,7 @@ release_powerd() {
 		done
 		PIDS=""
 	fi
+        adb shell sudo pkill powerd-cli
 }
 
 else
