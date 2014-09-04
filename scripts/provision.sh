@@ -129,7 +129,7 @@ if [ -z $USE_EMULATOR ] ; then
         else
 		adb reboot bootloader
 	fi
-	ubuntu-device-flash $IMAGE_OPT
+	ubuntu-device-flash --password ubuntuci $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 else
@@ -139,27 +139,30 @@ else
 	${BASEDIR}/reboot-and-wait
 fi
 
-log "SETTING UP SUDO"
-adb shell "echo phablet |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
-
-log "SETTING UP CLICK PACKAGES"
-phablet-click-test-setup
-
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
 	phablet-network -n $NETWORK_FILE
 fi
 
 phablet-config welcome-wizard --disable
-phablet-config edges-intro --disable
+# FIXME: Can't do this through phablet-config for now because it needs auth
+# phablet-config edges-intro --disable
+adb shell "dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
+
+if [ -n "$CUSTOMIZE" ] ; then
+	log "CUSTOMIZING IMAGE"
+	phablet-config writable-image $CUSTOMIZE
+fi
+
+log "SETTING UP SUDO"
+adb shell "echo ubuntuci |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
+
+log "SETTING UP CLICK PACKAGES"
+phablet-click-test-setup
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
 
 image_info
 
-if [ -n "$CUSTOMIZE" ] ; then
-	log "CUSTOMIZING IMAGE"
-	phablet-config writable-image $CUSTOMIZE
-fi
 set_hwclock
