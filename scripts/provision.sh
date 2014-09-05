@@ -145,9 +145,6 @@ if [ -z $USE_EMULATOR ] ; then
 fi
 
 phablet-config welcome-wizard --disable
-# FIXME: Can't do this through phablet-config for now because it needs auth
-# phablet-config edges-intro --disable
-adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
 
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
@@ -156,6 +153,10 @@ fi
 
 log "SETTING UP SUDO"
 adb shell "echo ubuntuci |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
+
+# FIXME: Can't do this through phablet-config for now because it needs auth
+# phablet-config edges-intro --disable
+adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
 
 log "SETTING UP CLICK PACKAGES"
 phablet-click-test-setup
