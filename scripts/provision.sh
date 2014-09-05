@@ -147,7 +147,7 @@ fi
 phablet-config welcome-wizard --disable
 # FIXME: Can't do this through phablet-config for now because it needs auth
 # phablet-config edges-intro --disable
-adb shell "dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
+adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
 
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
