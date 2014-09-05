@@ -58,9 +58,9 @@ log() {
 set_hwclock() {
 	log "SETTING HWCLOCK TO CURRENT TIME"
         # Use ip for ntp.ubuntu.com in case resolving doesn't work yet
-	adb-shell ntpdate 91.189.94.4 || log "WARNING: could not set ntpdate"
+	adb-shell sudo ntpdate 91.189.94.4 || log "WARNING: could not set ntpdate"
 	# hwclock sync has to happen after we set writable image
-	adb-shell hwclock -w || log "WARNING: could not sync hwclock"
+	adb-shell sudo hwclock -w || log "WARNING: could not sync hwclock"
 	log "Current date on device is:"
 	adb shell date
 	log "Current hwclock on device is:"
@@ -159,7 +159,13 @@ adb shell "echo ubuntuci |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: AL
 adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
 
 log "SETTING UP CLICK PACKAGES"
-phablet-click-test-setup
+CLICK_TEST_OPTS=""
+channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+# FIXME: workaround for phablet-click-test-setup to pull the right sources
+if [[ $channel_name == *rtm* ]] ; then
+	CLICK_TEST_OPTS="--distribution ubuntu-rtm --series 14.09"
+fi
+phablet-click-test-setup $CLICK_TEST_OPTS
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
