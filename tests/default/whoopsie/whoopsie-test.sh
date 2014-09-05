@@ -9,6 +9,11 @@ cleanup()
 	start whoopsie
 }
 
+if [ ! -e /var/lib/apport/autoreport ]; then
+    echo "Automatic crash reporting not enabled."
+    exit 1
+fi
+
 if [ -e /var/crash/_bin_sleep.0.crash ] || [ -e /var/crash/_bin_sleep.0.upload ] \
    || [ -e /var/crash/_bin_sleep.0.uploaded ]
 then
