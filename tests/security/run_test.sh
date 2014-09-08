@@ -10,6 +10,7 @@ cd ..
 # we have to figure out the full path here so we can run it
 script=$(find ./qrt_tests -name $1)
 
+SUDO="sudo"
 if echo $script | grep -q unpriv ; then
 	SUDO="sudo -i -u phablet"
 	echo "running test as phablet user..."
