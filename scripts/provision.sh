@@ -141,7 +141,11 @@ fi
 
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
-	phablet-network -n $NETWORK_FILE
+	if ! phablet-network -n $NETWORK_FILE ; then
+		log "Session not available yet, retrying..."
+		sleep 10
+		phablet-network -n $NETWORK_FILE
+	fi
 fi
 
 phablet-config welcome-wizard --disable
