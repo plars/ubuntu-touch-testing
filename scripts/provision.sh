@@ -169,7 +169,11 @@ channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\
 if [[ $channel_name == *rtm* ]] ; then
 	CLICK_TEST_OPTS="--distribution ubuntu-rtm --series 14.09"
 fi
-phablet-click-test-setup $CLICK_TEST_OPTS
+if ! phablet-click-test-setup $CLICK_TEST_OPTS ; then
+	log "Session not available yet, retrying..."
+	sleep 10
+	phablet-click-test-setup $CLICK_TEST_OPTS
+fi
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
