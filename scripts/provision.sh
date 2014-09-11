@@ -67,6 +67,27 @@ set_hwclock() {
 	adb shell hwclock
 }
 
+retry() {
+	timeout=$1
+	shift
+	loops=$1
+	shift
+	cmd=$*
+	loopcnt=0
+	while true; do
+		$cmd && break || {
+			if [ $loopcnt -lt $loops ] ; then
+				loopcnt=$[$loopcnt+1]
+				echo "Retry [$loopcnt/$loops] after $timeout seconds..."
+				sleep $timeout
+			else
+				echo Failed on \'$cmd\' after $loops retries
+				exit 1
+			fi
+		}
+	done
+}
+
 while getopts i:s:n:P:p:r:wh opt; do
 	case $opt in
 	h)
@@ -165,15 +186,15 @@ adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts
 log "SETTING UP CLICK PACKAGES"
 CLICK_TEST_OPTS=""
 channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+# Before running phablet-click-test setup, we need to make sure the
+# session is available
+retry 60 5 adb shell sudo -iu phablet env |grep UPSTART
+
 # FIXME: workaround for phablet-click-test-setup to pull the right sources
 if [[ $channel_name == *rtm* ]] ; then
 	CLICK_TEST_OPTS="--distribution ubuntu-rtm --series 14.09"
 fi
-if ! phablet-click-test-setup $CLICK_TEST_OPTS ; then
-	log "Session not available yet, retrying..."
-	sleep 10
-	phablet-click-test-setup $CLICK_TEST_OPTS
-fi
+phablet-click-test-setup $CLICK_TEST_OPTS
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
