@@ -128,6 +128,8 @@ class SmemProbe(object):
     @property
     def report(self):
         """Return report with all the readings that have been made."""
+        if not self.pids:
+            LOGGER.warning("No pids to report on.")
         return {
             'pids': self.pids,
             'thresholds': self.THRESHOLDS,

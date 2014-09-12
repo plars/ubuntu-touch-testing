@@ -6,11 +6,16 @@ import logging
 from testtools import TestCase
 
 from ubuntu_test_cases.memory_usage_measurement.probes import SmemProbe
+from gallery_app.tests import EnvironmentTypes
 
 LOGGER = logging.getLogger(__file__)
 
 
 class MemoryUsageTestsMixin(object):
+    # Override gallery-apps launch method detection.
+    def _get_environment_launch_type(self):
+        return EnvironmentTypes.installed
+
     def launch_test_application(self, application, *arguments, **kwargs):
         self.smem.start("Application Launch")
         launched_app = super().launch_test_application(
@@ -45,8 +50,8 @@ class MemoryUsageTests(TestCase):
         t = TestClass(test_id)
 
         result = t.run()
-        # if not result.wasSuccessful():
-        #     raise Exception()
+        if result and not result.wasSuccessful():
+            LOGGER.error("Wrapped test failed.")
         self.addCleanup(self._write_report)
 
     def _write_report(self):

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+failcnt=0
+for i in /var/lib/apparmor/profiles/click_*; do
+	if ! grep -q "# injected via click hook" $i; then
+		echo "$i does not have autopilot rules"
+		failcnt=$((failcnt+1))
+	fi
+done
+exit $failcnt

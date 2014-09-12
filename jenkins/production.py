@@ -15,7 +15,7 @@ UTOPIC_MATRIX = [
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
-        'dashboard-user': 'ci-bot',
+        'dashboard-user': 'uci-bot',
         'devices': [
             {
                 'name': 'mako',
@@ -43,29 +43,29 @@ UTOPIC_MATRIX = [
         'include-qa': True,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
-        'dashboard-user': 'ci-bot',
+        'dashboard-user': 'uci-bot',
         'devices': [
             {
                 'name': 'mako',
                 'slave-label': 'daily-mako',
-                'trigger_url': _url('stable-staging-proposed', 'mako'),
+                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'mako'),
                 'num-workers': 3,
             },
             {
                 'name': 'flo',
                 'slave-label': 'daily-flo',
-                'trigger_url': _url('stable-staging-proposed', 'flo'),
+                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'flo'),
                 'num-workers': 2,
             },
             {
                 'name': 'manta',
                 'slave-label': 'daily-manta',
-                'trigger_url': _url('stable-staging-proposed', 'manta'),
+                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'manta'),
                 'num-workers': 2,
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-                     '--channel ubuntu-touch/stable-staging-proposed"'        
+                     '--channel ubuntu-touch/ubuntu-rtm/14.09-proposed"'
     },
     {
         'image-type': 'touch_custom',
@@ -73,7 +73,7 @@ UTOPIC_MATRIX = [
         'include-qa': False,
         'dashboard-host': 'ci.ubuntu.com',
         'dashboard-port': '80',
-        'dashboard-user': 'ci-bot',
+        'dashboard-user': 'uci-bot',
         'devices': [
             {
                 'name': 'mako',
@@ -81,7 +81,7 @@ UTOPIC_MATRIX = [
                 'trigger_url': _url('utopic-proposed-customized', 'mako'),
             },
         ],
-        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode'
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
                      '--channel ubuntu-touch/utopic-proposed-customized"'
     },
 ]

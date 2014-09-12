@@ -187,7 +187,8 @@ def _run(args, ignore_error=False):
 
 
 def _image_info():
-    info = subprocess.check_output(['adb', 'shell', 'system-image-cli', '-i'])
+    info = subprocess.check_output(['adb', 'shell', 'sudo',
+                                    'system-image-cli', '-i'])
     v_ver = u_ver = d_ver = channel = None
     for line in info.split('\n'):
         if not line.strip():

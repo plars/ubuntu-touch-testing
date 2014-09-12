@@ -60,6 +60,18 @@ common ways to run this job are:
 	  </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>workers</name>
+          <description>The number of workers
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>worker_idx</name>
+          <description>The index of this worker
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <com.sonyericsson.rebuild.RebuildSettings>
@@ -86,6 +98,7 @@ bzr branch ${BRANCH} ${BZRDIR}
 export ANDROID_SERIAL={{serial}}
 export IMAGE_TYPE={{imagetype}}
 export IMAGE_SERIES={{series}}
+export DEVICE_TYPE={{device_type}}
 
 ${BZRDIR}/scripts/recover.py ${NODE_NAME}
 
