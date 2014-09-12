@@ -9,9 +9,9 @@ duration 300
 #
 # CPU loading, should be really low for idle processes
 #
-health-check.cpu-load.cpu-load-total.total-cpu-percent	0.7
+health-check.cpu-load.cpu-load-total.total-cpu-percent	0.9
 health-check.cpu-load.cpu-load-total.user-cpu-percent	0.5
-health-check.cpu-load.cpu-load-total.system-cpu-percent	0.4
+health-check.cpu-load.cpu-load-total.system-cpu-percent	0.6
 #
 # Page faults, ignore these
 #

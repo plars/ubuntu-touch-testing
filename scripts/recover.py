@@ -20,7 +20,7 @@ def _reimage_from_fastboot(serial):
     log.info("Flashing the last stable image")
     subprocess.check_output(['ubuntu-device-flash', '--serial', serial,
                              '--channel', 'ubuntu-touch/stable',
-                             '--bootstrap'])
+                             '--bootstrap', '--password', 'ubuntuci'])
     return _wait_for_device(serial, 600)
 
 

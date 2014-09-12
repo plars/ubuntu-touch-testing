@@ -58,13 +58,34 @@ log() {
 set_hwclock() {
 	log "SETTING HWCLOCK TO CURRENT TIME"
         # Use ip for ntp.ubuntu.com in case resolving doesn't work yet
-	adb-shell ntpdate 91.189.94.4 || log "WARNING: could not set ntpdate"
+	adb-shell sudo ntpdate 91.189.94.4 || log "WARNING: could not set ntpdate"
 	# hwclock sync has to happen after we set writable image
-	adb-shell hwclock -w || log "WARNING: could not sync hwclock"
+	adb-shell sudo hwclock -w || log "WARNING: could not sync hwclock"
 	log "Current date on device is:"
 	adb shell date
 	log "Current hwclock on device is:"
 	adb shell hwclock
+}
+
+retry() {
+	timeout=$1
+	shift
+	loops=$1
+	shift
+	cmd=$*
+	loopcnt=0
+	while true; do
+		$cmd && break || {
+			if [ $loopcnt -lt $loops ] ; then
+				loopcnt=$[$loopcnt+1]
+				echo "Retry [$loopcnt/$loops] after $timeout seconds..."
+				sleep $timeout
+			else
+				echo Failed on \'$cmd\' after $loops retries
+				exit 1
+			fi
+		}
+	done
 }
 
 while getopts i:s:n:P:p:r:wh opt; do
@@ -129,7 +150,7 @@ if [ -z $USE_EMULATOR ] ; then
         else
 		adb reboot bootloader
 	fi
-	ubuntu-device-flash $IMAGE_OPT
+	ubuntu-device-flash --password ubuntuci $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 else
@@ -139,27 +160,45 @@ else
 	${BASEDIR}/reboot-and-wait
 fi
 
-log "SETTING UP SUDO"
-adb shell "echo phablet |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
-
-log "SETTING UP CLICK PACKAGES"
-phablet-click-test-setup
-
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
-	phablet-network -n $NETWORK_FILE
+	if ! phablet-network -n $NETWORK_FILE ; then
+		log "Session not available yet, retrying..."
+		sleep 10
+		phablet-network -n $NETWORK_FILE
+	fi
 fi
 
 phablet-config welcome-wizard --disable
-phablet-config edges-intro --disable
+
+if [ -n "$CUSTOMIZE" ] ; then
+	log "CUSTOMIZING IMAGE"
+	phablet-config writable-image $CUSTOMIZE
+fi
+
+log "SETTING UP SUDO"
+adb shell "echo ubuntuci |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
+
+# FIXME: Can't do this through phablet-config for now because it needs auth
+# phablet-config edges-intro --disable
+adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
+
+log "SETTING UP CLICK PACKAGES"
+CLICK_TEST_OPTS=""
+channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+# Before running phablet-click-test setup, we need to make sure the
+# session is available
+retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
+
+# FIXME: workaround for phablet-click-test-setup to pull the right sources
+if [[ $channel_name == *rtm* ]] ; then
+	CLICK_TEST_OPTS="--distribution ubuntu-rtm --series 14.09"
+fi
+phablet-click-test-setup $CLICK_TEST_OPTS
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
 
 image_info
 
-if [ -n "$CUSTOMIZE" ] ; then
-	log "CUSTOMIZING IMAGE"
-	phablet-config writable-image $CUSTOMIZE
-fi
 set_hwclock

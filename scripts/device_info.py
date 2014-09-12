@@ -54,6 +54,9 @@ DEVICES = {
                            bank=1, power_pin=2, volume_pin=3),
     #mako-17 has a broken screen but should work, on ashes
     "mako-17": TouchDevice("mako", "04e0d2f6d3cab77d"),
+    "mako-18": TouchDevice("mako", "027b981a4c1110dd"),
+    "mako-19": TouchDevice("mako", "021c8cdfd5d38602"),
+    "mako-20": TouchDevice("mako", "05083705e0d29402"),
     "ps-manta-01": TouchDevice("manta", "R32D203DDZR"),
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
     "manta-02": TouchDevice("manta", "R32D102RPPK"),
