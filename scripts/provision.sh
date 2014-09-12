@@ -188,7 +188,7 @@ CLICK_TEST_OPTS=""
 channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
 # Before running phablet-click-test setup, we need to make sure the
 # session is available
-retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART'
+retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
 
 # FIXME: workaround for phablet-click-test-setup to pull the right sources
 if [[ $channel_name == *rtm* ]] ; then
