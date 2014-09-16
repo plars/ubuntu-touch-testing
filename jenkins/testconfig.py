@@ -57,7 +57,7 @@ TESTSUITES += [
     APTest('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
     APTest('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
     APTest('address-book-app-autopilot', pkgs=['address-book-app-autopilot']),
-    APTest('calendar-app-autopilot', pkgs=['address-book-service-dummy',  'address-book-service-testability']),
+    APTest('calendar-app-autopilot', pkgs=['address-book-service-dummy',  'address-book-service-testability', 'python3-dateutil']),
     APTest('reminders-autopilot', pkgs=['python3-dbusmock', 'python3-requests-oauthlib', 'account-plugin-evernote-sandbox']),
     APTest('music-app-autopilot'),
     APTest('dropping-letters-app-autopilot'),
