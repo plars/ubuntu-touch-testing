@@ -8,7 +8,7 @@ sed -i "/$pidline/d" /tmp/healthcheck/procmapping.txt
 pid=$(echo $pidline | awk -F: '{print $NF}')
 
 echo "Testing $procname - $pid"
-/tmp/healthcheck/health-check-test-pid.py $pid
+sudo /tmp/healthcheck/health-check-test-pid.py $pid
 RC=$?
 
 cp *.json /tmp/results
