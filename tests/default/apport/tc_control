@@ -6,4 +6,4 @@ expected_results: |
   1. status apport says that it is running
 type: userland
 timeout: 60
-command: $TARGET_PREFIX status apport | grep running
+command: $TARGET_PREFIX sudo status apport | grep running
