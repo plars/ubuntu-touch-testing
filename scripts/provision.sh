@@ -64,7 +64,7 @@ set_hwclock() {
 	log "Current date on device is:"
 	adb shell date
 	log "Current hwclock on device is:"
-	adb shell hwclock
+	adb shell sudo hwclock
 }
 
 retry() {
