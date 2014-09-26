@@ -96,6 +96,7 @@ test_app() {
 		-a /var/crash -a /home/phablet/.cache/upstart \
                 -a /var/log/syslog -a /var/log/kern.log \
                 -a /var/log/upstart/whoopsie.log \
+                -A --timeout-profile=long \
 		-v $app || true
 
 	system_settle after $odir
