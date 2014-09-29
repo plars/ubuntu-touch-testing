@@ -314,12 +314,6 @@ def _test_autopilot(args, build, image):
             os.environ['DASHBOARD_IMAGE'] = image
         cargs = [os.path.join(script_dir, 'run-autopilot-tests.sh')]
         for app in args.app:
-            # XXX psivaa 20140924 Unity8 tests hang on non-rtm images
-            # skipped temporarily
-            if (args.image_type != 'touch_stable' and app == 'unity8'):
-                logging.info('====== Unity8 Tests are skipped temporarily'
-                             ' non rtm Images: lp: 1371454 ======')
-                continue
             cargs.extend(['-a', app])
         with statsd.time_it('APPS'):
             _run(cargs)
@@ -381,12 +375,6 @@ def main(args):
                 dashboard_api.result_queue(image, build, x)
         if args.app:
             for x in args.app:
-                # XXX psivaa 20140924 Unity8 tests hang on non-rtm images
-                # skipped temporarily
-                if (args.image_type != 'touch_stable' and x == 'unity8'):
-                    logging.info('====== Unity8 Tests are skipped temporarily'
-                                 ' non rtm Images lp: 1371454  ======')
-                    continue
                 dashboard_api.result_queue(image, build, x)
 
         _test_utah(args, build, image)
