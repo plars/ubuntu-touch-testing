@@ -92,6 +92,18 @@ def _full_recovery(device_name):
     serial = device_info.get_serial(device_name)
     _wait_for_fastboot(serial)
     _reimage_from_fastboot(serial)
+    try:
+        _check_adb_shell(serial)
+    except:
+        # The device looks like it's available, but not responding
+        raise DeviceError("Could not fully recover {}".format(device_name))
+    return 0
+
+
+def _check_adb_shell(serial):
+    # Run a quick command in adb to see if the device is responding
+    subprocess.check_call(['timeout', '10', 'adb', '-s',
+                           serial, 'shell', 'pwd'])
 
 
 def recover(device):
@@ -102,11 +114,21 @@ def recover(device):
         raise
     state = device_info.get_state(serial)
     if state in ('device', 'recovery'):
+        try:
+            _check_adb_shell(serial)
+        except:
+            # The device looks like it's available, but not responding
+            return _full_recovery(device)
         #The device can proceed with testing
         return 0
     if state == 'fastboot':
         #The device is in fastboot right now, we need it booted first
-        return _reimage_from_fastboot(serial)
+        _reimage_from_fastboot(serial)
+        try:
+            _check_adb_shell(serial)
+        except:
+            # The device looks like it's available, but not responding
+            return _full_recovery(device)
     if state in ('unknown', 'disconnected'):
         #The device is in an unknown state, we need full recovery
         return _full_recovery(device)
