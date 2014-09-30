@@ -6,4 +6,5 @@ expected_results: |
   1. /var/crash/_bin_sleep.0.uploaded is created, indicating a successful upload
 type: userland
 timeout: 720
-command: ./whoopsie-test.sh
+command: adb-shell sudo /tmp/whoopsie-test.sh
+tc_setup: adb push whoopsie-test.sh /tmp
