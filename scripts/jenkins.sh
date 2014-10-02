@@ -46,12 +46,7 @@ test_from_host() {
 
 	[ -z $ANDROID_SERIAL ] || ADBOPTS="-s $ANDROID_SERIAL"
 
-	# If we are not in the utah group, then we don't have permissions
-	# for /var/lib/utah, so run under sudo
-	if ! groups |grep -q utah ; then
-		SUDO="sudo"
-	fi
-	$SUDO TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
+	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
 		${ADBOPTS} \
 		--from-host \
 		--whoopsie \
@@ -67,10 +62,7 @@ test_from_host() {
 		-l ${TESTSUITE_HOST}/master.run
 
 	# make sure the user running this script can remove its artifacts.
-	# only run this if we had to run under sudo
-	if [ "${SUDO}" = "sudo" ] ; then
-		sudo chown -R `whoami` ${RESDIR}
-	fi
+	sudo chown -R `whoami` ${RESDIR}
 }
 
 assert_image() {
