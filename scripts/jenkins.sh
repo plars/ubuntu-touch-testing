@@ -50,12 +50,12 @@ test_from_host() {
 	# for /var/lib/utah, so run under sudo
 	if ! groups |grep -q utah ; then
 		SUDO="sudo"
-		sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" \
+		sudo TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
 			${UTAH_PHABLET_CMD} \
 			${ADBOPTS} \
 			--from-host \
 			--whoopsie \
-			--results-dir ${RESDIR} \
+			--results-dir "${RESDIR}" \
 			--skip-install --skip-network --skip-utah \
 			--pull /var/crash \
 			--pull /home/phablet/.cache/upstart \
@@ -64,14 +64,14 @@ test_from_host() {
                 	--pull /var/log/kern.log \
                 	--pull /var/log/upstart/whoopsie.log \
 			$EXTRA_PULL \
-			-l ${TESTSUITE_HOST}/master.run
+			-l "${TESTSUITE_HOST}/master.run"
 	else
-		TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" \
+		TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
 			${UTAH_PHABLET_CMD} \
 			${ADBOPTS} \
 			--from-host \
 			--whoopsie \
-			--results-dir ${RESDIR} \
+			--results-dir "${RESDIR}" \
 			--skip-install --skip-network --skip-utah \
 			--pull /var/crash \
 			--pull /home/phablet/.cache/upstart \
@@ -80,13 +80,13 @@ test_from_host() {
                 	--pull /var/log/kern.log \
                 	--pull /var/log/upstart/whoopsie.log \
 			$EXTRA_PULL \
-			-l ${TESTSUITE_HOST}/master.run
+			-l "${TESTSUITE_HOST}/master.run"
 	fi
 
 	# make sure the user running this script can remove its artifacts.
 	# only run this if we had to run under sudo
 	if [ "${SUDO}" = "sudo" ] ; then
-		sudo chown -R `whoami` ${RESDIR}
+		sudo chown -R "${USER}" ${RESDIR}
 	fi
 }
 
