@@ -123,7 +123,7 @@ def recover(device):
         return 0
     if state == 'fastboot':
         #The device is in fastboot right now, we need it booted first
-        _reimage_from_fastboot(serial)
+        return _reimage_from_fastboot(serial)
         try:
             _check_adb_shell(serial)
         except:
