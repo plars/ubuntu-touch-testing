@@ -117,7 +117,7 @@ def _get_jenkins_creds(url):
         home = os.environ.get('HOME')
         credpath = os.path.join(home,'.ubuntu-ci/jenkins-keys.yaml')
         with open(credpath) as credfile:
-            creds=yaml.load(credfile.read())
+            creds = yaml.load(credfile.read())
         jenkins = creds.get(url)
         user = jenkins.get('user')
         key = jenkins.get('key')
@@ -137,11 +137,22 @@ def _offline_device():
         return
     url = "{}/computer/{}/toggleOffline".format(host, node)
     param_data = {'offlineMessage': 'unrecoverable'}
-    response = requests.post(url, params=param_data, auth=(user, key))
-    if response.status_code != 200:
-        log.error("Error marking {} offline".format(node))
-    else:
-        log.info("{} has been marked offline".format(node))
+    delay = 2
+    # Retry with exponential delay from 1 to 128 seconds
+    # This will retry for no longer than 4 min 15 sec before failing
+    for attempt in range(8):
+        time.sleep(delay ** attempt)
+        try:
+            response = requests.post(url, params=param_data, auth=(user, key))
+        except Exception as exc:
+            log.exception('Error contacting jenkins: {}'.format(exc.message))
+            continue
+        if response.status_code != 200:
+            log.warn("Error marking {} offline, retrying".format(node))
+        else:
+            log.info("{} has been marked offline".format(node))
+            return
+        log.error("Fatal error marking {} offline".format(node))
 
 
 def recover(device):
