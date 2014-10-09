@@ -2,9 +2,12 @@
 
 import device_info
 import logging
+import os
+import requests
 import subprocess
 import sys
 import time
+import yaml
 from ncd_usb import set_relay
 
 log = logging.getLogger()
@@ -32,9 +35,11 @@ def _wait_for_device(serial, timeout=120):
                                serial, 'wait-for-device'])
     except:
         log.error("Timed out waiting for reboot. Recover device manually")
+        _offline_device()
         raise
     dev_state = device_info.get_state(serial)
     if dev_state != 'device':
+        _offline_device()
         raise DeviceError("Device in state: {0}, still not available after "
                           "{1} seconds".format(dev_state, timeout))
     else:
@@ -87,6 +92,7 @@ def _full_recovery(device_name):
     (url, bank, power, volume) = device_info.get_power(device_name)
     if None in (url, bank, power, volume):
         #This device does not have information about relays
+        _offline_device()
         raise DeviceError("Full recovery not possible with this device")
     _mako_to_bootloader(url, bank, power, volume)
     serial = device_info.get_serial(device_name)
@@ -104,6 +110,38 @@ def _check_adb_shell(serial):
     # Run a quick command in adb to see if the device is responding
     subprocess.check_call(['timeout', '10', 'adb', '-s',
                            serial, 'shell', 'pwd'])
+
+
+def _get_jenkins_creds(url):
+    try:
+        home = os.environ.get('HOME')
+        credpath = os.path.join(home,'.ubuntu-ci/jenkins-keys.yaml')
+        with open(credpath) as credfile:
+            creds=yaml.load(credfile.read())
+        jenkins = creds.get(url)
+        user = jenkins.get('user')
+        key = jenkins.get('key')
+    except (AttributeError, IOError):
+        user = None
+        key = None
+    return (user, key)
+
+
+def _offline_device():
+    # It's unlikely the node name will be different, but just in case
+    node = os.environ.get('NODE_NAME', None)
+    host = os.environ.get('JENKINS_URL', None)
+    (user, key) = _get_jenkins_creds(host)
+    if not (user and key and host and node):
+        log.warn("Unable to mark device offline automatically")
+        return
+    url = "{}/computer/{}/toggleOffline".format(host, node)
+    param_data = {'offlineMessage': 'unrecoverable'}
+    response = requests.post(url, params=param_data, auth=(user, key))
+    if response.status_code != 200:
+        log.error("Error marking {} offline".format(node))
+    else:
+        log.info("{} has been marked offline".format(node))
 
 
 def recover(device):
@@ -133,6 +171,7 @@ def recover(device):
         #The device is in an unknown state, we need full recovery
         return _full_recovery(device)
     #In theory, we should never get here, but....
+    _offline_device()
     raise DeviceError("Device '{}' is in an unknown state!".format(device))
 
 
