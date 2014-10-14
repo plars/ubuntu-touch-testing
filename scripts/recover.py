@@ -107,7 +107,7 @@ def recover(device_name):
     #In theory, we should never get here, but....
     _offline_device()
     raise device_info.DeviceError(
-        "Device '{}' is in an unknown state!".format(device))
+        "Device '{}' is in an unknown state!".format(device_name))
 
 
 if __name__ == '__main__':
