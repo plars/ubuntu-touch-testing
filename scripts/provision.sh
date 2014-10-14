@@ -142,14 +142,7 @@ mkdir -p $RESDIR
 
 if [ -z $USE_EMULATOR ] ; then
 	log "FLASHING DEVICE"
-        if [ "${DEVICE_TYPE}" = "krillin" ]; then
-		# reboot to recovery for krillin
-		adb reboot recovery
-                # Wait for recovery to boot
-                sleep 30
-        else
-		adb reboot bootloader
-	fi
+	adb reboot bootloader
 	ubuntu-device-flash --password ubuntuci $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
