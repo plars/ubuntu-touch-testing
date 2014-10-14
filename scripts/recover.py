@@ -152,7 +152,7 @@ def _offline_device():
         else:
             log.info("{} has been marked offline".format(node))
             return
-        log.error("Fatal error marking {} offline".format(node))
+    log.error("Fatal error marking {} offline".format(node))
 
 
 def recover(device):
