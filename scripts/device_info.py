@@ -91,7 +91,7 @@ class TouchDevice(object):
             subprocess.check_call(['timeout', str(timeout), 'adb', '-s',
                                   self.serial, 'wait-for-device'])
         except:
-            log.error("Timed out waiting for reboot. Recover device manually")
+            log.error("Timed out waiting for device.")
             raise
         dev_state = self.get_state()
         if dev_state != 'device':
@@ -202,27 +202,6 @@ DEVICES = {
     "flo-05": TouchDevice("flo", "0a22f7cf"),
     "flo-06": TouchDevice("flo", "08f09bb0"),
 }
-
-
-def get_state(serial):
-    """
-    Check adb and fastboot to determine the state a device is in.
-    Possible return values are:
-        device, recovery, unknown, bootloader, disconnected
-    """
-    log.warn("DEPRECATED")
-    pattern = "{}\t(.+)\n".format(serial)
-    adb_devices = subprocess.check_output(['adb', 'devices'])
-    found = re.search(pattern, adb_devices)
-    if not found:
-        #Otherwise, check fastboot
-        fastboot_devices = subprocess.check_output(['fastboot', 'devices'])
-        found = re.search(pattern, fastboot_devices)
-    if found:
-        state = found.group(1)
-        return state
-    else:
-        return 'disconnected'
 
 
 def get_device(name):
