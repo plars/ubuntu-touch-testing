@@ -58,10 +58,17 @@ class TouchDevice(object):
     def reimage_from_fastboot(self):
         #Starting from fastboot mode, put a known-good image on the device
         log.info("Flashing the last stable image")
-        subprocess.check_output(['ubuntu-device-flash', '--serial',
-                                 self.serial, '--channel',
-                                 'ubuntu-touch/stable', '--bootstrap',
-                                 '--password', 'ubuntuci'])
+        if self.devtype == "krillin":
+            subprocess.check_output(['ubuntu-device-flash', '--serial',
+                                     self.serial, '--channel',
+                                     'ubuntu-touch/ubuntu-rtm/14.09-proposed',
+                                     '--bootstrap', '--revision=104',
+                                     '--password', 'ubuntuci'])
+        else:
+            subprocess.check_output(['ubuntu-device-flash', '--serial',
+                                     self.serial, '--channel',
+                                     'ubuntu-touch/stable', '--bootstrap',
+                                     '--password', 'ubuntuci'])
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
