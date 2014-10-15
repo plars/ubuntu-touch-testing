@@ -17,13 +17,14 @@ class DeviceError(Exception):
 
 class TouchDevice(object):
     def __init__(self, devtype, serial, relay_url=None, bank=None,
-                 power_pin=None, volume_down_pin=None):
+                 power_pin=None, volume_down_pin=None, volume_up_pin=None):
         self.devtype = devtype
         self.serial = serial
         self.relay_url = relay_url
         self.bank = bank
         self.power_pin = power_pin
         self.volume_down_pin = volume_down_pin
+        self.volume_up_pin = volume_up_pin
 
     def get_serial(self):
         return self.serial
@@ -57,10 +58,17 @@ class TouchDevice(object):
     def reimage_from_fastboot(self):
         #Starting from fastboot mode, put a known-good image on the device
         log.info("Flashing the last stable image")
-        subprocess.check_output(['ubuntu-device-flash', '--serial',
-                                 self.serial, '--channel',
-                                 'ubuntu-touch/stable', '--bootstrap',
-                                 '--password', 'ubuntuci'])
+        if self.devtype == "krillin":
+            subprocess.check_output(['ubuntu-device-flash', '--serial',
+                                     self.serial, '--channel',
+                                     'ubuntu-touch/ubuntu-rtm/14.09-proposed',
+                                     '--bootstrap', '--revision=104',
+                                     '--password', 'ubuntuci'])
+        else:
+            subprocess.check_output(['ubuntu-device-flash', '--serial',
+                                     self.serial, '--channel',
+                                     'ubuntu-touch/stable', '--bootstrap',
+                                     '--password', 'ubuntuci'])
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
@@ -124,6 +132,18 @@ class TouchDevice(object):
         time.sleep(5)
         set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
         set_relay(self.relay_url, self.bank, self.power_pin, 0)
+
+    def _krillin_to_bootloader(self):
+        # On Krillin, the following sequence should take us to fastboot
+        # regardless of the initial state of the device
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 1)
+        set_relay(self.relay_url, self.bank, self.volume_up_pin, 1)
+        set_relay(self.relay_url, self.bank, self.power_pin, 1)
+        time.sleep(15)
+        set_relay(self.relay_url, self.bank, self.power_pin, 0)
+        time.sleep(6)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
+        set_relay(self.relay_url, self.bank, self.volume_up_pin, 0)
 
 
 # When looking at the relay webUI for the mapping, we consider all
