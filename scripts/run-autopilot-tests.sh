@@ -94,10 +94,14 @@ test_app() {
 		$NOSHELL $EXTRA \
 		-o ${odir} -f subunit \
 		-a /var/crash -a /home/phablet/.cache/upstart \
-                -a /var/log/syslog -a /var/log/kern.log \
-                -a /var/log/upstart/whoopsie.log \
-                -A --timeout-profile=long \
+		-a /var/log/syslog \
+		-A --timeout-profile=long \
 		-v $app || true
+	adb shell rm -rf /tmp/ci-logs
+	adb shell mkdir /tmp/ci-logs
+	adb shell sudo install -o phablet \
+		-m 666 /var/log/upstart/whoopsie.log /tmp/ci-logs
+	adb pull /tmp/ci-logs ${odir}
 
 	system_settle after $odir
 	setup_test $app teardown $odir
