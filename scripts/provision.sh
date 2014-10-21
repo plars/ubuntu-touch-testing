@@ -9,7 +9,7 @@ export PATH=${BASEDIR}/../utils/host:${PATH}
 
 RESDIR=`pwd`/clientlogs
 
-NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
+NETWORK_FILE="${NETWORK_FILE-${HOME}/.ubuntu-ci/wifi.conf}"
 
 IMAGE_OPT="${IMAGE_OPT---bootstrap --developer-mode --channel ubuntu-touch/devel-proposed}"
 UUID="${UUID-$(uuidgen -r)}"
