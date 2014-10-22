@@ -18,8 +18,9 @@ import subprocess
 from collections import defaultdict
 from glob import glob
 
-upload_script = ""
 source_file_path = ""
+nfss_config = ""
+upload_script = ""
 
 
 def _get_run_details(app_name):
@@ -60,26 +61,18 @@ def upload_json_details(run_details, app_details):
 
 def _upload_data(test_name, run_json):
     try:
-        run_json_string = json.dumps(run_json)
+        json.dumps(run_json)
     except ValueError as e:
         print("Error: Data does not appear to be valid json: %s" % e)
         sys.exit(3)
 
     print("Uploading data for :memevent:-", test_name)
     global upload_script
-    try:
-        upload_process = subprocess.Popen(
-            [upload_script, 'memevent', test_name],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        stdout, stderr = upload_process.communicate(
-            input=run_json_string.encode()
-        )
-        print("stdout: {}\n\nstderr: {}".format(stdout, stderr))
-    except Exception as e:
-        print("Something went terribly wrong: ", e)
+    global nfss_config
+    subprocess.check_call(
+        [upload_script, nfss_config, 'memevent', test_name],
+        stdin=subprocess.PIPE,
+    )
 
 
 def _get_files_app_name_and_test(filename):
@@ -153,7 +146,7 @@ def usage():
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         usage()
         exit(1)
 
@@ -162,6 +155,9 @@ def main():
 
     global upload_script
     upload_script = sys.argv[2]
+
+    global nfss_config
+    nfss_config = sys.argv[3]
 
     app_details = dict()
     file_map = map_files_to_applications()
