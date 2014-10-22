@@ -80,10 +80,10 @@ def _upload_data(test_name, run_json):
             input=run_json_string.encode()
         )
         print("stdout: {}\n\nstderr: {}".format(stdout, stderr))
-        if upload_process.returncode != 0:
-            raise subprocess.CalledProcessError('Failed to upload to nfss')
     except Exception as e:
         print("Something went terribly wrong: ", e)
+    if upload_process.returncode != 0:
+        raise subprocess.CalledProcessError('Failed to upload to nfss')
 
 
 def _get_files_app_name_and_test(filename):
