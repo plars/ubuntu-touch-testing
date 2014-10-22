@@ -97,9 +97,9 @@ while test `calc $idle_avg '<' $idle_avg_min` = 1 -a "$settle_prefix$settle_coun
   # Instead of using top, we need to use /proc/stat and compensate for
   # the number of cpus and any frequency scaling that could be in effect
   cpu_avg=$({
-    cat /proc/stat
+    ${TARGET_PREFIX} cat /proc/stat
     sleep "$sleep_len"
-    cat /proc/stat
+    ${TARGET_PREFIX} cat /proc/stat
   } | awk '
     BEGIN       { iter = 0 }
     /^cpu /     { iter = iter + 1; count = 0; next }

@@ -5,15 +5,13 @@ import device_info
 
 
 def _get_state(args):
-    print(device_info.get_state(device_info.get_serial(args.name)))
+    device = device_info.get_device(args.name)
+    print(device.get_state())
 
 
 def _get_serial(args):
-    print(device_info.get_serial(args.name))
-
-
-def _get_power(args):
-    print(device_info.get_power(args.name))
+    device = device_info.get_device(args.name)
+    print(device.get_serial())
 
 
 def _get_parser():
@@ -23,9 +21,6 @@ def _get_parser():
     serial = sub.add_parser('serial', help='Get serial for a device name')
     serial.set_defaults(func=_get_serial)
     serial.add_argument('name', help='Device name')
-    power = sub.add_parser('power', help='Get power control info for a device')
-    power.set_defaults(func=_get_power)
-    power.add_argument('name', help='Device name')
     state = sub.add_parser('state', help='Get device state for a device')
     state.set_defaults(func=_get_state)
     state.add_argument('name', help='Device name')

@@ -46,23 +46,48 @@ test_from_host() {
 
 	[ -z $ANDROID_SERIAL ] || ADBOPTS="-s $ANDROID_SERIAL"
 
-	sudo TARGET_PREFIX=$TARGET_PREFIX PATH="${PATH}" ${UTAH_PHABLET_CMD} \
-		${ADBOPTS} \
-		--from-host \
-		--whoopsie \
-		--results-dir ${RESDIR} \
-		--skip-install --skip-network --skip-utah \
-		--pull /var/crash \
-		--pull /home/phablet/.cache/upstart \
-		--pull /tmp/xmlresults \
-                --pull /var/log/syslog \
-                --pull /var/log/kern.log \
-                --pull /var/log/upstart/whoopsie.log \
-		$EXTRA_PULL \
-		-l ${TESTSUITE_HOST}/master.run
+	# If we are not in the utah group, then we don't have permissions
+	# for /var/lib/utah, so run under sudo
+	if ! groups |grep -q utah ; then
+		SUDO="sudo"
+		sudo TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
+			${UTAH_PHABLET_CMD} \
+			${ADBOPTS} \
+			--from-host \
+			--whoopsie \
+			--results-dir "${RESDIR}" \
+			--skip-install --skip-network --skip-utah \
+			--pull /var/crash \
+			--pull /home/phablet/.cache/upstart \
+			--pull /tmp/xmlresults \
+                	--pull /var/log/syslog \
+                	--pull /var/log/kern.log \
+                	--pull /var/log/upstart/whoopsie.log \
+			$EXTRA_PULL \
+			-l "${TESTSUITE_HOST}/master.run"
+	else
+		TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
+			${UTAH_PHABLET_CMD} \
+			${ADBOPTS} \
+			--from-host \
+			--whoopsie \
+			--results-dir "${RESDIR}" \
+			--skip-install --skip-network --skip-utah \
+			--pull /var/crash \
+			--pull /home/phablet/.cache/upstart \
+			--pull /tmp/xmlresults \
+                	--pull /var/log/syslog \
+                	--pull /var/log/kern.log \
+                	--pull /var/log/upstart/whoopsie.log \
+			$EXTRA_PULL \
+			-l "${TESTSUITE_HOST}/master.run"
+	fi
 
 	# make sure the user running this script can remove its artifacts.
-	sudo chown -R `whoami` ${RESDIR}
+	# only run this if we had to run under sudo
+	if [ "${SUDO}" = "sudo" ] ; then
+		sudo chown -R "${USER}" ${RESDIR}
+	fi
 }
 
 assert_image() {

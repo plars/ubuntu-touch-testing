@@ -9,7 +9,7 @@ export PATH=${BASEDIR}/../utils/host:${PATH}
 
 RESDIR=`pwd`/clientlogs
 
-NETWORK_FILE="${NETWORK_FILE-/home/ubuntu/magners-wifi}"
+NETWORK_FILE="${NETWORK_FILE-${HOME}/.ubuntu-ci/wifi.conf}"
 
 IMAGE_OPT="${IMAGE_OPT---bootstrap --developer-mode --channel ubuntu-touch/devel-proposed}"
 UUID="${UUID-$(uuidgen -r)}"
@@ -64,7 +64,7 @@ set_hwclock() {
 	log "Current date on device is:"
 	adb shell date
 	log "Current hwclock on device is:"
-	adb shell hwclock
+	adb shell sudo hwclock
 }
 
 retry() {
@@ -142,14 +142,7 @@ mkdir -p $RESDIR
 
 if [ -z $USE_EMULATOR ] ; then
 	log "FLASHING DEVICE"
-        if [ "${DEVICE_TYPE}" = "krillin" ]; then
-		# reboot to recovery for krillin
-		adb reboot recovery
-                # Wait for recovery to boot
-                sleep 30
-        else
-		adb reboot bootloader
-	fi
+	adb reboot bootloader
 	ubuntu-device-flash --password ubuntuci $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
@@ -162,11 +155,8 @@ fi
 
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
-	if ! phablet-network -n $NETWORK_FILE ; then
-		log "Session not available yet, retrying..."
-		sleep 10
-		phablet-network -n $NETWORK_FILE
-	fi
+	retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
+	phablet-network -n $NETWORK_FILE
 fi
 
 phablet-config welcome-wizard --disable
