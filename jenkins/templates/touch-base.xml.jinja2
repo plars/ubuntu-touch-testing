@@ -56,7 +56,7 @@ mv clientlogs/{{test}}/* ./clientlogs/
 rm -rf clientlogs/{{test}}
 
 {% if test == 'memevent' %}
-adb pull /tmp/memory_usage.json ./clientlogs/
+adb pull /tmp/memory_usage*.json ./clientlogs/
 NFSS_CONFIG_FILE=${WORKSPACE}/nfss_config
 cat - > ${NFSS_CONFIG_FILE} <<EOD
 {{nfss_config}}
