@@ -88,6 +88,26 @@ retry() {
 	done
 }
 
+reboot_bootloader() {
+	log "Attempting adb reboot bootloader"
+	adb reboot bootloader
+	sleep 30 # Entering the bootloader should be fast
+	if ! fastboot devices | grep -q $ANDROID_SERIAL; then
+		log "Device not in fastboot after adb reboot bootloader"
+		adb reboot
+		return 1
+	fi
+	return 0
+}
+
+full_flash() {
+	log "FLASHING DEVICE"
+	retry 60 3 reboot_bootloader
+	retry 60 3 ubuntu-device-flash --password ubuntuci $IMAGE_OPT
+	adb wait-for-device
+	sleep 60  #give the system a little time
+}
+
 while getopts i:s:n:P:p:r:wh opt; do
 	case $opt in
 	h)
@@ -128,6 +148,23 @@ if [ -z $ANDROID_SERIAL ] ; then
 		echo
 		usage
 		exit 1
+	else
+		# ANDROID_SERIAL was not set, we'll need it later on
+		# Based on the sample output (between the '-----'):
+		# -----
+		# List of devices attached 
+		# 1234567890abcdef        device
+		# 
+		# -----
+		# A regex is not used becaused the length and form of the
+		# serial number varies between device types
+		ANDROID_SERIAL=`adb devices|tail -n 2|head -n 1|cut -f 1`
+	fi
+	if [ -z $ANDROID_SERIAL ] ; then
+		echo "ERROR: Could not determine device serial number, please use -s option."
+		echo
+		usage
+		exit 1
 	fi
 fi
 
@@ -141,11 +178,7 @@ set -x
 mkdir -p $RESDIR
 
 if [ -z $USE_EMULATOR ] ; then
-	log "FLASHING DEVICE"
-	adb reboot bootloader
-	ubuntu-device-flash --password ubuntuci $IMAGE_OPT
-	adb wait-for-device
-	sleep 60  #give the system a little time
+	full_flash
 else
 	log "CREATING EMULATOR"
 	ubuntu-emulator destroy --yes $ANDROID_SERIAL || true
