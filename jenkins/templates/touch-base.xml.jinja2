@@ -56,7 +56,12 @@ mv clientlogs/{{test}}/* ./clientlogs/
 rm -rf clientlogs/{{test}}
 
 {% if test == 'memevent' %}
-adb pull /tmp/memory_usage.json ./clientlogs/
+adb shell ls /tmp/memory_usage*.json | tr '\r' ' ' | sed 's/ $//' | xargs -n1 -I {} adb pull {} ./clientlogs/
+NFSS_CONFIG_FILE=${WORKSPACE}/nfss_config
+cat - > ${NFSS_CONFIG_FILE} <<EOD
+{{nfss_config}}
+EOD
+python3 ${BZRDIR}/tests/memevent/nfss_upload_results.py ./clientlogs/ nfss_insert.py ${NFSS_CONFIG_FILE}
 {% endif %}
       ]]></command>
     </hudson.tasks.Shell>
