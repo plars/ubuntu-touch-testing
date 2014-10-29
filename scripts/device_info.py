@@ -119,6 +119,20 @@ class TouchDevice(object):
         else:
             raise DeviceError("Full recovery not possible with this device")
 
+    def _flo_to_bootloader(self):
+        log.info("Forcing the device to enter the bootloader")
+        #Power off the device from any state
+        set_relay(self.relay_url, self.bank, self.power_pin, 1)
+        time.sleep(12)
+        set_relay(self.relay_url, self.bank, self.power_pin, 0)
+        time.sleep(10)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 1)
+        set_relay(self.relay_url, self.bank, self.power_pin, 1)
+        time.sleep(5)
+        set_relay(self.relay_url, self.bank, self.power_pin, 0)
+        time.sleep(1)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
+
     def _mako_to_bootloader(self):
         log.info("Forcing the device to enter the bootloader")
         #Power off the device from any state
@@ -219,7 +233,9 @@ DEVICES = {
     "flo-02": TouchDevice("flo", "08dbee36"),
     "flo-03": TouchDevice("flo", "09d55fa8"),
     "flo-04": TouchDevice("flo", "09e68682"),
-    "flo-05": TouchDevice("flo", "0a22f7cf"),
+    "flo-05": TouchDevice("flo", "0a22f7cf",
+                          relay_url="http://10.98.4.101",
+                          bank=0, power_pin=0, volume_down_pin=2),
     "flo-06": TouchDevice("flo", "08f09bb0"),
 }
 
