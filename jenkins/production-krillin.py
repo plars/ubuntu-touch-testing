@@ -21,6 +21,9 @@ UTOPIC_MATRIX = [
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
             '--channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"'
     },
+]
+
+VIVID_MATRIX = [
     {
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
@@ -32,7 +35,7 @@ UTOPIC_MATRIX = [
             {
                 'name': 'krillin',
                 'slave-label': 'krillin',
-                'trigger_url': 'http://system-image.ubuntu.com/ubuntu-touch/utopic-proposed/krillin/index.json',
+                'trigger_url': 'http://system-image.ubuntu.com/ubuntu-touch/devel-proposed/krillin/index.json',
                 'num-workers': 4,
             }
         ],
@@ -41,4 +44,5 @@ UTOPIC_MATRIX = [
 
 MATRIX = {
     'utopic': UTOPIC_MATRIX,
+    'vivid': VIVID_MATRIX,
 }
