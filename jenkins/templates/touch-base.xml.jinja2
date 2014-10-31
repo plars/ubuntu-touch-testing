@@ -65,11 +65,13 @@ fi
 {% endif %}
 {% if test == 'memevent' %}
 adb shell ls /tmp/memory_usage*.json | tr '\r' ' ' | sed 's/ $//' | xargs -n1 -I {} adb pull {} ./clientlogs/
+{% if nfss_config %}
 NFSS_CONFIG_FILE=${WORKSPACE}/nfss_config
 cat - > ${NFSS_CONFIG_FILE} <<EOD
 {{nfss_config}}
 EOD
 python3 ${BZRDIR}/tests/memevent/nfss_upload_results.py ./clientlogs/ nfss_insert.py ${NFSS_CONFIG_FILE}
+{% endif %}
 {% endif %}
       ]]></command>
     </hudson.tasks.Shell>

@@ -145,6 +145,7 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
         'image_opt': config_item.get('IMAGE_OPT', ''),
         'timeout': test.timeout,
         'test': test.name,
+        'nfss_config': args.nfss_config,
     }
     prefix = ""
     if(args.prefix):
