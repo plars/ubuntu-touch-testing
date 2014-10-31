@@ -55,6 +55,14 @@ ${BZRDIR}/scripts/run-smoke -t {{test}}
 mv clientlogs/{{test}}/* ./clientlogs/
 rm -rf clientlogs/{{test}}
 
+{% if test == 'health-check' %}
+# Post to nfss
+if [ "$NFSS_CONFIG" ] ; then
+    for FILE in clientlogs/*.json ; do
+        cat "$FILE" | nfss_insert.py "$NFSS_CONFIG" healthcheck $DEVICE_TYPE
+    done
+fi
+{% endif %}
 {% if test == 'memevent' %}
 adb shell ls /tmp/memory_usage*.json | tr '\r' ' ' | sed 's/ $//' | xargs -n1 -I {} adb pull {} ./clientlogs/
 NFSS_CONFIG_FILE=${WORKSPACE}/nfss_config
