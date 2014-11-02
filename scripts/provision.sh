@@ -89,21 +89,39 @@ retry() {
 }
 
 reboot_bootloader() {
+	# In CI, we've seen cases whre 'adb reboot bootloader' will just
+	# reboot the device and not enter the bootloader. Adding another
+	# reboot and retrying was found to be a successful workaround.
+	# We only want to do this if we know ANDROID_SERIAL. Attempting
+	# to guess might end up flashing the wrong device.
+
 	log "Attempting adb reboot bootloader"
 	adb reboot bootloader
-	sleep 30 # Entering the bootloader should be fast
-	if ! fastboot devices | grep -q $ANDROID_SERIAL; then
-		log "Device not in fastboot after adb reboot bootloader"
-		adb reboot
-		return 1
+	if [ -n ${ANDROID_SERIAL} ] ; then
+	       	# Entering the bootloader should take < 10 seconds, add some
+		# padding for device variance.
+		sleep 30
+		if ! fastboot devices | grep -q ${ANDROID_SERIAL}; then
+			log "Device not in fastboot after adb reboot bootloader"
+			# After a failed 'reboot bootloader' attempt, a reboot
+			# is used to get the device back to a saner state.
+			adb reboot
+			return 1
+		fi
 	fi
 	return 0
 }
 
 full_flash() {
 	log "FLASHING DEVICE"
+	# Use a 60 second retry loop for reboot_bootloader.
+	# If the attempt failed, it may take nearly 60 seconds to complete
+	# the reboot cycle to get the device back to a sane state.
 	retry 60 3 reboot_bootloader
-	retry 60 3 ubuntu-device-flash --password ubuntuci $IMAGE_OPT
+	# Use a 10 second retry loop for ubuntu-device-flash.
+	# Most failures appear to be transient and work with an immediate
+	# retry.
+	retry 10 3 ubuntu-device-flash --password ubuntuci $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 }
@@ -145,23 +163,6 @@ if [ -z $ANDROID_SERIAL ] ; then
 	lines=$(adb devices | wc -l)
 	if [ $lines -gt 3 ] ; then
 		echo "ERROR: More than one device attached, please use -s option"
-		echo
-		usage
-		exit 1
-	else
-		# ANDROID_SERIAL was not set, we'll need it later on
-		# Based on the sample output (between the '-----'):
-		# -----
-		# List of devices attached 
-		# 1234567890abcdef        device
-		# 
-		# -----
-		# A regex is not used becaused the length and form of the
-		# serial number varies between device types
-		ANDROID_SERIAL=`adb devices|tail -n 2|head -n 1|cut -f 1`
-	fi
-	if [ -z $ANDROID_SERIAL ] ; then
-		echo "ERROR: Could not determine device serial number, please use -s option."
 		echo
 		usage
 		exit 1
