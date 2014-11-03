@@ -88,6 +88,46 @@ retry() {
 	done
 }
 
+reboot_bootloader() {
+	# In CI, we've seen cases whre 'adb reboot bootloader' will just
+	# reboot the device and not enter the bootloader. Adding another
+	# reboot and retrying was found to be a successful workaround:
+	# https://bugs.launchpad.net/ubuntu/+source/android-tools/+bug/1359488
+	#
+	# We only want to do this if we know ANDROID_SERIAL. Attempting
+	# to guess might end up flashing the wrong device.
+
+	log "Attempting adb reboot bootloader"
+	adb reboot bootloader
+	if [ -n "${ANDROID_SERIAL}" ] ; then
+	       	# Entering the bootloader should take < 10 seconds, add some
+		# padding for device variance.
+		sleep 30
+		if ! fastboot devices | grep -q "${ANDROID_SERIAL}"; then
+			log "Device not in fastboot after adb reboot bootloader"
+			# After a failed 'reboot bootloader' attempt, a reboot
+			# is used to get the device back to a saner state.
+			adb reboot
+			return 1
+		fi
+	fi
+	return 0
+}
+
+full_flash() {
+	log "FLASHING DEVICE"
+	# Use a 60 second retry loop for reboot_bootloader.
+	# If the attempt failed, it may take nearly 60 seconds to complete
+	# the reboot cycle to get the device back to a sane state.
+	retry 60 3 reboot_bootloader
+	# Use a 10 second retry loop for ubuntu-device-flash.
+	# Most failures appear to be transient and work with an immediate
+	# retry.
+	retry 10 3 ubuntu-device-flash --password ubuntuci $IMAGE_OPT
+	adb wait-for-device
+	sleep 60  #give the system a little time
+}
+
 while getopts i:s:n:P:p:r:wh opt; do
 	case $opt in
 	h)
@@ -141,11 +181,7 @@ set -x
 mkdir -p $RESDIR
 
 if [ -z $USE_EMULATOR ] ; then
-	log "FLASHING DEVICE"
-	adb reboot bootloader
-	ubuntu-device-flash --password ubuntuci $IMAGE_OPT
-	adb wait-for-device
-	sleep 60  #give the system a little time
+	full_flash
 else
 	log "CREATING EMULATOR"
 	ubuntu-emulator destroy --yes $ANDROID_SERIAL || true
