@@ -29,7 +29,7 @@ will list supported options.
 
 NOTE: provision.sh requires a path to a network-manager wifi connection that
 can be copied to the target device. By default this is set to
-/home/ubuntu/magners-wifi. This can be overriden with the -n parameter.
+${HOME}/.ubuntu-ci/wifi.conf. This can be overriden with the -n parameter.
 
 Executing Tests
 ---------------
@@ -77,4 +77,34 @@ will be named clientlogs/utah.yaml.
 An example of running the sdk test suite::
 
   ./scripts/jenkins.sh -a sdk
+
+Provisioning and Executiong tests for an MP
+-------------------------------------------
+
+These scripts are used by jenkins for the testing of MPs that generate debian
+packages. To re-create the testing performed by jenkins, set the following
+environment variables based on the jenkins build parameters::
+
+  export package_archive=<from jenkins build parameter>
+  export test_packages=<from jenkins build parameter>
+  export test_suite=<from jenkins build parameter>
+
+and set the variable::
+
+  export ANDROID_SERIAL=<adb id from your test device>
+
+Then execute the following script::
+
+  wget ${package_archive}
+  unzip archive
+  package_dir=archive
+  package_list=""
+  for package in ${test_packages}; do
+      package_list="-p ${package} ${package_list}"
+  done
+  export SKIP_CLICK=1
+  export SKIP_TESTCONFIG=1
+  ./scripts/provision.sh -s ${ANDROID_SERIAL} -n ${HOME}/.ubuntu-ci/wifi.conf \
+          -D ${package_dir} ${package_list}
+  ./scripts/run-smoke -s ${ANDROID_SERIAL} -n -a ${test_suite}
 
