@@ -38,13 +38,16 @@ setup_test() {
 	{
 		pkgs=$(${BASEDIR}/jenkins/testconfig.py packages -a $app)
 		if [ "$label" = "setup" ] ; then
-			adb-shell sudo apt-get install -yq --force-yes $pkgs
+			if [ -z "${SKIP_TESTCONFIG}" ]; then
+				adb-shell sudo apt-get install -yq --force-yes $pkgs
+			fi
 		else
-			#Always remove dbus-x11 because it causes
-			#problems when we leave it around
-			pkgs="$pkgs dbus-x11"
-			adb-shell sudo apt-get autoremove --purge -y $pkgs \
-				|| /bin/true
+			if [ -z "${SKIP_TESTCONFIG}" ]; then
+				#Always remove dbus-x11 because it causes
+				#problems when we leave it around
+				pkgs="$pkgs dbus-x11"
+				adb-shell sudo apt-get autoremove --purge -y $pkgs || /bin/true
+			fi
 		fi
 		echo $? > ${odir}/setup_${label}.rc
 	} 2>&1 | tee ${odir}/setup_${label}.log
@@ -101,6 +104,8 @@ test_app() {
 	adb shell mkdir /tmp/ci-logs
 	adb shell sudo install -o phablet \
 		-m 666 /var/log/upstart/whoopsie.log /tmp/ci-logs
+	adb-shell "sudo system-image-cli --info > /tmp/ci-logs/system-image-cli.log"
+	adb-shell "dpkg -l > /tmp/ci-logs/dpkg-l.log"
 	adb pull /tmp/ci-logs ${odir}
 
 	system_settle after $odir
