@@ -13,6 +13,7 @@ NETWORK_FILE="${NETWORK_FILE-${HOME}/.ubuntu-ci/wifi.conf}"
 
 IMAGE_OPT="${IMAGE_OPT---bootstrap --developer-mode --channel ubuntu-touch/devel-proposed}"
 UUID="${UUID-$(uuidgen -r)}"
+PHABLET_PASSWORD="${PHABLET_PASSWORD-ubuntuci}"
 
 usage() {
 cat <<EOF
@@ -25,6 +26,7 @@ OPTIONS:
   -s    Specify the serial of the device to install
   -n    Select network file
   -P    add the ppa to the target (can be repeated)
+  -D    add a debian package dir to the target (can be repeated)
   -p    add the package to the target (can be repeated)
   -r    Specify the image revision to flash
   -w    make the system writeable (implied with -p and -P arguments)
@@ -97,11 +99,11 @@ reboot_bootloader() {
 
 	log "Attempting adb reboot bootloader"
 	adb reboot bootloader
-	if [ -n ${ANDROID_SERIAL} ] ; then
+	if [ -n "${ANDROID_SERIAL}" ] ; then
 	       	# Entering the bootloader should take < 10 seconds, add some
 		# padding for device variance.
 		sleep 30
-		if ! fastboot devices | grep -q ${ANDROID_SERIAL}; then
+		if ! fastboot devices | grep -q "${ANDROID_SERIAL}"; then
 			log "Device not in fastboot after adb reboot bootloader"
 			# After a failed 'reboot bootloader' attempt, a reboot
 			# is used to get the device back to a saner state.
@@ -121,12 +123,12 @@ full_flash() {
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	retry 10 3 ubuntu-device-flash --password ubuntuci $IMAGE_OPT
+	retry 10 3 ubuntu-device-flash --password $PHABLET_PASSWORD $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 }
 
-while getopts i:s:n:P:p:r:wh opt; do
+while getopts i:s:n:P:D:p:r:wh opt; do
 	case $opt in
 	h)
 		usage
@@ -147,6 +149,9 @@ while getopts i:s:n:P:p:r:wh opt; do
 		;;
 	P)
 		CUSTOMIZE="$CUSTOMIZE --ppa $OPTARG"
+		;;
+	D)
+		CUSTOMIZE="$CUSTOMIZE --package-dir $OPTARG"
 		;;
 	p)
 		CUSTOMIZE="$CUSTOMIZE -p $OPTARG"
@@ -190,35 +195,39 @@ fi
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
 	retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
-	phablet-network -n $NETWORK_FILE
+	retry 60 5 phablet-network -n $NETWORK_FILE
 fi
 
 phablet-config welcome-wizard --disable
 
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
-	phablet-config writable-image $CUSTOMIZE
+	phablet-config writable-image -r ${PHABLET_PASSWORD} $CUSTOMIZE
 fi
 
 log "SETTING UP SUDO"
-adb shell "echo ubuntuci |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
+adb shell "echo ${PHABLET_PASSWORD} |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
 
 # FIXME: Can't do this through phablet-config for now because it needs auth
 # phablet-config edges-intro --disable
 adb shell "sudo dbus-send --system --print-reply --dest=org.freedesktop.Accounts /org/freedesktop/Accounts/User32011 org.freedesktop.DBus.Properties.Set string:com.canonical.unity.AccountsService string:demo-edges variant:boolean:false"
 
-log "SETTING UP CLICK PACKAGES"
-CLICK_TEST_OPTS=""
-channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
-# Before running phablet-click-test setup, we need to make sure the
-# session is available
-retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
+if [ -n "${SKIP_CLICK}" ]; then
+	log "SKIPPING CLICK PACKAGE SETUP AS REQUESTED"
+else
+	log "SETTING UP CLICK PACKAGES"
+	CLICK_TEST_OPTS=""
+	channel_name=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
+	# Before running phablet-click-test setup, we need to make sure the
+	# session is available
+	retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
 
-# FIXME: workaround for phablet-click-test-setup to pull the right sources
-if [[ $channel_name == *rtm* ]] ; then
-	CLICK_TEST_OPTS="--distribution ubuntu-rtm --series 14.09"
+	# FIXME: workaround for phablet-click-test-setup to pull the right sources
+	if [[ $channel_name == *rtm* ]] ; then
+		CLICK_TEST_OPTS="--distribution ubuntu-rtm --series 14.09"
+	fi
+	phablet-click-test-setup $CLICK_TEST_OPTS
 fi
-phablet-click-test-setup $CLICK_TEST_OPTS
 
 # get our target-based utilities into our PATH
 adb push ${BASEDIR}/../utils/target /home/phablet/bin
