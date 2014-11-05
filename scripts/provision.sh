@@ -199,7 +199,7 @@ phablet-config welcome-wizard --disable
 
 if [ -n "$CUSTOMIZE" ] ; then
 	log "CUSTOMIZING IMAGE"
-	phablet-config writable-image $CUSTOMIZE
+	phablet-config writable-image -r 0000 $CUSTOMIZE
 fi
 
 log "SETTING UP SUDO"
