@@ -62,7 +62,7 @@ class TouchDevice(object):
             subprocess.check_output(['ubuntu-device-flash', '--serial',
                                      self.serial, '--channel',
                                      'ubuntu-touch/ubuntu-rtm/14.09-proposed',
-                                     '--bootstrap', '--revision=104',
+                                     '--bootstrap', '--revision=141',
                                      '--password', 'ubuntuci'])
         else:
             subprocess.check_output(['ubuntu-device-flash', '--serial',
