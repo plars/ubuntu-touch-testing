@@ -153,18 +153,6 @@ class TouchDevice(object):
         set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
         set_relay(self.relay_url, self.bank, self.power_pin, 0)
 
-    def _krillin_to_bootloader(self):
-        # On Krillin, the following sequence should take us to fastboot
-        # regardless of the initial state of the device
-        set_relay(self.relay_url, self.bank, self.volume_down_pin, 1)
-        set_relay(self.relay_url, self.bank, self.volume_up_pin, 1)
-        set_relay(self.relay_url, self.bank, self.power_pin, 1)
-        time.sleep(15)
-        set_relay(self.relay_url, self.bank, self.power_pin, 0)
-        time.sleep(6)
-        set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
-        set_relay(self.relay_url, self.bank, self.volume_up_pin, 0)
-
 
 # When looking at the relay webUI for the mapping, we consider all
 # ports and banks to start numbering from 0
@@ -178,13 +166,13 @@ DEVICES = {
     "krillin-07": TouchDevice("krillin", "JW011999"),
     "krillin-08": TouchDevice("krillin", "JW013513"),
     "krillin-09": TouchDevice("krillin", "JW010053",
-                          relay_url="http://ferris.ubuntu-ci",
-                          bank=0, power_pin=4, volume_up_pin = 5,
-                          volume_down_pin=6),
+                              relay_url="http://ferris.ubuntu-ci",
+                              bank=0, power_pin=4, volume_up_pin=5,
+                              volume_down_pin=6),
     "krillin-10": TouchDevice("krillin", "JB012976",
-                           relay_url="http://decatur.ubuntu-ci",
-                           bank=2, power_pin=0, volume_up_pin = 1,
-                           volume_down_pin=2),
+                              relay_url="http://decatur.ubuntu-ci",
+                              bank=2, power_pin=0, volume_up_pin=1,
+                              volume_down_pin=2),
     "ps-mako-01": TouchDevice("mako", "0090f741e3d141bc"),
     "ps-mako-02": TouchDevice("mako", "04ccca120acd4dea"),
     "ps-mako-03": TouchDevice("mako", "04cb53b598546534"),
