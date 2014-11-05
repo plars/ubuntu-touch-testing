@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -x
+
+echo "Creating dummy tracing session without -e to get around first run error"
+lttng create dummy
+lttng destroy dummy
+
+set -e
+
+echo "Setting environment variables for tracing"
+export LTTNG_UST_REGISTER_TIMEOUT=-1
+export UBUNTU_APP_LAUNCH_LTTNG_ENABLED=TRUE
+
+echo "Creating app startup tracing session."
+lttng create dialer-app-startup
+
+lttng enable-event -u -a
+lttng start
+
+echo "Launching app."
+ubuntu-app-launch dialer-app
+
+sleep 15
+
+ubuntu-app-stop dialer-app
+
+lttng stop
+lttng destroy dialer-app-startup

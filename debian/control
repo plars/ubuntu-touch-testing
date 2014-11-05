@@ -1,0 +1,21 @@
+Source: ubuntu-appstartup-tests
+Priority: optional
+Maintainer: Leonardo Arias Fonseca <leo.arias@canonical.com>
+Build-Depends: debhelper (>= 9), autotools-dev
+Standards-Version: 3.9.5
+Section: utils
+Vcs-bzr: lp:ubuntu-autopilot-tests/ubuntu-experience-tests
+XS-Testsuite: autopkgtest
+
+#Package: ubuntu-appstartup-tests-dev
+#Section: libdevel
+#Architecture: any
+#Depends: ubuntu-appstartup-testsBROKEN (= ${binary:Version}), ${misc:Depends}
+#Description: <insert up to 60 chars description>
+# <insert long description, indented with spaces>
+
+#Package: ubuntu-appstartup-testsBROKEN
+#Architecture: any
+#Depends: ${shlibs:Depends}, ${misc:Depends}
+#Description: <insert up to 60 chars description>
+#` <insert long description, indented with spaces>

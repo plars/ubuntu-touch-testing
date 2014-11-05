@@ -1,0 +1,2 @@
+Tests: appstartup
+Depends: dialer-app, lttng-modules-dkms, lttng-tools, ubuntu-app-launch-tools

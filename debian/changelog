@@ -1,0 +1,5 @@
+ubuntu-appstartup-tests (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Leonardo Arias Fonseca <leo.arias@canonical.com>  Wed, 05 Nov 2014 09:44:55 -0600
