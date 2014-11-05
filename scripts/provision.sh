@@ -123,7 +123,7 @@ full_flash() {
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	retry 10 3 ubuntu-device-flash --password ubuntuci $IMAGE_OPT
+	retry 10 3 ubuntu-device-flash --password 0000 $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 }
@@ -203,7 +203,7 @@ if [ -n "$CUSTOMIZE" ] ; then
 fi
 
 log "SETTING UP SUDO"
-adb shell "echo ubuntuci |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
+adb shell "echo 0000 |sudo -S bash -c 'echo phablet ALL=\(ALL\) NOPASSWD: ALL > /etc/sudoers.d/phablet && chmod 600 /etc/sudoers.d/phablet'"
 
 # FIXME: Can't do this through phablet-config for now because it needs auth
 # phablet-config edges-intro --disable

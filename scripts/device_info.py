@@ -63,12 +63,12 @@ class TouchDevice(object):
                                      self.serial, '--channel',
                                      'ubuntu-touch/ubuntu-rtm/14.09-proposed',
                                      '--bootstrap', '--revision=104',
-                                     '--password', 'ubuntuci'])
+                                     '--password', '0000'])
         else:
             subprocess.check_output(['ubuntu-device-flash', '--serial',
                                      self.serial, '--channel',
                                      'ubuntu-touch/stable', '--bootstrap',
-                                     '--password', 'ubuntuci'])
+                                     '--password', '0000'])
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
