@@ -192,7 +192,7 @@ fi
 if [ -z $USE_EMULATOR ] ; then
 	log "SETTING UP WIFI"
 	retry 60 5 adb-shell 'sudo -iu phablet env |grep UPSTART_SESSION=unix'
-	phablet-network -n $NETWORK_FILE
+	retry 60 5 phablet-network -n $NETWORK_FILE
 fi
 
 phablet-config welcome-wizard --disable
