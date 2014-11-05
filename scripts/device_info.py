@@ -62,7 +62,7 @@ class TouchDevice(object):
                                  self.serial, '--channel',
                                  'ubuntu-touch/stable', '--bootstrap',
                                  '--developer-mode',
-                                 '--password', 'ubuntuci'])
+                                 '--password', '0000'])
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
