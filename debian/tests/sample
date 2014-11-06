@@ -3,7 +3,15 @@
 set -e
 
 sleep 5
-echo $ADT_ARTIFACTS
+
 cat > $ADT_ARTIFACTS/nfss-data.json <<EOF
-[]
+[
+  {
+    "project": "sample_project",
+    "test": "sample_test",
+    "data": {
+
+    }
+  }
+]
 EOF
