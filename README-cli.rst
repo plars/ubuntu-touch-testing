@@ -3,7 +3,7 @@ Touch Testing From the CLI
 
 The touch testing execution framework was written so that its very easy to
 run tests from home in the exact same way test are run in the lab. The only
-thigs you need are:
+things you need are:
 
  * This bzr branch
  * The phablet-tools_ package
@@ -13,7 +13,7 @@ thigs you need are:
 .. _supported: http://wiki.ubuntu.com/Touch/Devices
 
 There are two pieces to touch testing, provisioning and test execution. These
-functions are independent of one another. eg, If your device already
+functions are independent of one another. i.e., if your device already
 has the proper image/configuration, you can simply use the test-runner.
 
 Provisioning
@@ -29,7 +29,7 @@ will list supported options.
 
 NOTE: provision.sh requires a path to a network-manager wifi connection that
 can be copied to the target device. By default this is set to
-${HOME}/.ubuntu-ci/wifi.conf. This can be overriden with the -n parameter.
+${HOME}/.ubuntu-ci/wifi.conf. This can be overridden with the -n parameter.
 
 Executing Tests
 ---------------
@@ -78,10 +78,10 @@ An example of running the sdk test suite::
 
   ./scripts/jenkins.sh -a sdk
 
-Provisioning and Executiong tests for an MP
--------------------------------------------
+Provisioning and Executing tests for an MP
+------------------------------------------
 
-These scripts are used by jenkins for the testing of MPs that generate debian
+These scripts are used by jenkins for the testing of MPs that generate Debian
 packages. To re-create the testing performed by jenkins, set the following
 environment variables based on the jenkins build parameters::
 
