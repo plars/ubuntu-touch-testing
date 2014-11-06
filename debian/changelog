@@ -1,5 +1,5 @@
-ubuntu-appstartup-tests (0.1-1) unstable; urgency=low
+ubuntu-sample-adt-test (0.1-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release.
 
  -- Leonardo Arias Fonseca <leo.arias@canonical.com>  Wed, 05 Nov 2014 09:44:55 -0600

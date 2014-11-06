@@ -2,15 +2,17 @@
 
 set -e
 
-sleep 5
+# Make sure that the sample data is going to the staging server.
+touch $ADT_ARTIFACTS/nfss-use-staging
 
+# Make a sample data file to be added to the nfss server.
 cat > $ADT_ARTIFACTS/nfss-data.json <<EOF
 [
   {
     "project": "sample_project",
     "test": "sample_test",
     "data": {
-
+      "results": 1
     }
   }
 ]
