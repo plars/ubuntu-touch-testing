@@ -27,7 +27,7 @@ The test executable exits with 0 if successful, non-zero otherwise.
 ## Non-functional stats data
 
 The NFSS json data file will be stored at the output/artifacts/ directory,
-along with the data file that indicates that it should be uploaded only to the
+along with the file that indicates that it should be uploaded only to the
 staging server.
 
 ## Triggering
