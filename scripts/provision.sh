@@ -93,7 +93,9 @@ retry() {
 reboot_bootloader() {
 	# In CI, we've seen cases whre 'adb reboot bootloader' will just
 	# reboot the device and not enter the bootloader. Adding another
-	# reboot and retrying was found to be a successful workaround.
+	# reboot and retrying was found to be a successful workaround:
+	# https://bugs.launchpad.net/ubuntu/+source/android-tools/+bug/1359488
+	#
 	# We only want to do this if we know ANDROID_SERIAL. Attempting
 	# to guess might end up flashing the wrong device.
 

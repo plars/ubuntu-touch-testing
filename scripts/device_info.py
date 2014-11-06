@@ -58,17 +58,11 @@ class TouchDevice(object):
     def reimage_from_fastboot(self):
         #Starting from fastboot mode, put a known-good image on the device
         log.info("Flashing the last stable image")
-        if self.devtype == "krillin":
-            subprocess.check_output(['ubuntu-device-flash', '--serial',
-                                     self.serial, '--channel',
-                                     'ubuntu-touch/ubuntu-rtm/14.09-proposed',
-                                     '--bootstrap', '--revision=104',
-                                     '--password', 'ubuntuci'])
-        else:
-            subprocess.check_output(['ubuntu-device-flash', '--serial',
-                                     self.serial, '--channel',
-                                     'ubuntu-touch/stable', '--bootstrap',
-                                     '--password', 'ubuntuci'])
+        subprocess.check_output(['ubuntu-device-flash', '--serial',
+                                 self.serial, '--channel',
+                                 'ubuntu-touch/stable', '--bootstrap',
+                                 '--developer-mode',
+                                 '--password', '0000'])
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
@@ -119,6 +113,32 @@ class TouchDevice(object):
         else:
             raise DeviceError("Full recovery not possible with this device")
 
+    def _krillin_to_bootloader(self):
+        log.info("Forcing the device to enter the bootloader")
+        #Power off the device from any state
+        set_relay(self.relay_url, self.bank, self.power_pin, 1)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 1)
+        set_relay(self.relay_url, self.bank, self.volume_up_pin, 1)
+        time.sleep(16)
+        set_relay(self.relay_url, self.bank, self.power_pin, 0)
+        time.sleep(6)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
+        set_relay(self.relay_url, self.bank, self.volume_up_pin, 0)
+
+    def _flo_to_bootloader(self):
+        log.info("Forcing the device to enter the bootloader")
+        #Power off the device from any state
+        set_relay(self.relay_url, self.bank, self.power_pin, 1)
+        time.sleep(12)
+        set_relay(self.relay_url, self.bank, self.power_pin, 0)
+        time.sleep(10)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 1)
+        set_relay(self.relay_url, self.bank, self.power_pin, 1)
+        time.sleep(5)
+        set_relay(self.relay_url, self.bank, self.power_pin, 0)
+        time.sleep(1)
+        set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
+
     def _mako_to_bootloader(self):
         log.info("Forcing the device to enter the bootloader")
         #Power off the device from any state
@@ -133,18 +153,6 @@ class TouchDevice(object):
         set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
         set_relay(self.relay_url, self.bank, self.power_pin, 0)
 
-    def _krillin_to_bootloader(self):
-        # On Krillin, the following sequence should take us to fastboot
-        # regardless of the initial state of the device
-        set_relay(self.relay_url, self.bank, self.volume_down_pin, 1)
-        set_relay(self.relay_url, self.bank, self.volume_up_pin, 1)
-        set_relay(self.relay_url, self.bank, self.power_pin, 1)
-        time.sleep(15)
-        set_relay(self.relay_url, self.bank, self.power_pin, 0)
-        time.sleep(6)
-        set_relay(self.relay_url, self.bank, self.volume_down_pin, 0)
-        set_relay(self.relay_url, self.bank, self.volume_up_pin, 0)
-
 
 # When looking at the relay webUI for the mapping, we consider all
 # ports and banks to start numbering from 0
@@ -157,8 +165,14 @@ DEVICES = {
     "krillin-06": TouchDevice("krillin", "JW010687"),
     "krillin-07": TouchDevice("krillin", "JW011999"),
     "krillin-08": TouchDevice("krillin", "JW013513"),
-    "krillin-09": TouchDevice("krillin", "JW010053"),
-    "krillin-10": TouchDevice("krillin", "JB012976"),
+    "krillin-09": TouchDevice("krillin", "JW010053",
+                              relay_url="http://ferris.ubuntu-ci",
+                              bank=0, power_pin=4, volume_up_pin=5,
+                              volume_down_pin=6),
+    "krillin-10": TouchDevice("krillin", "JB012976",
+                              relay_url="http://decatur.ubuntu-ci",
+                              bank=2, power_pin=0, volume_up_pin=1,
+                              volume_down_pin=2),
     "ps-mako-01": TouchDevice("mako", "0090f741e3d141bc"),
     "ps-mako-02": TouchDevice("mako", "04ccca120acd4dea"),
     "ps-mako-03": TouchDevice("mako", "04cb53b598546534"),
@@ -170,16 +184,16 @@ DEVICES = {
                            relay_url="http://qa-relay-control.ubuntu-ci",
                            bank=1, power_pin=4, volume_down_pin=5),
     "mako-05": TouchDevice("mako", "01b22f82dc5cec63",
-                           relay_url="http://10.98.4.100",
+                           relay_url="http://decatur.ubuntu-ci",
                            bank=0, power_pin=0, volume_down_pin=1),
     "mako-06": TouchDevice("mako", "04ed70928fdc13ba",
-                           relay_url="http://10.98.4.100",
+                           relay_url="http://decatur.ubuntu-ci",
                            bank=0, power_pin=2, volume_down_pin=3),
     "mako-07": TouchDevice("mako", "01e2f64788556934",
-                           relay_url="http://10.98.4.100",
+                           relay_url="http://decatur.ubuntu-ci",
                            bank=0, power_pin=4, volume_down_pin=5),
     "mako-08": TouchDevice("mako", "04ea16a163930769",
-                           relay_url="http://10.98.4.100",
+                           relay_url="http://decatur.ubuntu-ci",
                            bank=0, power_pin=6, volume_down_pin=7),
     "mako-09": TouchDevice("mako", "04fda12ea08fe3c7"),
     "mako-10": TouchDevice("mako", "01ce848e48dfa6a2"),
@@ -204,11 +218,11 @@ DEVICES = {
     #mako-17 has a broken screen but should work, on ashes
     "mako-17": TouchDevice("mako", "04e0d2f6d3cab77d"),
     "mako-18": TouchDevice("mako", "027b981a4c1110dd",
-                           relay_url="http://10.98.4.100",
+                           relay_url="http://decatur.ubuntu-ci",
                            bank=1, power_pin=0, volume_down_pin=1),
     "mako-19": TouchDevice("mako", "021c8cdfd5d38602"),
     "mako-20": TouchDevice("mako", "05083705e0d29402",
-                           relay_url="http://10.98.4.100",
+                           relay_url="http://decatur.ubuntu-ci",
                            bank=1, power_pin=2, volume_down_pin=3),
     "ps-manta-01": TouchDevice("manta", "R32D203DDZR"),
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
@@ -219,7 +233,9 @@ DEVICES = {
     "flo-02": TouchDevice("flo", "08dbee36"),
     "flo-03": TouchDevice("flo", "09d55fa8"),
     "flo-04": TouchDevice("flo", "09e68682"),
-    "flo-05": TouchDevice("flo", "0a22f7cf"),
+    "flo-05": TouchDevice("flo", "0a22f7cf",
+                          relay_url="http://ferris.ubuntu-ci",
+                          bank=0, power_pin=0, volume_down_pin=2),
     "flo-06": TouchDevice("flo", "08f09bb0"),
 }
 

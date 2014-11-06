@@ -45,6 +45,8 @@ def _get_parser():
                         help="username to use when logging into Jenkins")
     parser.add_argument("--dashboard-key", default="",
                         help="The api-key for dashboard updates")
+    parser.add_argument("--nfss-config", default="",
+                        help="The path to the config file for nfss insertion")
     parser.add_argument("-b", "--branch", default="lp:ubuntu-test-cases/touch",
                         help="The branch this is located. default=%(default)s")
     parser.add_argument("-c", "--config", required=True,
@@ -115,6 +117,7 @@ def _configure_smoke(instance, env, args, config_item, device):
         'dashboard_prefix': config_item.get('dashboard-prefix', ''),
         'dashboard_user': config_item.get('dashboard-user', ''),
         'dashboard_key': args.dashboard_key,
+        'nfss_config': args.nfss_config,
     }
 
     prefix = ""
@@ -129,7 +132,7 @@ def _configure_smoke(instance, env, args, config_item, device):
 
 def _configure_qa_job(instance, env, args, config_item, device, test):
     defserial = '$(${BZRDIR}/scripts/get-adb-id ${NODE_NAME})'
-    #If the slave is specified for this test, set it
+    # If the slave is specified for this test, set it
     slave = getattr(test, 'device', device['slave-label'])
     params = {
         'name': slave,
@@ -142,6 +145,7 @@ def _configure_qa_job(instance, env, args, config_item, device, test):
         'image_opt': config_item.get('IMAGE_OPT', ''),
         'timeout': test.timeout,
         'test': test.name,
+        'nfss_config': args.nfss_config,
     }
     prefix = ""
     if(args.prefix):

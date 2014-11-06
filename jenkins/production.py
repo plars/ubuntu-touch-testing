@@ -8,7 +8,7 @@ def _url(channel, device):
            % (channel, device)
 
 
-UTOPIC_MATRIX = [
+VIVID_MATRIX = [
     {
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.production',
@@ -37,6 +37,9 @@ UTOPIC_MATRIX = [
             },
         ],
     },
+]
+
+UTOPIC_MATRIX = [
     {
         'image-type': 'touch_stable',
         'statsd-key': 'ubuntu-ci.daily-image.production',
@@ -89,4 +92,5 @@ UTOPIC_MATRIX = [
 
 MATRIX = {
     'utopic': UTOPIC_MATRIX,
+    'vivid': VIVID_MATRIX,
 }

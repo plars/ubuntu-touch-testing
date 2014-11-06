@@ -55,8 +55,23 @@ ${BZRDIR}/scripts/run-smoke -t {{test}}
 mv clientlogs/{{test}}/* ./clientlogs/
 rm -rf clientlogs/{{test}}
 
+{% if test == 'health-check' %}
+# Post to nfss
+if [ "$NFSS_CONFIG" ] ; then
+    for FILE in clientlogs/*.json ; do
+        cat "$FILE" | nfss_insert.py "$NFSS_CONFIG" healthcheck $DEVICE_TYPE
+    done
+fi
+{% endif %}
 {% if test == 'memevent' %}
-adb pull /tmp/memory_usage.json ./clientlogs/
+adb shell ls /tmp/memory_usage*.json | tr '\r' ' ' | sed 's/ $//' | xargs -n1 -I {} adb pull {} ./clientlogs/
+{% if nfss_config %}
+NFSS_CONFIG_FILE=${WORKSPACE}/nfss_config
+cat - > ${NFSS_CONFIG_FILE} <<EOD
+{{nfss_config}}
+EOD
+python3 ${BZRDIR}/tests/memevent/nfss_upload_results.py ./clientlogs/ nfss_insert.py ${NFSS_CONFIG_FILE}
+{% endif %}
 {% endif %}
       ]]></command>
     </hudson.tasks.Shell>
@@ -76,6 +91,23 @@ adb pull /tmp/memory_usage.json ./clientlogs/
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
+    <hudson.plugins.postbuildtask.PostbuildTask>
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText/>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>
+touch/scripts/recover.py ${NODE_NAME}
+          </script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
 {% if publish %}
     <hudson.plugins.build__publisher.BuildPublisher>
       <publishUnstableBuilds>true</publishUnstableBuilds>

@@ -27,6 +27,7 @@ class SmemProbe(object):
         self.readings = []  # List of readings
         self.current_reading = None
         self.threshold_exceeded_summary = []
+        self._appname_to_pid = {}
 
     @contextmanager
     def probe(self, event):
@@ -34,6 +35,13 @@ class SmemProbe(object):
         self.start(event)
         yield
         self.stop(event)
+
+    def follow(self, pid):
+        """Inform probe that we are interested in this pid, optionally assign
+        an application name against it for ease of reporting.
+
+        """
+        self.pids.append(pid)
 
     def start(self, event):
         """Start measurement.
@@ -64,14 +72,17 @@ class SmemProbe(object):
         """
         LOGGER.debug('smem stop: {}'.format(event))
         LOGGER.debug('Running {!r}...'.format(self.BINARY))
-        output = subprocess.check_output(self.BINARY)
+        output = subprocess.check_output(self.BINARY, universal_newlines=True)
         parser = SmemParser()
         pids_info = parser.parse(output)
         threshold_exceeded_pids = self._calculate_threshold_exceeded(pids_info)
         print('{:-^72}'.format(event))
         for pid in self.pids:
-            print('PID: {pid}, command: {command}, PSS: {pss}, USS: {uss}'
-                  .format(**pids_info[pid]))
+            try:
+                print('PID: {pid}, command: {command}, PSS: {pss}, USS: {uss}'
+                      .format(**pids_info[pid]))
+            except KeyError:
+                print("PID {} no longer running".format(pid))
 
         self.current_reading['stop_time'] = time()
         self.current_reading['data'] = pids_info
@@ -117,9 +128,12 @@ class SmemProbe(object):
     @property
     def report(self):
         """Return report with all the readings that have been made."""
-        return {'pids': self.pids,
-                'thresholds': self.THRESHOLDS,
-                'readings': self.readings}
+        if not self.pids:
+            LOGGER.warning("No pids to report on.")
+        return {
+            'pids': self.pids,
+            'thresholds': self.THRESHOLDS,
+            'readings': self.readings}
 
 
 class SmemParser(object):
@@ -145,7 +159,7 @@ class SmemParser(object):
 
         """
         pids_info = [_f for _f in [self._parse_line(line)
-                            for line in output.splitlines()[1:]] if _f]
+                     for line in output.splitlines()[1:]] if _f]
         return {pid_info['pid']: pid_info for pid_info in pids_info}
 
     def _parse_line(self, line):

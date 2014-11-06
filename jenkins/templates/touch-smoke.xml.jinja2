@@ -128,6 +128,9 @@ export DASHBOARD_PREFIX="{{dashboard_prefix}}"
 {% if dashboard_port %}
 export DASHBOARD_PORT="{{dashboard_port}}"
 {% endif %}
+{% if nfss_config %}
+export NFSS_CONFIG="{{nfss_config}}"
+{% endif %}
 
 {{image_opt}}
 ${BZRDIR}/scripts/run-smoke
@@ -151,6 +154,23 @@ ${BZRDIR}/scripts/run-smoke
       <regexpForFailed>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexpForFailed>
       <setForMatrix>false</setForMatrix>
     </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+    <hudson.plugins.postbuildtask.PostbuildTask>
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText/>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>
+touch/scripts/recover.py ${NODE_NAME}
+          </script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
 {% if publish %}
     <hudson.tasks.Mailer>
       <recipients>paul.larson@canonical.com</recipients>
