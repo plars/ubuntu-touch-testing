@@ -28,6 +28,9 @@ class Test(object):
         self.fmt = fmt
         self.smoke = smoke
 
+    def __repr__(self):
+        return self.name
+
 
 class DevTest(Test):
     def __init__(self, name, device):
