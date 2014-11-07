@@ -97,7 +97,7 @@ def filter_tests(tests, image_type, device_type=None):
     if image_type:
         func = globals().get('get_tests_%s' % image_type)
         if func:
-            tests = func(tests)
+            tests = func(tests, device_type)
         elif image_type not in ['touch_stable', 'touch',
                                 'touch_custom_demo']:
             print('Unsupported image type: %s' % image_type)
@@ -109,11 +109,11 @@ def filter_tests(tests, image_type, device_type=None):
     return tests
 
 
-def _get_tests(test_type, image_type):
+def _get_tests(test_type, image_type, device_type):
     # take all our known tests, then call filter tests which should give
     # us a list of tests customized for things like touch_custom.
     # then eliminate tests that aren't of the proper test_type
-    tests = [t for t in filter_tests(TESTSUITES, image_type)
+    tests = [t for t in filter_tests(TESTSUITES, image_type, device_type)
              if type(t) == test_type and t.fmt == DEF_FMT]
     return tests
 
@@ -127,7 +127,7 @@ def _split_work(tests, total_workers, worker_idx):
 
 
 def _handle_utah(args):
-    tests = _get_tests(Test, args.image_type)
+    tests = _get_tests(Test, args.image_type, args.device_type)
     if args.with_autopilot:
         tests = [t for t in TESTSUITES if t.fmt == DEF_FMT]
     tests = _split_work(tests, args.total_workers, args.worker)
@@ -135,14 +135,14 @@ def _handle_utah(args):
 
 
 def _handle_ap_apps(args):
-    tests = _get_tests(APTest, args.image_type)
+    tests = _get_tests(APTest, args.image_type, args.device_type)
     tests = _split_work(tests, args.total_workers, args.worker)
     print(' '.join([t.app for t in tests]))
 
 
 def _handle_ap_packages(args):
     pkgs = []
-    tests = _get_tests(APTest, args.image_type)
+    tests = _get_tests(APTest, args.image_type, args.device_type)
     for test in tests:
         if not args.app or test.app in args.app:
             if test.pkgs:
@@ -156,9 +156,20 @@ def get_tests_mako(common_tests):
     return tests
 
 
-def get_tests_touch_custom(common_tests):
+def get_tests_touch_custom(common_tests, device_type):
     tests = common_tests
     tests.insert(1, Test('customizations'))
+    return tests
+
+
+def get_tests_touch_stable(common_tests, device_type):
+    if device_type == 'krillin':
+        remove_for_krillin = ['filemanager', 'ubuntu-terminal-app-autopilot',
+                              'dropping-letters-app-autopilot',
+                              'sudoku-app-autopilot']
+        tests = [t for t in common_tests if t.name not in remove_for_krillin]
+    else:
+        tests = common_tests
     return tests
 
 
@@ -181,6 +192,8 @@ def _get_parser():
 
     p = sub.add_parser('apps', help='List autopilot application names')
     p.set_defaults(func=_handle_ap_apps)
+    p.add_argument('-d', '--device-type',
+                   help='Specify the device type where the tests will run')
     p.add_argument('-i', '--image-type',
                    help='Return list of test configured for an image type.')
     p.add_argument('-t', '--total-workers', type=int, default=1,
