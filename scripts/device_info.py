@@ -58,7 +58,7 @@ class TouchDevice(object):
     def reimage_from_fastboot(self):
         #Starting from fastboot mode, put a known-good image on the device
         log.info("Flashing the last stable image")
-        subprocess.check_output(['ubuntu-device-flash', '--serial',
+        subprocess.check_output(['ubuntu-device-flash', 'touch', '--serial',
                                  self.serial, '--channel',
                                  'ubuntu-touch/stable', '--bootstrap',
                                  '--developer-mode',
