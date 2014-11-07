@@ -5,7 +5,7 @@ This project contains a really simple test that meets the [CI handoff criteria]
 
 ## Resources
 
-This test should be run in an Ubuntu Touch device.
+This test should be run on an Ubuntu Touch device.
 
 ## To run the test
 
