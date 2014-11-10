@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>
+&lt;pre&gt;
+#NOTE: Automatically created from a script as part of daily smoke testing&#xd;
+  {{branch}}&#xd;
+&lt;/pre&gt;
+  </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>INSTALL_URL</name>
+          <description>A URL to the previous job. If provided this job will use the same install options as it used. If the device executing the job happens to have the exact same image, then provisioning can be skipped.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <com.sonyericsson.rebuild.RebuildSettings>
+      <autoRebuild>false</autoRebuild>
+    </com.sonyericsson.rebuild.RebuildSettings>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>{{ name }}</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command><![CDATA[
+set -e
+sudo rm -rf *
+
+BRANCH="{{branch}}"
+BZRDIR=`echo "$BRANCH" | awk -F/ '{ print $(NF) }'`
+BZRDIR=$(readlink -f $BZRDIR)
+bzr branch ${BRANCH} ${BZRDIR}
+
+export ANDROID_SERIAL={{serial}}
+export IMAGE_TYPE={{imagetype}}
+export IMAGE_SERIES={{series}}
+export DEVICE_TYPE={{device_type}}
+
+${BZRDIR}/scripts/recover.py ${NODE_NAME}
+
+{{image_opt}}
+${BZRDIR}/scripts/run-smoke -t {{test}}
+
+# move results to base directory as expected by dashboard:
+mv clientlogs/{{test}}/* ./clientlogs/
+rm -rf clientlogs/{{test}}
+
+{% if test == 'health-check' %}
+# Post to nfss
+if [ "$NFSS_CONFIG" ] ; then
+    for FILE in clientlogs/*.json ; do
+        cat "$FILE" | nfss_insert.py "$NFSS_CONFIG" healthcheck $DEVICE_TYPE
+    done
+fi
+{% endif %}
+{% if test == 'memevent' %}
+adb shell ls /tmp/memory_usage*.json | tr '\r' ' ' | sed 's/ $//' | xargs -n1 -I {} adb pull {} ./clientlogs/
+{% if nfss_config %}
+NFSS_CONFIG_FILE=${WORKSPACE}/nfss_config
+cat - > ${NFSS_CONFIG_FILE} <<EOD
+{{nfss_config}}
+EOD
+python3 ${BZRDIR}/tests/memevent/nfss_upload_results.py ./clientlogs/ nfss_insert.py ${NFSS_CONFIG_FILE}
+{% endif %}
+{% endif %}
+      ]]></command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>clientlogs/*, clientlogs/**/*</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexp>
+      <regexpForFailed>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+    <hudson.tasks.Mailer>
+      <recipients>paul.larson@canonical.com para.siva@canonical.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+    <hudson.plugins.postbuildtask.PostbuildTask>
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText/>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>
+touch/scripts/recover.py ${NODE_NAME}
+          </script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
+{% if publish %}
+    <hudson.plugins.build__publisher.BuildPublisher>
+      <publishUnstableBuilds>true</publishUnstableBuilds>
+      <publishFailedBuilds>true</publishFailedBuilds>
+      <postActions class="vector"/>
+    </hudson.plugins.build__publisher.BuildPublisher>
+{% endif %}
+  </publishers>
+  <buildWrappers>
+      <hudson.plugins.build__timeout.BuildTimeoutWrapper>
+        <timeoutMinutes>{{timeout}}</timeoutMinutes>
+      <failBuild>true</failBuild>
+      <writingDescription>false</writingDescription>
+      <timeoutPercentage>0</timeoutPercentage>
+      <timeoutType>absolute</timeoutType>
+      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+</project>

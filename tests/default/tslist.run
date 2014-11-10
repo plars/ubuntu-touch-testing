@@ -1,0 +1,12 @@
+- test: pwd
+- test: uname
+- test: vmstat
+- test: systemsettle
+- test: netstat
+- test: ifconfig
+- test: route
+- test: ping
+- test: install
+- test: unity8
+- test: apport
+- test: whoopsie

@@ -1,0 +1,3 @@
+#build_cmd: echo building
+#ts_setup: echo setting up
+#ts_cleanup: echo cleaning up

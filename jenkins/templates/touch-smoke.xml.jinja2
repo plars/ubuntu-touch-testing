@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>
+<![CDATA[
+This job provides a flexible way to execute all the tests in our daily image
+testing process that contribute to the
+<a href="http://reports.qa.ubuntu.com/smokeng/">QA Dashboard</a>.
+The job is parameterized to give flexibility in what gets tested. A couple of
+common ways to run this job are:
+<dl>
+  <dt>Full Test Run</dt>
+  <dd>TESTS=ALL</dd>
+  <dd>APPS=ALL</dd>
+  <dt>Re-run a Failed Autopilot Test</dt>
+  <dd>INSTALL_URL=http://dev-jenkins:8080/job/utopic-touch_ro-mako/9</dd>
+  <dd>APPS=dropping_letters_app</dd>
+  <dt>Re-run a Failed UTAH Test</dt>
+  <dd>INSTALL_URL=http://dev-jenkins:8080/job/utopic-touch_ro-mako/9</dd>
+  <dd>TESTS=security</dd>
+</dl>
+<pre>
+#NOTE: Automatically created from a script as part of daily smoke testing
+  {{branch}}
+</pre>
+{% if statsd_key %}
+<h3>Graphite Reports</h3>
+<ul>
+  <li><a href="https://graphite.engineering.canonical.com/graphlot/?width=841&height=770&&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.provision.mean%2C0.000016667%29%2C%22Provisioning%20Time(minutes)%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_autopilot.mean%2C0.000016667%29%2C%22Autopilot%20Tests%20Time%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_utah.mean%2C0.000016667%29%2C%22UTAH%20Tests%20Time%22%29&from=-1weeks">Timings (1 week)</a></li>
+  <li><a href="https://graphite.engineering.canonical.com/graphlot/?width=841&height=770&&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.provision.mean%2C0.000016667%29%2C%22Provisioning%20Time(minutes)%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_autopilot.mean%2C0.000016667%29%2C%22Autopilot%20Tests%20Time%22%29&target=alias%28scale%28statsd.{{statsd_key}}.{{imagetype}}.test_utah.mean%2C0.000016667%29%2C%22UTAH%20Tests%20Time%22%29&from=-4weeks">Timings (4 weeks)</a></li>
+</ul>
+{% endif %}
+]]>
+  </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>INSTALL_URL</name>
+          <description>A URL to the previous job. If provided this job will use the same install options as it used. If the device executing the job happens to have the exact same image, then provisioning can be skipped.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TESTS</name>
+          <description>A space separated list of utah tests to run. "ALL" can be used to run all known utah tests.
+	  </description>
+          <defaultValue>ALL</defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>APPS</name>
+          <description>A space separated list of autopilot tests to run. "ALL" can be used to run all known tests.
+	  </description>
+          <defaultValue>ALL</defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>REVISION</name>
+          <description>The image revision to test with.
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>workers</name>
+          <description>The number of workers
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+	<hudson.model.StringParameterDefinition>
+          <name>worker_idx</name>
+          <description>The index of this worker
+	  </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <com.sonyericsson.rebuild.RebuildSettings>
+      <autoRebuild>false</autoRebuild>
+    </com.sonyericsson.rebuild.RebuildSettings>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>{{ name }}</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>set -e
+BRANCH=&quot;{{branch}}&quot;
+BZRDIR=`echo &quot;$BRANCH&quot; | awk -F/ &apos;{ print $(NF) }&apos;`
+BZRDIR=$(readlink -f $BZRDIR)
+[ -d $BZRDIR ] &amp;&amp; rm -rf $BZRDIR
+bzr branch ${BRANCH} ${BZRDIR}
+
+export ANDROID_SERIAL={{serial}}
+export IMAGE_TYPE={{imagetype}}
+export IMAGE_SERIES={{series}}
+export DEVICE_TYPE={{device_type}}
+
+${BZRDIR}/scripts/recover.py ${NODE_NAME}
+
+{% if statsd_key %}
+# the txstatsd package is too old, use the one from LP:
+[ -d txstatsd ] &amp;&amp; rm -rf txstatsd
+bzr branch -r 109 lp:txstatsd
+export PYTHONPATH=`pwd`/txstatsd
+
+export STATSD_KEY={{statsd_key}}.{{imagetype}}
+{% endif %}
+
+{% if dashboard_host %}
+export DASHBOARD_HOST="{{dashboard_host}}"
+{% endif %}
+{% if dashboard_user %}
+export DASHBOARD_USER="{{dashboard_user}}"
+{% endif %}
+{% if dashboard_key %}
+set +x   # don't let this leak into the public
+export DASHBOARD_KEY="{{dashboard_key}}"
+set -x
+{% endif %}
+{% if dashboard_prefix %}
+export DASHBOARD_PREFIX="{{dashboard_prefix}}"
+{% endif %}
+{% if dashboard_port %}
+export DASHBOARD_PORT="{{dashboard_port}}"
+{% endif %}
+{% if nfss_config %}
+export NFSS_CONFIG="{{nfss_config}}"
+{% endif %}
+
+{{image_opt}}
+${BZRDIR}/scripts/run-smoke
+      </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>clientlogs/**</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.junit.JUnitResultArchiver>
+      <testResults>clientlogs/**/*.xml</testResults>
+      <keepLongStdio>true</keepLongStdio>
+      <testDataPublishers>
+        <hudson.plugins.junitattachments.AttachmentPublisher/>
+      </testDataPublishers>
+    </hudson.tasks.junit.JUnitResultArchiver>
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+      <regexp>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexp>
+      <regexpForFailed>^= TOUCH IMAGE VERSION:([0-9]+.*)</regexpForFailed>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+    <hudson.plugins.postbuildtask.PostbuildTask>
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText/>
+              <operator>AND</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>false</RunIfJobSuccessful>
+          <script>
+touch/scripts/recover.py ${NODE_NAME}
+          </script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
+{% if publish %}
+    <hudson.tasks.Mailer>
+      <recipients>paul.larson@canonical.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+    <hudson.plugins.build__publisher.BuildPublisher>
+      <publishUnstableBuilds>true</publishUnstableBuilds>
+      <publishFailedBuilds>true</publishFailedBuilds>
+      <postActions class="vector"/>
+    </hudson.plugins.build__publisher.BuildPublisher>
+{% endif %}
+  </publishers>
+  <buildWrappers>
+      <hudson.plugins.build__timeout.BuildTimeoutWrapper>
+          <timeoutMinutes>300</timeoutMinutes>
+      <failBuild>true</failBuild>
+      <writingDescription>false</writingDescription>
+      <timeoutPercentage>0</timeoutPercentage>
+      <timeoutType>absolute</timeoutType>
+      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+</project>
+

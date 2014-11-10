@@ -1,0 +1,12 @@
+description: route shows wlan0 routes
+dependencies: none
+action: |
+  1. route -n | grep wlan0
+expected_results: |
+  1. route shows wlan0 routes
+type: userland
+timeout: 60
+command: $TARGET_PREFIX route -n | grep wlan0
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

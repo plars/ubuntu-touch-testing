@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import sys
+from device_info import get_device
+
+if __name__ == '__main__':
+    name = sys.argv[1]
+
+    try:
+        device = get_device(name)
+        print(device.get_serial())
+    except:
+        print("Unknown device name: '%s'" % name)
+        sys.exit(-1)

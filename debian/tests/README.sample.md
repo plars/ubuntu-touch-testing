@@ -1,6 +1,6 @@
 # Sample test to be run by the CI team with adt-run
 
-This project contains a really simple test that meets the [CI handoff criteria]
+The sample test is really simple test that meets the [CI handoff criteria]
 (https://wiki.canonical.com/UbuntuEngineering/CI/HandoffCriteria)
 
 ## Resources

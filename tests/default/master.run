@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: smoke_touch
+    fetch_method: dev
+    fetch_location: ./

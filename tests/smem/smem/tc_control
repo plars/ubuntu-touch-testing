@@ -1,0 +1,11 @@
+description: Gather memory usage information
+dependencies: none
+action: |
+  1. gather meminfo from proc and smem -nk output
+expected_results: |
+  1. meminfo and smem.log files are saved
+type: userland
+timeout: 2300
+command: ./smem.sh
+#tc_setup:
+#tc_cleanup:

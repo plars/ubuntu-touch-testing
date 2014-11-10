@@ -1,0 +1,398 @@
+#!/usr/bin/python
+
+import argparse
+import datetime
+import logging
+import os
+import shutil
+import subprocess
+
+import yaml
+
+from phabletutils.environment import detect_device
+
+import dashboard
+import statsd
+
+EMULATOR = os.environ.get('USE_EMULATOR')
+if EMULATOR:
+    def fake_detect(serial, device=None):
+        log.info('faking detect device for emulator')
+        return 'emulator'
+
+    # detect_device doesn't support the emulator
+    globals()['detect_device'] = fake_detect
+    if 'ANDROID_SERIAL' not in os.environ:
+        # we need something here or "serial required" logic fails
+        os.environ['ANDROID_SERIAL'] = 'emulator-5554'
+
+log = logging.getLogger()
+script_dir = os.path.dirname(__file__)
+res_dir = os.path.join(os.getcwd(), 'clientlogs')
+
+dashboard_api = dashboard.API()
+
+
+class SerialAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        log.info('android serial: %s', values[0])
+        os.environ['ANDROID_SERIAL'] = values[0]
+
+
+class DebugAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        log.setLevel(level=logging.DEBUG)
+        log.debug('debug logging enabled')
+
+
+def _serial_required():
+    required = 'ANDROID_SERIAL' not in os.environ
+    if required:
+        try:
+            out = subprocess.check_output(['adb', 'devices'])
+            required = (len(out.decode().split('\n')) != 4)
+        except subprocess.CalledProcessError as e:
+            logging.debug('error getting adb devices: %s', e)
+    return required
+
+
+def _get_parser():
+    parser = argparse.ArgumentParser(
+        description='Run the complete test-execution-service suite.')
+
+    parser.add_argument('-s', '--serial', action=SerialAction, nargs=1,
+                        required=_serial_required(),
+                        help='Android serial if more than one device present')
+    parser.add_argument('--debug', action=DebugAction, nargs=0,
+                        help='''Enable debug logging.''')
+
+    parser.add_argument('--install-url',
+                        help='''Flash with image from previous jenkins job.
+                        This option will check if the device already has image
+                        noted from this URL and will skip provisioning. The URL
+                        should be the path the job like:
+                        http://q-jenkins:8080/job/<your job>/<build number>''')
+    parser.add_argument('-p', '--package', action='append',
+                        help='Additional packages to install on target.')
+    parser.add_argument('-P', '--ppa', action='append',
+                        help='Additional PPA to configure on target.')
+    parser.add_argument('-a', '--app', action='append',
+                        help='Autopilot tests tor run.')
+    parser.add_argument('-t', '--test', action='append',
+                        help='UTAH tests tor run.')
+    parser.add_argument('-r', '--revision', help='Image revision to install.')
+    parser.add_argument('-n', '--no-provision', action='store_true',
+                        help='Skip provisioning of the target device')
+    parser.add_argument('--hooks-dir',
+                        help='''A directory containing scripts to be run after
+                        the target has been provisioned and before testing.''')
+    parser.add_argument('--image-opt',
+                        help='Options to pass to phablet-flash')
+    parser.add_argument('--image-type', default='touch',
+                        help='''Image type being tested. This can be changed
+                        to 'touch_sf4p' so that SurfaceFlinger will be used
+                        instead of Mir. default=%(default)s''')
+    parser.add_argument('--num-workers', type=int, default=1,
+                        help='''The total number of workers available for
+                        running tests.''')
+    parser.add_argument('--worker-idx', type=int, default=0,
+                        help='The worker to allocate testing work to.')
+    return parser
+
+
+def _arg_from_env(args, attr, envkey, array):
+    val = os.environ.get(envkey, False)
+    if val:
+        if array:
+            setattr(args, attr, val.split())
+        else:
+            setattr(args, attr, val)
+        del os.environ[envkey]
+
+
+def _merge_env(args):
+    '''When run in Jenkins everything comes as environment variables.
+
+    Its makes a much simpler job this way. While command line args are
+    much easier for a user.
+    '''
+    _arg_from_env(args, 'app', 'APPS', True)
+    _arg_from_env(args, 'test', 'TESTS', True)
+    _arg_from_env(args, 'package', 'PACKAGES', True)
+    _arg_from_env(args, 'ppa', 'PPAS', True)
+    _arg_from_env(args, 'image_opt', 'IMAGE_OPT', False)
+    _arg_from_env(args, 'image_type', 'IMAGE_TYPE', False)
+    _arg_from_env(args, 'install_url', 'INSTALL_URL', False)
+    _arg_from_env(args, 'revision', 'REVISION', False)
+    _arg_from_env(args, 'num_workers', 'workers', False)
+    _arg_from_env(args, 'worker_idx', 'worker_idx', False)
+
+
+def _assert_args(args):
+    if args.install_url:
+        # this means you shouldn't specify packages, ppas, or image options
+        if args.package or args.ppa or args.image_opt:
+            msg = 'ERROR: --install-url can\'t be used with ' \
+                  '--package, -ppa, or --image_opt'
+            print(msg)
+            return False
+
+    # don't bother the install_url check, a user might be copy/pasting and
+    # doesn't hurt. Its just good to not encourage it.
+    _merge_env(args)
+
+    script = os.path.join(script_dir, '../jenkins/testconfig.py')
+    if args.package and args.package[0] == 'ALL':
+        logging.info('Discovering all required dependencies')
+        out = subprocess.check_output(
+            [script, 'packages', '-i', args.image_type])
+        args.package = [x for x in out.decode().split()]
+
+    if args.app and args.app[0] == 'ALL':
+        device_type = os.environ.get('DEVICE_TYPE')
+        if device_type is None:
+            device_type = detect_device(None)
+        logging.info('Discovering all autopilot tests')
+        out = subprocess.check_output(
+            [script, 'apps', '-i', args.image_type, '-d', device_type,
+             '-t', str(args.num_workers), '-w', str(args.worker_idx)])
+        args.app = [x for x in out.decode().split()]
+        logging.info('Autopilot test list: {}'.format(' '.join(args.app)))
+
+    if args.test and args.test[0].startswith('ALL'):
+        logging.info('Discovering all UTAH tests')
+        argv = [script, 'utah', '-i', args.image_type,
+                '-t', str(args.num_workers), '-w', str(args.worker_idx)]
+        if args.test[0] == 'ALL_INCLUDING_AUTOPILOT':
+            argv.append('-a')
+        out = subprocess.check_output(argv)
+        args.test = [x for x in out.decode().split()]
+        logging.info('Utah test list: {}'.format(' '.join(args.test)))
+
+    logging.debug('ARGS: %r', args)
+
+    statsd.gauge_it('PACKAGES', args.package)
+    statsd.gauge_it('APPS', args.app)
+    statsd.gauge_it('TESTS', args.test)
+
+    return True
+
+
+def _run(args, ignore_error=False):
+    try:
+        logging.info('Running: %s', ' '.join(args))
+        subprocess.check_call(args)
+    except subprocess.CalledProcessError:
+        if ignore_error:
+            logging.error('failed to run %r, continuing', args)
+        else:
+            exit(1)
+
+
+def _image_info():
+    info = subprocess.check_output(['adb', 'shell', 'sudo',
+                                    'system-image-cli', '-i'])
+    v_ver = u_ver = d_ver = channel = None
+    for line in info.split('\n'):
+        if not line.strip():
+            continue
+        key, val = line.split(':', 1)
+        if key == 'version version':
+            v_ver = val.strip()
+        elif key == 'version ubuntu':
+            u_ver = val.strip()
+        elif key == 'version device':
+            d_ver = val.strip()
+        elif key == 'channel':
+            channel = val.strip()
+    ver = '%s:%s:%s' % (v_ver, u_ver, d_ver)
+    # required for the jenkins job's build description
+    print('= TOUCH IMAGE VERSION:' + ver)
+    return ver, channel
+
+
+def _assert_image(args):
+    log.info('checking if device has proper image ...')
+    os.environ['INSTALL_URL'] = args.install_url
+    _run([os.path.join(script_dir, 'assert-image')])
+
+
+def _write_utah(start, end, passed):
+    passes = failures = rc = 0
+    if passed:
+        passes = 1
+    else:
+        rc = failures = 1
+
+    delta = '%s' % (end - start)
+    start = start.strftime('%Y-%m-%d %H:%M:%S')
+    data = {
+        'name': 'install-and-boot',
+        'errors': 0,
+        'failures': failures,
+        'passes': passes,
+        'fetch_errors': 0,
+        'uname': 'n/a',
+        'media-info': 'n/a',
+        'install_type': 'n/a',
+        'arch': 'n/a',
+        'release': 'n/a',
+        'build_number': 'n/a',
+        'runlist': 'n/a',
+        'ran_at': start,
+        'commands': [{
+            'cmd_type': 'testcase_test',
+            'command': 'provision',
+            'returncode': rc,
+            'start_time': start,
+            'time_delta': delta,
+            'stderr': '',
+            'stdout': '',
+            'testcase': 'boot',
+            'testsuite': 'install-and-boot',
+        }]
+    }
+    path = os.path.join(res_dir, 'install-and-boot')
+    if not os.path.exists(path):
+        os.mkdir(path)
+    with open(os.path.join(path, 'utah.yaml'), 'w') as f:
+        f.write(yaml.safe_dump(data, default_flow_style=False))
+
+
+def _post_install_hooks(args):
+    if not args.hooks_dir:
+        return
+    log.info('running post install hooks ...')
+    if not os.path.isdir(args.hooks_dir):
+        log.warn('hooks directory (%s) does not exist ... skipping',
+                 args.hooks_dir)
+    for hook in sorted(os.listdir(args.hooks_dir)):
+        s = os.stat(os.path.join(args.hooks_dir, hook))
+        if s.st_mode & os.path.stat.S_IXUSR == 0:
+            log.warn('skipping hook (%s) - not executable', hook)
+            continue
+        log.info('executing hook: %s', hook)
+        hook = os.path.join(args.hooks_dir, hook)
+        subprocess.check_call([hook])
+
+
+def _provision(args):
+    log.info('provisioning device ...')
+    if args.image_opt:
+        log.debug('overriding IMAGE_OPT with: %s', args.image_opt)
+        os.environ['IMAGE_OPT'] = args.image_opt
+
+    cargs = [os.path.join(script_dir, 'provision.sh'), '-i', args.image_type]
+
+    if args.package:
+        for p in args.package:
+            cargs.extend(['-p', p])
+    if args.ppa:
+        for p in args.ppa:
+            cargs.extend(['-P', p])
+    if not args.ppa and not args.package:
+        # All tests require a writeable system the -p and -P args
+        # implicitly create a writable system. so we have to ensure here:
+        cargs.append('-w')
+    if args.revision:
+        cargs.extend(['-r', args.revision])
+
+    with statsd.time_it('provision'):
+        start = datetime.datetime.utcnow()
+        passed = False
+        try:
+            _run(cargs)
+            _post_install_hooks(args)
+            passed = True
+        finally:
+            end = datetime.datetime.utcnow()
+            _write_utah(start, end, passed)
+
+
+def _test_autopilot(args, build, image):
+    if args.app:
+        if build:
+            os.environ['DASHBOARD_BUILD'] = build
+        if image:
+            os.environ['DASHBOARD_IMAGE'] = image
+        cargs = [os.path.join(script_dir, 'run-autopilot-tests.sh')]
+        for app in args.app:
+            cargs.extend(['-a', app])
+        with statsd.time_it('APPS'):
+            _run(cargs)
+
+
+def _sync_results(build, image, test, fname):
+    with open(fname) as f:
+        d = yaml.safe_load(f)
+        dashboard_api.result_syncing(image, build, test, d)
+
+
+def _test_utah(args, build, image):
+    if args.test:
+        cargs = [os.path.join(script_dir, 'jenkins.sh')]
+        with statsd.time_it('TESTS'):
+            for test in args.test:
+                os.environ['RESDIR'] = os.path.join(res_dir, test)
+                dashboard_api.result_running(image, build, test)
+                _run(cargs + ['-a', test, '-p', '/tmp/results'],
+                     ignore_error=True)
+                fname = os.path.join(res_dir, test, 'utah.yaml')
+                _sync_results(build, image, test, fname)
+
+
+def _image_add(args):
+    build_number, channel = _image_info()
+    # get the release series (ex. trusty, utopic)
+    # this is set in the job environment variable IMAGE_SERIES
+    release = os.environ.get('IMAGE_SERIES')
+    if release:
+        return dashboard_api.image_add(build_number, release, args.image_type,
+                                       detect_device(None), 'ubuntu')
+
+
+def main(args):
+    with statsd.time_it('main'):
+        if os.path.exists(res_dir):
+            logging.info('deleting old result directory: %s', res_dir)
+            shutil.rmtree(res_dir)
+        os.mkdir(res_dir)
+
+        job_name = os.environ.get('JOB_NAME', '')
+        job_number = os.environ.get('BUILD_NUMBER', '')
+        build = dashboard_api.build_add(job_name, job_number)
+
+        if args.no_provision:
+            logging.info('Skipping the provisioning step as requested')
+        elif args.install_url:
+            _assert_image(args)
+        else:
+            _provision(args)
+
+        # TODO - this should be incororated into provision and assert_image
+        # so that the status is updated *before* flashing rather than after
+        image = _image_add(args)
+
+        if args.test:
+            for x in args.test:
+                dashboard_api.result_queue(image, build, x)
+        if args.app:
+            for x in args.app:
+                dashboard_api.result_queue(image, build, x)
+
+        _test_utah(args, build, image)
+        _test_autopilot(args, build, image)
+
+    return 0
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    log.name = 'run-smoke'
+    dashboard.log = logging.getLogger('dashboard')
+
+    args = _get_parser().parse_args()
+    if not _assert_args(args):
+        exit(1)
+
+    exit(main(args))

@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<com.cloudbees.plugins.flow.BuildFlow>
+  <actions/>
+  <description>
+&lt;pre&gt;
+#NOTE: Automatically created from a script as part of daily smoke testing&#xd;
+  {{branch}}&#xd;
+&lt;/pre&gt;
+  </description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>sleep</name>
+          <description>Seconds to sleep before starting the job
+          </description>
+          <defaultValue>{{ wait }}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+      <maxConcurrentPerNode>0</maxConcurrentPerNode>
+      <maxConcurrentTotal>0</maxConcurrentTotal>
+      <throttleEnabled>false</throttleEnabled>
+      <throttleOption>project</throttleOption>
+    </hudson.plugins.throttleconcurrents.ThrottleJobProperty>
+    <hudson.plugins.build__publisher.ExternalProjectProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+{%if trigger_url %}
+  <triggers class="vector">
+    <com.redfin.hudson.UrlChangeTrigger>
+      <spec></spec>
+      <url>{{trigger_url}}</url>
+    </com.redfin.hudson.UrlChangeTrigger>
+  </triggers>
+{% endif %}
+  <concurrentBuild>false</concurrentBuild>
+  <builders/>
+  <publishers/>
+  <buildWrappers>
+      <hudson.plugins.build__timeout.BuildTimeoutWrapper>
+        <timeoutMinutes>300</timeoutMinutes>
+      <failBuild>true</failBuild>
+      <writingDescription>false</writingDescription>
+      <timeoutPercentage>0</timeoutPercentage>
+      <timeoutType>absolute</timeoutType>
+      <timeoutMinutesElasticDefault>3</timeoutMinutesElasticDefault>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+  <dsl><![CDATA[
+// give the image time to show up before running tests
+out.println("sleeping for a bit")
+def sleep = build.environment.get("sleep").toLong()
+build.sleep(sleep * 1000)
+
+ignore(UNSTABLE) {
+    join = parallel ([
+{% for x in range(num_workers) %}
+        worker_{{x}}:  { build("{{smoke_job}}", worker_idx: {{x}}, workers: {{num_workers}}) },
+{% endfor %}
+    ])
+}
+{% if projects %}
+out.println("kicking off downstream projects in parellel")
+install_url = build.environment.get("HUDSON_URL") + join.worker_0.lastBuild.build.url
+parallel (
+{% for project in projects %}
+    {build("{{project}}", INSTALL_URL: install_url)},
+{% endfor %}
+)
+{% endif %}
+  ]]></dsl>
+</com.cloudbees.plugins.flow.BuildFlow>

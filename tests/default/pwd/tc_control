@@ -1,0 +1,9 @@
+description: pwd works
+dependencies: none
+action: |
+  1. cd to /tmp and verify which is the current directory
+expected_results: |
+  1. Current directory is /tmp
+type: userland
+timeout: 60
+command: ./test.sh

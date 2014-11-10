@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+AUTOPILOT="autopilot"
+if [ "$1" = "-3" ]; then
+	AUTOPILOT="autopilot3"
+	shift
+fi
+
+app=$1
+pat=$app
+rep=$app.tests.
+
+if [ -z "$app" ] ; then
+	echo "USAGE: $0 [-3] <app> [pattern] [replace]"
+	exit 1
+fi
+[ -z "$2" ] || pat=$2
+[ -z "$3" ] || rep=$3
+
+#NOTE we just use adb shell here, because we don't have to catch errors. the greps
+# will work around that
+adb shell sudo -i -u phablet bash -ic \"PYTHONPATH=/home/phablet/autopilot $AUTOPILOT list $app\" | grep $pat | sed -e "s/^.*${rep}//"

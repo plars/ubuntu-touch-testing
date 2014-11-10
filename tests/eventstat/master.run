@@ -1,0 +1,5 @@
+---
+testsuites:
+  - name: eventstat
+    fetch_method: dev
+    fetch_location: ./

@@ -1,0 +1,3 @@
+-
+ discovery_cmd: $TARGET_PREFIX /tmp/healthcheck/health-check-test-get-pids.py
+ test_cmd: $TARGET_PREFIX /tmp/healthcheck/test.sh {}

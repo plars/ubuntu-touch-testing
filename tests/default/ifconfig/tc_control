@@ -1,0 +1,13 @@
+description: make sure wlan0 exists
+dependencies: none
+action: |
+  1. ifconfig
+  2. Make sure there is a wlan0
+expected_results: |
+  1. there is a wlan0 on the system
+type: userland
+timeout: 60
+command: $TARGET_PREFIX ifconfig | grep wlan0
+#build_cmd:
+#tc_setup:
+#tc_cleanup:

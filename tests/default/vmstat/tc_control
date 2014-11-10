@@ -1,0 +1,12 @@
+description: Execute vmstat and capture output
+dependencies: none
+action: |
+  1. vmstat
+expected_results: |
+  1. vmstat finishes without an error
+type: userland
+timeout: 60
+command: $TARGET_PREFIX vmstat
+#build_cmd:
+#tc_setup:
+#tc_cleanup:
