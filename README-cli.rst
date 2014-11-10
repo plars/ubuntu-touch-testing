@@ -95,16 +95,4 @@ and set the variable::
 
 Then execute the following script::
 
-  wget ${package_archive}
-  unzip archive
-  package_dir=archive
-  package_list=""
-  for package in ${test_packages}; do
-      package_list="-p ${package} ${package_list}"
-  done
-  export SKIP_CLICK=1
-  export SKIP_TESTCONFIG=1
-  ./scripts/provision.sh -s ${ANDROID_SERIAL} -n ${HOME}/.ubuntu-ci/wifi.conf \
-          -D ${package_dir} ${package_list}
-  ./scripts/run-smoke -s ${ANDROID_SERIAL} -n -a ${test_suite}
-
+  ./scripts/run-mp.sh
