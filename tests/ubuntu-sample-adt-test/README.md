@@ -13,12 +13,12 @@ This test should be run on an Ubuntu Touch device.
 2. Enable adb access on the device.
 3. Get the test code:
 
-    $ bzr branch lp:ubuntu-test-cases/sample-adt-test
+    $ bzr branch lp:ubuntu-test-cases/touch
 
 4. Connect the device to the runner machine with an USB cable.
 5. Run the tests with adt-run:
 
-    $ adt-run --built-tree=sample-adt-test --output-dir=output --- ssh -s /usr/share/autopkgtest/ssh-setup/adb
+    $ adt-run --built-tree=touch/tests/ubuntu-sample-adt-test --output-dir=output --- ssh -s /usr/share/autopkgtest/ssh-setup/adb
 
 ## Test results
 
