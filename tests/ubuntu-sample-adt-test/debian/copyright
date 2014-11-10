@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: ubuntu-touch-tests
+Upstream-Name: ubuntu-sample-adt-run-test
 Source: https://code.launchpad.net/ubuntu-test-cases/ubuntu-appstartup-tests
 
 Files: *
