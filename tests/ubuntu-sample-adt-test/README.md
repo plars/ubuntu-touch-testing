@@ -18,7 +18,7 @@ This test should be run on an Ubuntu Touch device.
 4. Connect the device to the runner machine with an USB cable.
 5. Run the tests with adt-run:
 
-    $ adt-run -B --built-tree=touch/tests/ubuntu-sample-adt-test --output-dir=output --- ssh -s /usr/share/autopkgtest/ssh-setup/adb
+    $ adt-run -B --built-tree=touch/tests/ubuntu-sample-adt-test --output-dir=output --- ssh -s adb
 
 ## Test results
 
