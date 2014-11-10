@@ -125,7 +125,7 @@ full_flash() {
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	retry 10 3 ubuntu-device-flash touch --password $PHABLET_PASSWORD $IMAGE_OPT
+	retry 10 3 timeout 1800 ubuntu-device-flash touch --password $PHABLET_PASSWORD $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 }
