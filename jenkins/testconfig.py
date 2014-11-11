@@ -112,7 +112,7 @@ def filter_tests(tests, image_type, device_type=None):
     return tests
 
 
-def _get_tests(test_type, image_type, device_type):
+def _get_tests(test_type, image_type, device_type=None):
     # take all our known tests, then call filter tests which should give
     # us a list of tests customized for things like touch_custom.
     # then eliminate tests that aren't of the proper test_type
@@ -130,7 +130,7 @@ def _split_work(tests, total_workers, worker_idx):
 
 
 def _handle_utah(args):
-    tests = _get_tests(Test, args.image_type, args.device_type)
+    tests = _get_tests(Test, args.image_type)
     if args.with_autopilot:
         tests = [t for t in TESTSUITES if t.fmt == DEF_FMT]
     tests = _split_work(tests, args.total_workers, args.worker)
