@@ -145,7 +145,7 @@ def _handle_ap_apps(args):
 
 def _handle_ap_packages(args):
     pkgs = []
-    tests = _get_tests(APTest, args.image_type, args.device_type)
+    tests = _get_tests(APTest, args.image_type)
     for test in tests:
         if not args.app or test.app in args.app:
             if test.pkgs:
