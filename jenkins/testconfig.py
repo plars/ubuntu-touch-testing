@@ -55,6 +55,7 @@ TESTSUITES += [
     APTest('mediaplayer-app-autopilot', pkgs=['mediaplayer-app-autopilot']),
     APTest('gallery-app-autopilot'),
     APTest('webbrowser-app-autopilot', pkgs=['webbrowser-app-autopilot']),
+    APTest('webapp-container-autopilot', pkgs=['webapp-container-autopilot']),
     APTest('unity8-autopilot', 'unity8'),
     APTest('camera-app-autopilot'),
     APTest('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
