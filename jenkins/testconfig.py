@@ -170,7 +170,7 @@ def get_tests_touch_stable(common_tests, device_type):
     if device_type == 'krillin':
         remove_for_krillin = ['filemanager', 'ubuntu-terminal-app-autopilot',
                               'dropping-letters-app-autopilot',
-                              'sudoku-app-autopilot']
+                              'shorts-app-autopilot', 'sudoku-app-autopilot']
         tests = [t for t in common_tests if t.name not in remove_for_krillin]
     else:
         tests = common_tests
