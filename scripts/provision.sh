@@ -40,7 +40,7 @@ image_info() {
 	IMAGEVER=$(adb shell "sudo system-image-cli -i | sed -n -e 's/version version: \([0-9]*\)/\1/p' -e 's/version ubuntu: \([0-9]*\)/\1/p' -e 's/version device: \([0-9]*\)/\1/p' | paste -s -d:")
 	CHAN=$(adb shell "sudo system-image-cli -i | sed -n -e 's/channel: \(.*\)/\1/p' | paste -s -d:")
 	REV=$(echo $IMAGEVER | cut -d: -f1)
-	echo "$IMAGE_OPT" | grep -q "\-\-revision" || IMAGE_OPT="${IMAGE_OPT} --revision $REV"
+	echo "$IMAGE_OPT" | grep -q "\-\-revision" || REVISION="--revision=${REV}"
 	echo "$IMAGE_OPT" | grep -q "\-\-channel" || IMAGE_OPT="${IMAGE_OPT} --channel $CHAN"
 	adb shell "echo '${IMAGEVER}' > /home/phablet/.ci-version"
 	echo $UUID > $RESDIR/.ci-uuid
@@ -125,7 +125,7 @@ full_flash() {
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	retry 10 3 timeout 1800 ubuntu-device-flash touch --password $PHABLET_PASSWORD $IMAGE_OPT
+	retry 10 3 timeout 1800 ubuntu-device-flash ${REVISION} touch --password $PHABLET_PASSWORD $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 }
@@ -159,7 +159,7 @@ while getopts i:s:n:P:D:p:r:wh opt; do
 		CUSTOMIZE="$CUSTOMIZE -p $OPTARG"
 		;;
 	r)
-		IMAGE_OPT="$IMAGE_OPT --revision $OPTARG"
+                REVISION="--revision=$OPTARG"
 		;;
 
 	esac
