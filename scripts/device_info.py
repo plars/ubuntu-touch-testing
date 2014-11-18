@@ -143,7 +143,7 @@ class TouchDevice(object):
         log.info("Forcing the device to enter the bootloader")
         #Power off the device from any state
         set_relay(self.relay_url, self.bank, self.power_pin, 1)
-        time.sleep(10)
+        time.sleep(12)
         set_relay(self.relay_url, self.bank, self.power_pin, 0)
         time.sleep(10)
         #Enter the bootloader
