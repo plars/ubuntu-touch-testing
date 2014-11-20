@@ -161,7 +161,7 @@ def _assert_args(args):
 
     if args.test and args.test[0].startswith('ALL'):
         logging.info('Discovering all UTAH tests')
-        argv = [script, 'utah', '-i', args.image_type,
+        argv = [script, 'utah', '-i', args.image_type, '-d', device_type,
                 '-t', str(args.num_workers), '-w', str(args.worker_idx)]
         if args.test[0] == 'ALL_INCLUDING_AUTOPILOT':
             argv.append('-a')
