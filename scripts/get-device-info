@@ -2,11 +2,17 @@
 
 import argparse
 import device_info
+import sys
 
 
 def _get_state(args):
-    device = device_info.get_device(args.name)
-    print(device.get_state())
+    if args.name == 'all':
+        for device in device_info.DEVICES:
+            sys.stdout.write("{}: ".format(device))
+            print(device_info.get_device(device).get_state())
+    else:
+        device = device_info.get_device(args.name)
+        print(device.get_state())
 
 
 def _get_serial(args):
