@@ -149,10 +149,10 @@ def _assert_args(args):
         args.package = [x for x in out.decode().split()]
 
     if args.app and args.app[0] == 'ALL':
+        logging.info('Discovering all autopilot tests')
         device_type = os.environ.get('DEVICE_TYPE')
         if device_type is None:
             device_type = detect_device(None)
-        logging.info('Discovering all autopilot tests')
         out = subprocess.check_output(
             [script, 'apps', '-i', args.image_type, '-d', device_type,
              '-t', str(args.num_workers), '-w', str(args.worker_idx)])
@@ -161,6 +161,9 @@ def _assert_args(args):
 
     if args.test and args.test[0].startswith('ALL'):
         logging.info('Discovering all UTAH tests')
+        device_type = os.environ.get('DEVICE_TYPE')
+        if device_type is None:
+            device_type = detect_device(None)
         argv = [script, 'utah', '-i', args.image_type, '-d', device_type,
                 '-t', str(args.num_workers), '-w', str(args.worker_idx)]
         if args.test[0] == 'ALL_INCLUDING_AUTOPILOT':

@@ -53,6 +53,7 @@ class TestRunSmoke(unittest.TestCase):
         check_output.return_value = '1\n2\n3\n4\n5'.encode()
         self.assertFalse(self.run_smoke._serial_required())
 
+    @mock.patch.dict('os.environ')
     @mock.patch('statsd.gauge_it')
     def testAssertArgs(self, gauge):
         '''Ensure install-url is used properly'''
@@ -62,6 +63,8 @@ class TestRunSmoke(unittest.TestCase):
             (['--install-url', 'x', '--image-opt', 'x'], False),
             (['-p', 'x', '-P', 'x', '--image-opt', 'x'], True),
         ]
+        # Fake the device type
+        os.environ['DEVICE_TYPE'] = 'mako'
         for pat, val in patterns:
             args = self.run_smoke._get_parser().parse_args(['-s', 'foo'] + pat)
             self.assertEqual(val, self.run_smoke._assert_args(args))
@@ -117,7 +120,9 @@ class TestRunSmoke(unittest.TestCase):
             self.assertEqual(args.install_url, 'url')
             self.assertEqual(args.image_opt, 'opts opts')
 
-    def testProvision(self):
+    @mock.patch('__builtin__.open')
+    @mock.patch('os.mkdir')
+    def testProvision(self, a, b):
         orig = os.environ.get('IMAGE_OPT', '')
         with mock.patch.object(self.run_smoke, '_run') as run:
             args = self.run_smoke._get_parser().parse_args(
