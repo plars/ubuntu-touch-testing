@@ -30,12 +30,16 @@ export SKIP_TESTCONFIG=1
 ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
 	-n ${HOME}/.ubuntu-ci/wifi.conf -w
 
-adb shell "sudo echo ${proposed} >> /etc/apt/souces.list"
+rm -rf proposed.list || true
+echo "${proposed}" > proposed.list
+adb push proposed.list /tmp
+adb shell "sudo cp /tmp/proposed.list /etc/apt/sources.list.d/"
+
 adb shell "sudo apt-get update"
 phablet-config writable-image -r ${PHABLET_PASSWORD} ${package_list}
 
 # Now reboot the device
-${BASEDIR}/reboot-and-wait
+${BASEDIR}/scripts/reboot-and-wait
 
 # Do something to make sure it is alive
 adb shell "ls"
