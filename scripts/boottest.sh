@@ -40,13 +40,15 @@ adb shell "sudo cp /tmp/proposed.list /etc/apt/sources.list.d/"
 adb shell "sudo apt-get update"
 
 # Determine the list of packages to be installed from the archive
-package_list=`${BASEDIR}/determine_package_list.py ${input}`
+package_list=`${BASEDIR}/scripts/determine_package_list.py ${input}`
 if [ -z "${package_list}" ]; then
 	echo "ERROR: Could not find any packages to install"
 	exit 1
 fi
+install_packages=""
 for package in ${packages_list}; do
 	install_packages="--package ${package} ${install_packages}"
+done
 phablet-config writable-image -r ${PHABLET_PASSWORD} ${install_packages}
 
 # Grab the test_source
