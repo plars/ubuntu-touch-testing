@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import re
+import requests
 import subprocess
 import time
+import urlparse
 
 from ncd_usb import set_relay
 
@@ -57,12 +60,24 @@ class TouchDevice(object):
 
     def reimage_from_fastboot(self):
         #Starting from fastboot mode, put a known-good image on the device
+        recovery_base = 'http://people.canonical.com/~plars/touch'
+        recovery_img = 'recovery-{}.img'.format(self.devtype)
+        recovery_url = os.path.join(recovery_base, recovery_img)
+        if not os.path.exists(os.path.join('recovery', recovery_img)):
+            try:
+                _download(recovery_url, 'recovery')
+            except:
+                # Don't fail for any reason, if attempt to flash without
+                pass
+        udf_command = ['ubuntu-device-flash', 'touch', '--serial',
+                       self.serial, '--channel', 'ubuntu-touch/stable',
+                       '--bootstrap', '--developer-mode',
+                       '--password', '0000']
+        if os.path.exists(os.path.join('recovery', recovery_img)):
+            udf_command.extend(['--recovery-image',
+                                os.path.join('recovery', recovery_img)])
         log.info("Flashing the last stable image")
-        subprocess.check_output(['ubuntu-device-flash', 'touch', '--serial',
-                                 self.serial, '--channel',
-                                 'ubuntu-touch/stable', '--bootstrap',
-                                 '--developer-mode',
-                                 '--password', '0000'])
+        subprocess.check_output(udf_command)
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
@@ -255,3 +270,21 @@ DEVICES = {
 def get_device(name):
     # This raises KeyError if we don't have any record of that device
     return DEVICES[name]
+
+
+def _download(url, path):
+    os.makedirs(path)
+    urlpath = urlparse.urlsplit(url).path
+    filename = os.path.basename(urlpath)
+    filename = os.path.join(path, filename)
+
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    with open(filename, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=64 * 1024):
+            # Ignore keep-alives
+            if not chunk:
+                continue
+            f.write(chunk)
+            f.flush()
+    return filename
