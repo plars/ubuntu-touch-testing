@@ -6,13 +6,24 @@ set -ex
 # output - location to dump the test results
 # proposed - apt source line for the proposed pocket
 # test_source - bzr branch with the test source to execute with adt-run
-if [ -z "${ANDROID_SERIAL}" ] || \
-	[ -z "${package}"] || \
-	[ -z "${output}"] || \
-       	[ -z "${proposed}" ] || \
-	[ -z "${test_source}" ]; then
-	echo "Missing an env variable: "
-	echo "    ANDROID_SERIAL, package, output, proposed or test_source"
+if [ -z "${ANDROID_SERIAL}" ]; then
+	echo "Missing 'ANDROID_SERIAL' env variable: "
+	exit 1
+fi
+if [ -z "${package}"]; then
+	echo "Missing 'package' env variable: "
+	exit 1
+fi
+if [ -z "${output}"]; then
+	echo "Missing 'output' env variable: "
+	exit 1
+fi
+if [ -z "${proposed}"]; then
+	echo "Missing 'proposed' env variable: "
+	exit 1
+fi
+if [ -z "${test_source}"]; then
+	echo "Missing 'test_source' env variable: "
 	exit 1
 fi
 
