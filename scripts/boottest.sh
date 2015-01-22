@@ -10,19 +10,19 @@ if [ -z "${ANDROID_SERIAL}" ]; then
 	echo "Missing 'ANDROID_SERIAL' env variable: "
 	exit 1
 fi
-if [ -z "${package}"]; then
+if [ -z "${package}" ]; then
 	echo "Missing 'package' env variable: "
 	exit 1
 fi
-if [ -z "${output}"]; then
+if [ -z "${output}" ]; then
 	echo "Missing 'output' env variable: "
 	exit 1
 fi
-if [ -z "${proposed}"]; then
+if [ -z "${proposed}" ]; then
 	echo "Missing 'proposed' env variable: "
 	exit 1
 fi
-if [ -z "${test_source}"]; then
+if [ -z "${test_source}" ]; then
 	echo "Missing 'test_source' env variable: "
 	exit 1
 fi
