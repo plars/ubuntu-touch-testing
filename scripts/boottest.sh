@@ -4,17 +4,15 @@ set -ex
 # These are all set via jenkins when running in that context
 # input - json encoded file with the test input
 # output - location to dump the test results
-# content - some content to write to the file (i.e. the job/build name)
 # proposed - apt source line for the proposed pocket
 # test_source - bzr branch with the test source to execute with adt-run
 if [ -z "${ANDROID_SERIAL}" ] || \
-	[ -z "${input}"] || \
+	[ -z "${package}"] || \
 	[ -z "${output}"] || \
-	[ -z "${content}"] || \
        	[ -z "${proposed}" ] || \
 	[ -z "${test_source}" ]; then
 	echo "Missing an env variable: "
-	echo "    ANDROID_SERIAL, input, output, proposed or test_source"
+	echo "    ANDROID_SERIAL, package, output, proposed or test_source"
 	exit 1
 fi
 
@@ -39,17 +37,7 @@ adb push proposed.list /tmp
 adb shell "sudo cp /tmp/proposed.list /etc/apt/sources.list.d/"
 adb shell "sudo apt-get update"
 
-# Determine the list of packages to be installed from the archive
-package_list=`${BASEDIR}/scripts/determine_package_list.py ${input}`
-if [ -z "${package_list}" ]; then
-	echo "ERROR: Could not find any packages to install"
-	exit 1
-fi
-install_packages=""
-for package in ${packages_list}; do
-	install_packages="--package ${package} ${install_packages}"
-done
-phablet-config writable-image -r ${PHABLET_PASSWORD} ${install_packages}
+phablet-config writable-image -r ${PHABLET_PASSWORD} --package ${package}
 
 # Grab the test_source
 rm -rf test_source_dir || true
@@ -63,6 +51,6 @@ out_file_name="FAIL"
 if [ "${rc}" ]; then
 	out_file_name="PASS"
 fi
-echo "${contents}" > "${output}/${out_file_name}"
+touch "${output}/${out_file_name}"
 
 exit $rc
