@@ -18,10 +18,6 @@ if [ -z "${output}" ]; then
 	echo "Missing 'output' env variable: "
 	exit 1
 fi
-if [ -z "${proposed}" ]; then
-	echo "Missing 'proposed' env variable: "
-	exit 1
-fi
 if [ -z "${test_source}" ]; then
 	echo "Missing 'test_source' env variable: "
 	exit 1
@@ -39,12 +35,10 @@ export SKIP_TESTCONFIG=1
 # Provision the device and run the test suite.
 # FIXME: workaround #82 being unbootable for krillin assuming we run on
 # dev-jenkins until this is fixed -- vila 2015-01-23
+REVISION="${REVISION-81}"
 ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
-    -r 81 \
+    -r $REVISION \
 	-n ${HOME}/.ubuntu-ci/wifi.conf -w
-
-# FIXME: Too early to install the package
-phablet-config writable-image -r ${PHABLET_PASSWORD} --package ${package}
 
 # Grab the test_source
 rm -rf test_source_dir || true
@@ -54,7 +48,7 @@ bzr branch "${test_source}" test_source_dir
 # - from the test_source_dir containing only the boottest dep8 test
 # - setting up -proposed and doing apt-get update
 # - via adt-virt-ssh with a setup from adb
-# - pitt i said to use '--apt-upgrade' but that fails on the phone
+# - pitti said to use '--apt-upgrade' but that fails on the phone
 # (http://dev-jenkins.ubuntu-ci:8080/job/vila-bootesting/10/console)
 adt-run --no-built-binaries --unbuilt-tree test_source_dir \
      -o results \
