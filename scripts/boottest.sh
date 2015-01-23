@@ -37,7 +37,10 @@ export SKIP_CLICK=1
 export SKIP_TESTCONFIG=1
 
 # Provision the device and run the test suite.
+# FIXME: workaround #82 being unbootable for krillin assuming we run on
+# dev-jenkins until this is fixed -- vila 2015-01-23
 ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
+    -r 81 \
 	-n ${HOME}/.ubuntu-ci/wifi.conf -w
 
 # Setup proposed-migration on the test device
