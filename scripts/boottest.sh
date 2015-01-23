@@ -54,10 +54,10 @@ bzr branch "${test_source}" test_source_dir
 # - from the test_source_dir containing only the boottest dep8 test
 # - setting up -proposed and doing apt-get update
 # - via adt-virt-ssh with a setup from adb
-# - piit said to use '--apt-upgrade' but that fails on the phone
+# - pitt i said to use '--apt-upgrade' but that fails on the phone
 # (http://dev-jenkins.ubuntu-ci:8080/job/vila-bootesting/10/console)
-adt-run --unbuilt-tree test_source_dir \
-    --no-built-binaries -o results \
+adt-run --no-built-binaries --unbuilt-tree test_source_dir \
+     -o results \
     --apt-pocket=proposed \
     --setup-commands='apt-get update' \
     --setup-commands='pwd' \
