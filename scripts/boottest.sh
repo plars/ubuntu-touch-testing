@@ -59,6 +59,8 @@ bzr branch "${test_source}" test_source_dir
 adt-run --unbuilt-tree test_source_dir \
     --no-built-binaries -o results \
     --apt-pocket=proposed \
+    --setup-commands='apt-get update' \
+    --setup-commands='pwd' \
     --- adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
     -- -s "${ANDROID_SERIAL}"
 rc=$?
