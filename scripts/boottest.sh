@@ -43,14 +43,6 @@ ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
     -r 81 \
 	-n ${HOME}/.ubuntu-ci/wifi.conf -w
 
-# Setup proposed-migration on the test device
-rm -rf proposed.list || true
-echo "deb ${proposed}" > proposed.list
-echo "deb-src ${proposed}" >> proposed.list
-adb push proposed.list /tmp
-adb shell "sudo cp /tmp/proposed.list /etc/apt/sources.list.d/"
-adb shell "sudo apt-get update"
-
 phablet-config writable-image -r ${PHABLET_PASSWORD} --package ${package}
 
 # Grab the test_source
@@ -58,7 +50,14 @@ rm -rf test_source_dir || true
 bzr branch "${test_source}" test_source_dir
 
 # Now execute the test
-adt-run --unbuilt-tree test_source_dir --no-built-binaries -o test_logs --- ssh -s /usr/share/autopkgtest/ssh-setup/adb -- -s "${ANDROID_SERIAL}"
+# - from the test_source_dir containing only the boottest dep8 test
+# - setting up -proposed and doing apt-get update
+# - via adt-virt-ssh with a setup from adb
+adt-run --unbuilt-tree test_source_dir \
+    --no-built-binaries -o test_logs \
+    --apt-pocket=proposed --apt-upgrade \
+    --- adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
+    -- -s "${ANDROID_SERIAL}"
 rc=$?
 
 out_file_name="FAIL"
