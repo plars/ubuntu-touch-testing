@@ -16,7 +16,7 @@
 from mock import patch
 import unittest
 
-from determine_package_list import (
+from boottest import (
     get_binary_package_from_source,
     get_all_package_list,
 )
@@ -27,19 +27,19 @@ class TestBoottest(unittest.TestCase):
 
 
 class TestDeterminePackageList(unittest.TestCase):
-    @patch('determine_package_list._adb_shell')
+    @patch('boottest._adb_shell')
     def test_get_single_binary_from_source(self, adb):
         adb.return_value = 'Binary: foo'
         actual = get_binary_package_from_source('foo_source')
         self.assertEqual(['foo'], actual)
 
-    @patch('determine_package_list._adb_shell')
+    @patch('boottest._adb_shell')
     def test_get_many_binaries_from_source(self, adb):
         adb.return_value = 'Binary: foo, bar, baz'
         actual = get_binary_package_from_source('foo_source')
         self.assertEqual(['foo', 'bar', 'baz'], actual)
 
-    @patch('determine_package_list._adb_shell')
+    @patch('boottest._adb_shell')
     def test_get_no_binaries_from_source(self, adb):
         adb.return_value = ''
         actual = get_binary_package_from_source('foo_source')
@@ -47,7 +47,7 @@ class TestDeterminePackageList(unittest.TestCase):
 
 
 class TestGetAllPackageList(unittest.TestCase):
-    @patch('determine_package_list._adb_shell')
+    @patch('boottest._adb_shell')
     def test_get_all_packages(self, adb):
         adb.return_value = '\n'.join([
             'package1\t1.2.3',
@@ -57,7 +57,7 @@ class TestGetAllPackageList(unittest.TestCase):
         actual = get_all_package_list()
         self.assertEqual(['package1', 'package2', 'package3'], actual)
 
-    @patch('determine_package_list._adb_shell')
+    @patch('boottest._adb_shell')
     def test_get_all_packages_no_packages(self, adb):
         adb.return_value = ''
         actual = get_all_package_list()

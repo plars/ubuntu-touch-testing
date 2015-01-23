@@ -2,7 +2,7 @@
 set -ex
 
 # These are all set via jenkins when running in that context
-# input - json encoded file with the test input
+# PACKAGE - The source package under test
 # output - location to dump the test results
 # proposed - apt source line for the proposed pocket
 # test_source - bzr branch with the test source to execute with adt-run
@@ -10,12 +10,8 @@ if [ -z "${ANDROID_SERIAL}" ]; then
 	echo "Missing 'ANDROID_SERIAL' env variable: "
 	exit 1
 fi
-if [ -z "${package}" ]; then
-	echo "Missing 'package' env variable: "
-	exit 1
-fi
-if [ -z "${output}" ]; then
-	echo "Missing 'output' env variable: "
+if [ -z "${PACKAGE}" ]; then
+	echo "Missing 'PACKAGE' env variable: "
 	exit 1
 fi
 if [ -z "${test_source}" ]; then
@@ -44,6 +40,15 @@ ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
 rm -rf test_source_dir || true
 bzr branch "${test_source}" test_source_dir
 
+# Lookup the binary packages installed for the given source package
+packages=$($BASEDIR/scripts/boottest.py -b ${PACKAGE})
+echo $packages
+
+# Generate the adt-run setup-command
+rm -f adt-commands || true
+echo "apt-get update" > adt-commands
+echo "apt-get install -y ${packages}" >> adt-commands
+
 # Now execute the test
 # - from the test_source_dir containing only the boottest dep8 test
 # - setting up -proposed and doing apt-get update
@@ -53,16 +58,19 @@ bzr branch "${test_source}" test_source_dir
 adt-run --no-built-binaries --unbuilt-tree test_source_dir \
      -o results \
     --apt-pocket=proposed \
-    --setup-commands='apt-get update' \
-    --setup-commands='pwd' \
+    --setup-commands=adt-commands \
     --- adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
     -- -s "${ANDROID_SERIAL}"
 rc=$?
 
-out_file_name="FAIL"
+# XXX - fginther 20150123
+# Outputting the result is meaningless but is here to facilitate development.
+# Something like the run-autopkgtest script will extract the result from
+# the adt-run results.
 if [ "${rc}" ]; then
-	out_file_name="PASS"
+	echo "PASS"
+else
+	echo "FAIL"
 fi
-touch "${output}/${out_file_name}"
 
 exit $rc
