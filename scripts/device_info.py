@@ -63,6 +63,9 @@ class TouchDevice(object):
         recovery_base = 'http://people.canonical.com/~plars/touch'
         recovery_img = 'recovery-{}.img'.format(self.devtype)
         recovery_url = os.path.join(recovery_base, recovery_img)
+        # For certain devices, we need to first pull an alternate
+        # recovery image that has adb enabled. If it's needed, it will
+        # be at that url, otherwise we don't even try to use it.
         if not os.path.exists(os.path.join('recovery', recovery_img)):
             try:
                 _download(recovery_url, 'recovery')
