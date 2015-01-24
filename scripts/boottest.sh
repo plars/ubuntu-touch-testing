@@ -11,10 +11,14 @@ export SRC_PKG_NAME=${2:-libpng}
 # The phone name.
 export NODE_NAME=$3
 
+# If the NODE_NAME is unset, we're running locally, the commands that
+# requires a phone are prefixed with "[ -z ${NODE_NAME} ] ||"
+# If you have a phone available locally, set ANDROID_SERIAL and NODE_NAME=yes
+
 # These can be set by jenkins when running in that context
 
 # ANDROID_SERIAL: The phone ID.
-export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
+[ -z ${NODE_NAME} ] || export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
 # The package version to test
 export VERSION=${VERSION:-1.2.51-0ubuntu3}
 
@@ -28,7 +32,7 @@ export SKIP_CLICK=1
 export SKIP_TESTCONFIG=1
 
 # Ensures we start with a usable phone
-test-runner/scripts/recover.py ${NODE_NAME}
+[ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 
 TESTS=${BASEDIR}/tests
 
@@ -36,47 +40,52 @@ TESTS=${BASEDIR}/tests
 # FIXME: workaround #82 being unbootable for krillin assuming we run on
 # dev-jenkins until this is fixed -- vila 2015-01-23
 REVISION="${REVISION:-81}"
-${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
+PROV_CMD="${BASEDIR}/scripts/provision.sh \
     -r $REVISION \
-	-n ${HOME}/.ubuntu-ci/wifi.conf -w
+    -n ${HOME}/.ubuntu-ci/wifi.conf -w"
+[ -z ${NODE_NAME} ] || ${PROV_CMD} -s ${ANDROID_SERIAL}
 
 # Generate the adt-run setup-command
 rm -f adt-commands || true
 # FIXME: '-proposed' will be setup by adt-run but we still need one apt-get
 # update call (vila -> pitti: why ?) -- vila 2015-01-24
-echo "apt-get update" > adt-commands
+echo "apt-get update" >> adt-commands
 
 
 # --no-built-binaries should come first
 ADT_CMD="adt-run --no-built-binaries"
+# ADT_VIRT can be overridden for local tests, 
+# it defaults to ${ANDROID_SERIAL} phone via the adb/ssh combo
+ADT_VIRT=${ADT_VIRT:-adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
+    -- -s "${ANDROID_SERIAL}"}
 # - setting up -proposed and doing apt-get update
 # - via adt-virt-ssh with a setup from adb
 # - pitti said to use '--apt-upgrade' but that fails on the phone
 # (http://dev-jenkins.ubuntu-ci:8080/job/vila-bootesting/10/console)
-ADT_OPTS= --apt-pocket=proposed \
+ADT_OPTS="--apt-pocket=proposed \
     --setup-commands=adt-commands \
-    --- adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
-    -- -s "${ANDROID_SERIAL}"
+    --- ${ADT_VIRT}"
+
+
+# Inject the package name into getpkgsrc DEP8 test
+FROM=${TESTS}/getpkgsrc/debian/tests/getpkgsrc.template
+TARGET=${TESTS}/getpkgsrc/debian/tests/getpkgsrc
+sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" ${FROM} > ${TARGET}
 
 # Execute a first test to get the package source tree from the testbed.
-PKG_SRC_DIR=${BASEDIR}/APT-GET-SOURCE
+PKG_SRC_DIR=pkgsrc
 rm -fr ${PKG_SRC_DIR} || true
-${ADT_CMD} --unbuilt-tree ${TESTS}/get-pkg-src -o ${PKG_SRC_DIR}
+${ADT_CMD} --unbuilt-tree ${TESTS}/getpkgsrc -o ${PKG_SRC_DIR} ${ADT_OPTS}
 
 # Inject the boot DEP8 test into the package source tree
-SOURCE_DIR=="${PKG_SRC_DIR}/${SRC_PKG_NAME}*"
+SOURCE_DIR=$(ls -d ${PKG_SRC_DIR}/artifacts/${SRC_PKG_NAME}-*)
 FROM=${TESTS}/boottest/debian/tests
-TARGET="${SOURCE_DIR}*/debian/tests"
+TARGET="${SOURCE_DIR}/debian/tests"
 mkdir -p ${TARGET} # For packages that don't define DEP8 tests
 cp ${FROM}/control ${FROM}/boottest ${TARGET}
 
 # Now execute the boot test from inside the pkg source tree
-adt-run --no-built-binaries --unbuilt-tree ${SOURCE_DIR} \
-     -o results \
-    --apt-pocket=proposed \
-    --setup-commands=adt-commands \
-    --- adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
-    -- -s "${ANDROID_SERIAL}"
+${ADT_CMD} --unbuilt-tree ${SOURCE_DIR} -o results ${ADT_OPTS}
 rc=$?
 
 # XXX - fginther 20150123
@@ -91,6 +100,6 @@ fi
 
 
 # Ensure we leave a usable phone
-test-runner/scripts/recover.py ${NODE_NAME}
+[ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 
 exit $rc
