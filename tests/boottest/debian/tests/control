@@ -1,0 +1,3 @@
+Tests: boottest
+Depends: libgbm1
+Restrictions: needs-root

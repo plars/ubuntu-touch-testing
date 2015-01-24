@@ -1,0 +1,5 @@
+{{ source_package }} ({{ package_version }}) {{ distro_series }}; urgency=medium
+
+  * Initial release.
+
+ -- Francis Ginther <francis.ginther@canonical.com>  Fri, 16 Jan 2015 14:34:34 -0600

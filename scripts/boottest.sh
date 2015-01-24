@@ -5,7 +5,6 @@ set -ex
 # PACKAGE - The source package under test
 # output - location to dump the test results
 # proposed - apt source line for the proposed pocket
-# test_source - bzr branch with the test source to execute with adt-run
 if [ -z "${ANDROID_SERIAL}" ]; then
 	echo "Missing 'ANDROID_SERIAL' env variable: "
 	exit 1
@@ -14,13 +13,18 @@ if [ -z "${PACKAGE}" ]; then
 	echo "Missing 'PACKAGE' env variable: "
 	exit 1
 fi
-if [ -z "${test_source}" ]; then
-	echo "Missing 'test_source' env variable: "
+if [ -z "${RELEASE}" ]; then
+	echo "Missing 'RELEASE' env variable: "
+	exit 1
+fi
+if [ -z "${VERSION}" ]; then
+	echo "Missing 'VERSION' env variable: "
 	exit 1
 fi
 
 PHABLET_PASSWORD="${PHABLET_PASSWORD-0000}"
 BASEDIR=$(dirname $(readlink -f $0))/..
+TEST_SOURCE=${BASEDIR}/tests/boottest
 
 # The provision.sh and run-smoke scripts can install extra packages to meet
 # the needs of image testing. Since we are installing specific packages from
@@ -36,9 +40,12 @@ ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
     -r $REVISION \
 	-n ${HOME}/.ubuntu-ci/wifi.conf -w
 
-# Grab the test_source
-rm -rf test_source_dir || true
-bzr branch "${test_source}" test_source_dir
+# Modify the debian changelog in boottest to show that it's testing the 
+# package and version we care about
+sed -e "s/{{ source_package }}/${PACKAGE}/" \
+    -e "s/{{ package_version }}/${VERSION}/" \
+    -e "s/{{ series }}/${RELEASE}/" \
+    ${TEST_SOURCE}/debian/changelog.template > ${TEST_SOURCE}/debian/changelog
 
 # Lookup the binary packages installed for the given source package
 packages=$($BASEDIR/scripts/boottest.py -b ${PACKAGE})
@@ -50,12 +57,12 @@ echo "apt-get update" > adt-commands
 echo "apt-get install -y ${packages}" >> adt-commands
 
 # Now execute the test
-# - from the test_source_dir containing only the boottest dep8 test
+# - from $TEST_SOURCE containing only the boottest dep8 test
 # - setting up -proposed and doing apt-get update
 # - via adt-virt-ssh with a setup from adb
 # - pitti said to use '--apt-upgrade' but that fails on the phone
 # (http://dev-jenkins.ubuntu-ci:8080/job/vila-bootesting/10/console)
-adt-run --no-built-binaries --unbuilt-tree test_source_dir \
+adt-run --no-built-binaries --unbuilt-tree ${TEST_SOURCE} \
      -o results \
     --apt-pocket=proposed \
     --setup-commands=adt-commands \

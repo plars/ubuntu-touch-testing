@@ -1,0 +1,11 @@
+To run the tests:
+
+$ export ANDROID_SERIAL=[adb device id]
+$ phablet-config writable-image
+
+$ bzr branch lp:~fginther/+junk/boottest boottest
+$ adt-run --unbuilt-tree --no-built-binaries boottest -o log-dir --- \
+      ssh -s /usr/share/autopkgtest/ssh-setup/adb -- -s $ANDROID_SERIAL
+
+Exit code is '0' if it passed.
+Logs are stored under log-dir as specified with the '-o' option.
