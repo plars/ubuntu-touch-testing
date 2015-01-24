@@ -1,29 +1,25 @@
 #!/bin/bash
 set -ex
 
-# These are all set via jenkins when running in that context
-# PACKAGE - The source package under test
-# output - location to dump the test results
-# proposed - apt source line for the proposed pocket
-if [ -z "${ANDROID_SERIAL}" ]; then
-	echo "Missing 'ANDROID_SERIAL' env variable: "
-	exit 1
-fi
-if [ -z "${PACKAGE}" ]; then
-	echo "Missing 'PACKAGE' env variable: "
-	exit 1
-fi
-if [ -z "${RELEASE}" ]; then
-	echo "Missing 'RELEASE' env variable: "
-	exit 1
-fi
-if [ -z "${VERSION}" ]; then
-	echo "Missing 'VERSION' env variable: "
-	exit 1
-fi
+# Where am I ?
+BASEDIR=$(dirname $(readlink -f $0))/..
+
+# The release to test the package on.
+export RELEASE=${1:-vivid}
+# The source package under test.
+export SRC_PKG_NAME=${2:-libpng}
+# The phone name.
+export NODE_NAME=$3
+
+# These can be set by jenkins when running in that context
+
+# ANDROID_SERIAL: The phone ID.
+export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
+# The package version to test
+export VERSION=${VERSION:-whatever}
+
 
 PHABLET_PASSWORD="${PHABLET_PASSWORD-0000}"
-BASEDIR=$(dirname $(readlink -f $0))/..
 TEST_SOURCE=${BASEDIR}/tests/boottest
 
 # The provision.sh and run-smoke scripts can install extra packages to meet
@@ -32,23 +28,26 @@ TEST_SOURCE=${BASEDIR}/tests/boottest
 export SKIP_CLICK=1
 export SKIP_TESTCONFIG=1
 
-# Provision the device and run the test suite.
+# Ensures we start with a usable phone
+test-runner/scripts/recover.py ${NODE_NAME}
+
+# Provision the device
 # FIXME: workaround #82 being unbootable for krillin assuming we run on
 # dev-jenkins until this is fixed -- vila 2015-01-23
-REVISION="${REVISION-81}"
+REVISION="${REVISION:-81}"
 ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
     -r $REVISION \
 	-n ${HOME}/.ubuntu-ci/wifi.conf -w
 
 # Modify the debian changelog in boottest to show that it's testing the 
 # package and version we care about
-sed -e "s/{{ source_package }}/${PACKAGE}/" \
+sed -e "s/{{ source_package }}/${SRC_PACKAGE_NAME}/" \
     -e "s/{{ package_version }}/${VERSION}/" \
     -e "s/{{ series }}/${RELEASE}/" \
     ${TEST_SOURCE}/debian/changelog.template > ${TEST_SOURCE}/debian/changelog
 
 # Lookup the binary packages installed for the given source package
-packages=$($BASEDIR/scripts/boottest.py -b ${PACKAGE})
+packages=$($BASEDIR/scripts/boottest.py -b ${SRC_PACKAGE_NAME})
 echo $packages
 
 # Generate the adt-run setup-command
@@ -79,5 +78,9 @@ if [ "${rc}" ]; then
 else
 	echo "FAIL"
 fi
+
+
+# Ensure we leave a usable phone
+test-runner/scripts/recover.py ${NODE_NAME}
 
 exit $rc
