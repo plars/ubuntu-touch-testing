@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+cd ${ADT_ARTIFACTS}
+# adt-run complains and fails the test if sdterr is not empty
+# redirect stderr to preserve the output for reference
+apt-get source {{ source_package }} 2> apt-get-source.stderr
+rc=$?
+exit $rc
