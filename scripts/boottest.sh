@@ -47,13 +47,12 @@ sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" \
     ${TEST_SOURCE}/debian/changelog.template > ${TEST_SOURCE}/debian/changelog
 
 # Lookup the binary packages installed for the given source package
-packages=$($BASEDIR/scripts/boottest.py -b ${SRC_PKG_NAME})
-echo $packages
+#packages=$($BASEDIR/scripts/boottest.py -b ${SRC_PKG_NAME})
+#echo $packages
 
 # Generate the adt-run setup-command
 rm -f adt-commands || true
 echo "apt-get update" > adt-commands
-echo "apt-get install -y ${packages}" >> adt-commands
 
 # Now execute the test
 # - from $TEST_SOURCE containing only the boottest dep8 test
