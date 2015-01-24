@@ -1,4 +1,4 @@
-{{ source_package }} ({{ package_version }}) {{ distro_series }}; urgency=medium
+boottest (0.1) vivid; urgency=medium
 
   * Initial release.
 
