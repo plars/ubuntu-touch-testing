@@ -41,13 +41,13 @@ ${BASEDIR}/scripts/provision.sh -s ${ANDROID_SERIAL} \
 
 # Modify the debian changelog in boottest to show that it's testing the 
 # package and version we care about
-sed -e "s/{{ source_package }}/${SRC_PACKAGE_NAME}/" \
+sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" \
     -e "s/{{ package_version }}/${VERSION}/" \
     -e "s/{{ series }}/${RELEASE}/" \
     ${TEST_SOURCE}/debian/changelog.template > ${TEST_SOURCE}/debian/changelog
 
 # Lookup the binary packages installed for the given source package
-packages=$($BASEDIR/scripts/boottest.py -b ${SRC_PACKAGE_NAME})
+packages=$($BASEDIR/scripts/boottest.py -b ${SRC_PKG_NAME})
 echo $packages
 
 # Generate the adt-run setup-command
