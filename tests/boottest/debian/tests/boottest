@@ -4,7 +4,6 @@ set -e
 rc=0
 
 if [ "${ADT_REBOOT_MARK}" == "reboot_mark" ]; then
-    apt-cache showsrc libpng > ${ADT_ARTIFACTS}/showsrc.txt
     ls > "${ADT_ARTIFACTS}"/ls.txt
     rc=$?
 else 
