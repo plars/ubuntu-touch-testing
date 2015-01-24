@@ -16,7 +16,7 @@ export NODE_NAME=$3
 # ANDROID_SERIAL: The phone ID.
 export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
 # The package version to test
-export VERSION=${VERSION:-whatever}
+export VERSION=${VERSION:-1.2.51-0ubuntu3}
 
 
 PHABLET_PASSWORD="${PHABLET_PASSWORD-0000}"
