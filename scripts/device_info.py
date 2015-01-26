@@ -3,6 +3,7 @@
 import logging
 import re
 import subprocess
+import sys
 import time
 
 from ncd_usb import set_relay
@@ -108,6 +109,9 @@ class TouchDevice(object):
     def force_bootloader(self):
         bootloader_func = getattr(
             self, '_{}_to_bootloader'.format(self.devtype))
+        if not self.relay_url:
+            log.error("Device cannot be recovered, no relay data exists!")
+            sys.exit(-1)
         if bootloader_func and callable(bootloader_func):
             bootloader_func()
         else:
