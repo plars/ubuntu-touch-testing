@@ -22,6 +22,8 @@ export NODE_NAME=$3
 # The package version to test
 export VERSION=${VERSION:-1.2.51-0ubuntu3}
 
+# FIXME: Should be provided -- vila 2015-01-26
+ARCH=krillin
 
 PHABLET_PASSWORD="${PHABLET_PASSWORD-0000}"
 
@@ -47,8 +49,6 @@ PROV_CMD="${BASEDIR}/scripts/provision.sh \
 
 # Generate the adt-run setup-command
 rm -f adt-commands || true
-# FIXME: '-proposed' will be setup by adt-run but we still need one apt-get
-# update call (vila -> pitti: why ?) -- vila 2015-01-24
 echo "apt-get update" >> adt-commands
 
 
@@ -86,18 +86,26 @@ cp ${FROM}/control ${FROM}/boottest ${TARGET}
 
 # Now execute the boot test from inside the pkg source tree
 ${ADT_CMD} --unbuilt-tree ${SOURCE_DIR} -o results ${ADT_OPTS}
-rc=$?
+RET=$?
 
-# XXX - fginther 20150123
-# Outputting the result is meaningless but is here to facilitate development.
-# Something like the run-autopkgtest script will extract the result from
-# the adt-run results.
-if [ "${rc}" ]; then
-	echo "PASS"
+# Return Skipped as Passed
+[ $RET -eq 2 ] && RET=0
+
+if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
+    result='PASS'
+    resultfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).result
+    [ $RET -gt 0 ] && result="FAIL"
+    set +x  # quiet mode as it pollutes output
+    echo "$RELEASE $ARCH $(cat results/testpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
+#    [ -f "$resultfile" ] && rsync -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
-	echo "FAIL"
+    # Something went wrong with the testbed
+    errfile=results/${RELEASE}_${ARCH}_${PACKAGE}_$(date +%Y%m%d-%H%M%S).error
+    echo "$RELEASE $ARCH $PACKAGE" > $errfile
+#    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 fi
 
+exit $RET
 
 # Ensure we leave a usable phone
 [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
