@@ -100,8 +100,8 @@ if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
 #    [ -f "$resultfile" ] && rsync -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
     # Something went wrong with the testbed
-    errfile=results/${RELEASE}_${ARCH}_${PACKAGE}_$(date +%Y%m%d-%H%M%S).error
-    echo "$RELEASE $ARCH $PACKAGE" > $errfile
+    errfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
+    echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
 #    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 fi
 
