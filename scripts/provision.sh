@@ -129,6 +129,7 @@ full_flash() {
 	# retry.
 	RECOVERY=""
 	mkdir -p recovery
+	log "The following wget is only needed for some devices. If it fails, it's probably safe to ignore"
 	wget -P recovery \
 		${RECOVERY_URL}/recovery-${DEVICE_TYPE}.img || /bin/true
         if [ -f recovery/recovery-${DEVICE_TYPE}.img ]; then
