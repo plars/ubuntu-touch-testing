@@ -2,6 +2,7 @@
 set -e
 
 cd ${ADT_ARTIFACTS}
+dpkg-query -f '${binary:Package}\n' -W > installed.packages
 # adt-run complains and fails the test if sdterr is not empty
 # redirect stderr to preserve the output for reference
 apt-get source {{ source_package }} 2> apt-get-source.stderr
