@@ -24,8 +24,13 @@ export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 # The package version to test
 export VERSION=${VERSION:-1.2.51-0ubuntu3}
 
+BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
+if [ -f $BOOTTESTRC ]; then
+	source $BOOTTESTRC
+fi
+
 # FIXME: Should be provided -- vila 2015-01-26
-ARCH=krillin
+ARCH="${ARCH:-krillin}"
 
 PHABLET_PASSWORD="${PHABLET_PASSWORD-0000}"
 
