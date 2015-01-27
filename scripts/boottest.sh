@@ -52,7 +52,7 @@ PROV_CMD="${BASEDIR}/scripts/provision.sh \
 # Generate the adt-run setup-command
 rm -f adt-commands || true
 echo "apt-get update" >> adt-commands
-echo "export FLASH_KERNEL_SKIP=true apt-get upgrade" >> adt-commands
+echo "FLASH_KERNEL_SKIP=true apt-get upgrade" >> adt-commands
 
 
 # --no-built-binaries should come first
@@ -65,7 +65,7 @@ ADT_VIRT=${ADT_VIRT:-adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
 # - via adt-virt-ssh with a setup from adb
 # - using --apt-upgrade to ensure we only deal with packages already on the
 #   phone
-ADT_OPTS="--apt-pocket=proposed --apt-upgrade\
+ADT_OPTS="--apt-pocket=proposed\
     --setup-commands=adt-commands \
     --- ${ADT_VIRT}"
 
