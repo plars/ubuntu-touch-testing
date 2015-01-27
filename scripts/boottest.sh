@@ -52,7 +52,7 @@ PROV_CMD="${BASEDIR}/scripts/provision.sh \
 # Generate the adt-run setup-command
 rm -f adt-commands || true
 echo "apt-get update" >> adt-commands
-echo "FLASH_KERNEL_SKIP=true apt-get upgrade" >> adt-commands
+echo "FLASH_KERNEL_SKIP=true apt-get upgrade -y" >> adt-commands
 
 
 # --no-built-binaries should come first
