@@ -1,6 +1,2 @@
 Tests: boottest
-# Make adt-run install the binary packages by declaring a dep
-# FIXME: This breaks if a binary package is not available
-# (eg. libpng12-0-udeb) -- vila 2015-01-24
-Depends: @
 Restrictions: needs-root

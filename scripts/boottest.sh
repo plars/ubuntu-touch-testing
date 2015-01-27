@@ -62,9 +62,9 @@ ADT_VIRT=${ADT_VIRT:-adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
     -- -s "${ANDROID_SERIAL}"}
 # - setting up -proposed and doing apt-get update
 # - via adt-virt-ssh with a setup from adb
-# - pitti said to use '--apt-upgrade' but that fails on the phone
-# (http://dev-jenkins.ubuntu-ci:8080/job/vila-bootesting/10/console)
-ADT_OPTS="--apt-pocket=proposed \
+# - using --apt-upgrade to ensure we only deal with packages already on the
+#   phone
+ADT_OPTS="--apt-pocket=proposed --apt-upgrade\
     --setup-commands=adt-commands \
     --- ${ADT_VIRT}"
 
