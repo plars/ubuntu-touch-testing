@@ -56,7 +56,7 @@ echo "apt-get update" >> adt-commands
 # to flash the kernel for krillin.
 # FIXME: Make this specific to krillin and check what happens for other
 # supported devices -- vila 2015-01-27
-echo "FLASH_KERNEL_SKIP=true apt-get upgrade -y" >> adt-commands
+echo "FLASH_KERNEL_SKIP=true apt-get upgrade -y || /bin/true" >> adt-commands
 
 
 # --no-built-binaries should come first
