@@ -1,0 +1,15 @@
+#!/bin/bash
+
+rc=0
+
+if [ "${ADT_REBOOT_MARK}" == "reboot_mark" ]; then
+    ls > "${ADT_ARTIFACTS}"/ls.txt
+    rc=$?
+else 
+    # CAUITON! The following will render a phone device unbootable
+    # It also requires manual control to reset the device into fastboot
+    sudo apt-get remove -y --force-yes lxc
+    /tmp/autopkgtest-reboot reboot_mark
+    echo "Are we having fun yet?"
+fi
+exit $rc

@@ -10,6 +10,8 @@ export RELEASE=${1:-vivid}
 export SRC_PKG_NAME=${2:-libpng}
 # The phone name.
 export NODE_NAME=$3
+# Default adt-run timeout
+export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 
 # If the NODE_NAME is unset, we're running locally, the commands that
 # requires a phone are prefixed with "[ -z ${NODE_NAME} ] ||"
@@ -34,7 +36,7 @@ export SKIP_CLICK=1
 export SKIP_TESTCONFIG=1
 
 # Ensures we start with a usable phone
-[ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+[ -z ${NODE_NAME} ] || ${BASEDIR}/scripts/recover.py ${NODE_NAME}
 
 TESTS=${BASEDIR}/tests
 
@@ -53,7 +55,7 @@ echo "apt-get update" >> adt-commands
 
 
 # --no-built-binaries should come first
-ADT_CMD="adt-run --no-built-binaries"
+ADT_CMD="timeout ${ADT_TIMEOUT} adt-run --no-built-binaries"
 # ADT_VIRT can be overridden for local tests, 
 # it defaults to ${ANDROID_SERIAL} phone via the adb/ssh combo
 ADT_VIRT=${ADT_VIRT:-adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
@@ -77,16 +79,26 @@ PKG_SRC_DIR=pkgsrc
 rm -fr ${PKG_SRC_DIR} || true
 ${ADT_CMD} --unbuilt-tree ${TESTS}/getpkgsrc -o ${PKG_SRC_DIR} ${ADT_OPTS}
 
-# Inject the boot DEP8 test into the package source tree
-SOURCE_DIR=$(ls -d ${PKG_SRC_DIR}/artifacts/${SRC_PKG_NAME}-*)
-FROM=${TESTS}/boottest/debian/tests
-TARGET="${SOURCE_DIR}/debian/tests"
-mkdir -p ${TARGET} # For packages that don't define DEP8 tests
-cp ${FROM}/control ${FROM}/boottest ${TARGET}
+if [ -n "${FORCE_FAILURE}" ]; then
+	# Force a boottest failure by running an alternate DEP8 test
+	set +e
+	${ADT_CMD} --unbuilt-tree ${TESTS}/bootfail -o results ${ADT_OPTS}
+	RET=$?
+	set -e
+else
+	# Inject the boot DEP8 test into the package source tree
+	SOURCE_DIR=$(ls -d ${PKG_SRC_DIR}/artifacts/${SRC_PKG_NAME}-*)
+	FROM=${TESTS}/boottest/debian/tests
+	TARGET="${SOURCE_DIR}/debian/tests"
+	mkdir -p ${TARGET} # For packages that don't define DEP8 tests
+	cp ${FROM}/control ${FROM}/boottest ${TARGET}
 
-# Now execute the boot test from inside the pkg source tree
-${ADT_CMD} --unbuilt-tree ${SOURCE_DIR} -o results ${ADT_OPTS}
-RET=$?
+	# Now execute the boot test from inside the pkg source tree
+	set +e
+	${ADT_CMD} --unbuilt-tree ${SOURCE_DIR} -o results ${ADT_OPTS}
+	RET=$?
+	set -e
+fi
 
 # Return Skipped as Passed
 [ $RET -eq 2 ] && RET=0

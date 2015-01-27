@@ -1,0 +1,10 @@
+Source: bootfail
+Section: misc
+Maintainer: Canonical CI Engineering <canonical-ci-engineering@lists.launchpad.net>
+Build-Depends: debhelper (>= 9),
+Standards-Version: 3.9.4
+
+Package: bootfail
+Architecture: all
+Description: A boottest dep8 test package designed to fail
+ A boottest dep8 test package designed to fail.
