@@ -97,7 +97,11 @@ else
 	FROM=${TESTS}/boottest/debian/tests
 	TARGET="${SOURCE_DIR}/debian/tests"
 	mkdir -p ${TARGET} # For packages that don't define DEP8 tests
-	cp ${FROM}/control ${FROM}/boottest ${TARGET}
+        # Inject the binary packages built previously
+        BIN_PACKAGES=$(tr '\n' ',' < ${PKG_SRC_DIR}/artifacts/needs_install.packages | sed -e s/,$//)
+        sed -e "s/{{ bin_packages }}/${BIN_PACKAGES}/" \
+            ${FROM}/control.template > ${TARGET}/control
+	cp ${FROM}/boottest ${TARGET}
 
 	# Now execute the boot test from inside the pkg source tree
 	set +e
