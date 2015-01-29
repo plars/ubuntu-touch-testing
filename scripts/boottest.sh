@@ -57,14 +57,10 @@ PROV_CMD="${BASEDIR}/scripts/provision.sh \
 # Generate the adt-run setup-command
 rm -f adt-commands || true
 echo "apt-get update" >> adt-commands
-# https://launchpad.net/bugs/1414992 has the details, we should not attempt
-# to flash the kernel for krillin.
-# FIXME: Make this specific to krillin and check what happens for other
-# supported devices -- vila 2015-01-27
-echo "FLASH_KERNEL_SKIP=true apt-get upgrade -y || /bin/true" >> adt-commands
 
 
 # --no-built-binaries should come first
+# --debug helps while debugging, can be removed otherwise
 ADT_CMD="timeout ${ADT_TIMEOUT} adt-run --debug --no-built-binaries"
 # ADT_VIRT can be overridden for local tests, 
 # it defaults to ${ANDROID_SERIAL} phone via the adb/ssh combo

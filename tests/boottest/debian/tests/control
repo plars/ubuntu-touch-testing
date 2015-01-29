@@ -1,2 +1,6 @@
 Tests: boottest
+# Make adt-run install the binary packages by declaring a dep
+# FIXME: This needs to be filtered to exclude packages that are not present
+# on the phone before the upgrade -- vila 2015-01-27
+Depends: @
 Restrictions: needs-root
