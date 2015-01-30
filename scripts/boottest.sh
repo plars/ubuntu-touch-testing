@@ -13,6 +13,12 @@ export NODE_NAME=$3
 # Default adt-run timeout
 export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 
+# XXX psivaa 20150130: This is to use /var/local/boottest
+# directory in tachash for rsyncing the results back.
+# This should be revisited and fixed when the actual directory
+# is decided for final
+# May need tweaking/ removing the boottest section of /etc/rsyncd.conf
+# in tachash
 export RSYNC_DEST='rsync://tachash.ubuntu-ci/boottest/'
 
 # If the NODE_NAME is unset, we're running locally, the commands that
