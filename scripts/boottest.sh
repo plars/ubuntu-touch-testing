@@ -19,7 +19,8 @@ export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 # is decided for final
 # May need tweaking/ removing the boottest section of /etc/rsyncd.conf
 # in tachash
-export RSYNC_DEST='rsync://tachash.ubuntu-ci/boottest/'
+
+export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
 
 # If the NODE_NAME is unset, we're running locally, the commands that
 # requires a phone are prefixed with "[ -z ${NODE_NAME} ] ||"
