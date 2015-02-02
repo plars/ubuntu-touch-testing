@@ -59,6 +59,7 @@ TESTSUITES += [
     APTest('unity8-autopilot', 'unity8'),
     APTest('camera-app-autopilot'),
     APTest('dialer-app-autopilot', pkgs=['dialer-app-autopilot']),
+    APTest('ubuntu-keyboard-autopilot', pkgs=['ubuntu-keyboard-autopilot']),
     APTest('messaging-app-autopilot', pkgs=['messaging-app-autopilot']),
     APTest('address-book-app-autopilot', pkgs=['address-book-app-autopilot']),
     APTest('reminders-autopilot',
