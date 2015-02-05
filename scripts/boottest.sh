@@ -54,7 +54,10 @@ export SKIP_TESTCONFIG=1
 TESTS=${BASEDIR}/tests
 
 # Provision the device
+# Allow the image revision to be overridden if the latest is unusable
+REVISION="${REVISION:0}"
 PROV_CMD="${BASEDIR}/scripts/provision.sh \
+    -r $REVISION \
     -n ${HOME}/.ubuntu-ci/wifi.conf -w"
 [ -z ${NODE_NAME} ] || ${PROV_CMD} -s ${ANDROID_SERIAL}
 
