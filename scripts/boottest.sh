@@ -54,11 +54,7 @@ export SKIP_TESTCONFIG=1
 TESTS=${BASEDIR}/tests
 
 # Provision the device
-# FIXME: workaround #82 being unbootable for krillin assuming we run on
-# dev-jenkins until this is fixed -- vila 2015-01-23
-REVISION="${REVISION:-81}"
 PROV_CMD="${BASEDIR}/scripts/provision.sh \
-    -r $REVISION \
     -n ${HOME}/.ubuntu-ci/wifi.conf -w"
 [ -z ${NODE_NAME} ] || ${PROV_CMD} -s ${ANDROID_SERIAL}
 
