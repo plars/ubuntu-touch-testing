@@ -55,7 +55,7 @@ TESTS=${BASEDIR}/tests
 
 # Provision the device
 # Allow the image revision to be overridden if the latest is unusable
-REVISION="${REVISION:0}"
+REVISION="${REVISION:-0}"
 PROV_CMD="${BASEDIR}/scripts/provision.sh \
     -r $REVISION \
     -n ${HOME}/.ubuntu-ci/wifi.conf -w"
