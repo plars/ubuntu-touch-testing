@@ -63,7 +63,8 @@ PROV_CMD="${BASEDIR}/scripts/provision.sh \
 
 # Generate the adt-run setup-command
 rm -f adt-commands || true
-echo "apt-get update" >> adt-commands
+# apt-get update like adt-run does it
+echo "(apt-get update || (sleep 15; apt-get update))" >> adt-commands
 
 
 # --no-built-binaries should come first
@@ -90,7 +91,20 @@ sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" ${FROM} > ${TARGET}
 # Execute a first test to get the package source tree from the testbed.
 PKG_SRC_DIR=pkgsrc
 rm -fr ${PKG_SRC_DIR} || true
+set +e
 ${ADT_CMD} --unbuilt-tree ${TESTS}/getpkgsrc -o ${PKG_SRC_DIR} ${ADT_OPTS}
+RET=$?
+set -e
+if [ $RET -ne 0 ]; then
+    # Something went wrong with the testbed and/or adt-run itself
+    errfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
+    echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
+    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    # Ensure we leave a usable phone
+    [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+
+    exit $RET
+fi
 
 if [ -n "${FORCE_FAILURE}" ]; then
 	# Force a boottest failure by running an alternate DEP8 test
@@ -134,9 +148,7 @@ else
     [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 fi
 
-exit $RET
-
 # Ensure we leave a usable phone
 [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 
-exit $rc
+exit $RET
