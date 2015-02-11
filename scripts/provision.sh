@@ -8,6 +8,7 @@ BASEDIR=$(dirname $(readlink -f $0))
 export PATH=${BASEDIR}/../utils/host:${PATH}
 
 RESDIR=`pwd`/clientlogs
+RECOVERY_URL="http://people.canonical.com/~plars/touch"
 
 NETWORK_FILE="${NETWORK_FILE-${HOME}/.ubuntu-ci/wifi.conf}"
 
@@ -118,6 +119,7 @@ reboot_bootloader() {
 
 full_flash() {
 	log "FLASHING DEVICE"
+	DEVICE_TYPE=$(get-device-type)
 	# Use a 60 second retry loop for reboot_bootloader.
 	# If the attempt failed, it may take nearly 60 seconds to complete
 	# the reboot cycle to get the device back to a sane state.
@@ -125,7 +127,15 @@ full_flash() {
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	retry 10 3 timeout 1800 ubuntu-device-flash ${REVISION} touch --password $PHABLET_PASSWORD $IMAGE_OPT
+	RECOVERY=""
+	mkdir -p recovery
+	log "The following wget is only needed for some devices. If it fails, it's probably safe to ignore"
+	wget -P recovery \
+		${RECOVERY_URL}/recovery-${DEVICE_TYPE}.img || /bin/true
+        if [ -f recovery/recovery-${DEVICE_TYPE}.img ]; then
+		RECOVERY="--recovery-image=recovery/recovery-${DEVICE_TYPE}.img"
+	fi
+	retry 10 3 timeout 1800 ubuntu-device-flash ${REVISION} touch ${RECOVERY} --password $PHABLET_PASSWORD $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
 }
