@@ -97,7 +97,7 @@ RET=$?
 set -e
 if [ $RET -ne 0 ]; then
     # Something went wrong with the testbed and/or adt-run itself
-    errfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
+    errfile=${PKG_SRC_DIR}/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
     [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     # Ensure we leave a usable phone
