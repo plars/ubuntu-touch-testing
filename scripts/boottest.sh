@@ -26,7 +26,8 @@ export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
 # when the unexpected occurs.
 function exit_handler {
 # The errfile and resultfile variables can be used to determine if the
-# exit was normal. If the exit was normal, don't overwrite the original.
+# exit was normal. If either exists, it's a normal exit, so don't overwrite
+# the original errfile or resultfile.
 if [ -z ${errfile} ] && [ -z ${resultfile} ]; then
     errfile=${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
