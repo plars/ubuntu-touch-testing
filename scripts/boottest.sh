@@ -59,7 +59,15 @@ REVISION="${REVISION:-0}"
 PROV_CMD="${BASEDIR}/scripts/provision.sh \
     -r $REVISION \
     -n ${HOME}/.ubuntu-ci/wifi.conf -w"
-[ -z ${NODE_NAME} ] || ${PROV_CMD} -s ${ANDROID_SERIAL}
+RETRY=3
+if [ -n "${NODE_NAME}" ]; then
+    while [ ${RETRY} -gt 0 ]; do
+        echo "Provisioning device"
+        ${PROV_CMD} && break
+        RETRY=$((${RETRY}-1))
+        echo "Provisioning failed, retrying up to ${RETRY} more times..."
+    done
+fi
 
 # Generate the adt-run setup-command
 rm -f adt-commands || true
