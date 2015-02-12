@@ -66,7 +66,13 @@ if [ -n "${NODE_NAME}" ]; then
         ${PROV_CMD} && break
         RETRY=$((${RETRY}-1))
         echo "Provisioning failed, retrying up to ${RETRY} more times..."
+        # Make sure the device doesn't need to be recovered first
+        ${BASEDIR}/scripts/recover.py ${NODE_NAME}
     done
+    if [ ${RETRY} -eq 0 ]; then
+        echo ERROR: Device provisioning failed!
+        exit 1
+    fi
 fi
 
 # Generate the adt-run setup-command
