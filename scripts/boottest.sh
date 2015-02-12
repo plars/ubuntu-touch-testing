@@ -24,18 +24,18 @@ export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
 
 # Create an exit handler so that we are sure to create a error file even
 # when the unexpected occurs.
-function exit_handler {
-# The errfile and resultfile variables can be used to determine if the
-# exit was normal. If either exists, it's a normal exit, so don't overwrite
-# the original errfile or resultfile.
-if [ -z ${errfile} ] && [ -z ${resultfile} ]; then
-    errfile=${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
-    echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
-fi
+exit_handler() {
+    # The errfile and resultfile variables can be used to determine if the
+    # exit was normal. If either exists, it's a normal exit, so don't overwrite
+    # the original errfile or resultfile.
+    if [ -z ${errfile} ] && [ -z ${resultfile} ]; then
+        errfile=${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
+        echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
+        [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    fi
 
-# Ensure we leave a usable phone
-[ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+    # Ensure we leave a usable phone
+    [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 }
 trap exit_handler SIGINT SIGTERM EXIT
 
