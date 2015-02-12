@@ -1,0 +1,15 @@
+!!CAUTION!!
+Do not execute this test on a device without manual control.
+The test will render the device unbootable and disable adb.
+Manual control is required to return the device to fastboot.
+
+To run the tests:
+
+$ export ANDROID_SERIAL=[adb device id]
+$ phablet-config writable-image
+
+$ adt-run --no-built-binaries --unbuilt-tree bootfail -o log-dir --- \
+      ssh -s /usr/share/autopkgtest/ssh-setup/adb -- -s $ANDROID_SERIAL
+
+Exit code is '0' if it passed.
+Logs are stored under log-dir as specified with the '-o' option.

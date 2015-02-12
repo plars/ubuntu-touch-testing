@@ -1,0 +1,5 @@
+getpkgsrc (0.1) vivid; urgency=medium
+
+  * Initial release.
+
+ -- Vincent Ladeuil <vila+ci@canonical.com>  Sat, 24 Jan 2015 16:07:34 +0100

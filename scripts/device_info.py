@@ -263,6 +263,7 @@ DEVICES = {
     "mako-20": TouchDevice("mako", "05083705e0d29402",
                            relay_url="http://decatur.ubuntu-ci",
                            bank=1, power_pin=2, volume_down_pin=3),
+    "mako-fginther": TouchDevice("mako", "04c3c2be1d5248b3"),
     "ps-manta-01": TouchDevice("manta", "R32D203DDZR"),
     "manta-01": TouchDevice("manta", "R32D102RPZL"),
     "manta-02": TouchDevice("manta", "R32D102RPPK"),
