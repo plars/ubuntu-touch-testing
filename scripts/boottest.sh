@@ -101,6 +101,7 @@ echo "(apt-get update || (sleep 15; apt-get update))" >> adt-commands
 
 # --no-built-binaries should come first
 # --debug helps while debugging, can be removed otherwise
+# 'timeout' returns 124 if ${ADT_TIMEOUT} is reached.
 ADT_CMD="timeout ${ADT_TIMEOUT} adt-run --debug --no-built-binaries"
 # ADT_VIRT can be overridden for local tests, 
 # it defaults to ${ANDROID_SERIAL} phone via the adb/ssh combo
