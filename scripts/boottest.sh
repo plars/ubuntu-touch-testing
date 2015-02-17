@@ -145,10 +145,17 @@ if [ -n "${FORCE_FAILURE}" ]; then
 	RET=$?
 	set -e
 else
-	# Inject the boot DEP8 test into the package source tree
 	SOURCE_DIR=$(ls -d ${PKG_SRC_DIR}/artifacts/${SRC_PKG_NAME}-*)
+        # Get the debian dir from the source package (involving the whole
+        # source tree can fail with 'No space left on device' on the phone).
+        TARGET_BASE=work
+        rm -fr ${TARGET_BASE}
+        mkdir -p ${TARGET_BASE}
+        cp -rd ${SOURCE_DIR}/debian ${TARGET_BASE}
+	# Inject the boot DEP8 test into the debian dir from the package
+	# source tree
 	FROM=${TESTS}/boottest/debian/tests
-	TARGET="${SOURCE_DIR}/debian/tests"
+	TARGET="${TARGET_BASE}/debian/tests"
 	mkdir -p ${TARGET} # For packages that don't define DEP8 tests
         # Inject the binary packages built previously
         BIN_PACKAGES=$(tr '\n' ',' < ${PKG_SRC_DIR}/artifacts/needs_install.packages | sed -e s/,$//)
@@ -156,9 +163,9 @@ else
             ${FROM}/control.template > ${TARGET}/control
 	cp ${FROM}/boottest ${TARGET}
 
-	# Now execute the boot test from inside the pkg source tree
+	# Now execute the boot test from inside the (reduced) pkg source tree
 	set +e
-	${ADT_CMD} --unbuilt-tree ${SOURCE_DIR} -o results ${ADT_OPTS}
+	${ADT_CMD} --unbuilt-tree ${TARGET_BASE} -o results ${ADT_OPTS}
 	RET=$?
 	set -e
 fi
