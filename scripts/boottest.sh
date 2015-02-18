@@ -10,6 +10,14 @@ export RELEASE=${1:-vivid}
 export SRC_PKG_NAME=${2:-libpng}
 # The phone name.
 export NODE_NAME=$3
+
+# Default values can be provided via a local rc file (see
+# ../config/boottest.rc.example).
+BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
+if [ -f $BOOTTESTRC ]; then
+	source $BOOTTESTRC
+fi
+
 # Default adt-run timeout
 export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 
@@ -49,11 +57,6 @@ trap exit_handler SIGINT SIGTERM EXIT
 
 # ANDROID_SERIAL: The phone ID.
 [ -z ${NODE_NAME} ] || export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
-
-BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
-if [ -f $BOOTTESTRC ]; then
-	source $BOOTTESTRC
-fi
 
 # FIXME: Should be provided -- vila 2015-01-26
 ARCH="${ARCH:-krillin}"
