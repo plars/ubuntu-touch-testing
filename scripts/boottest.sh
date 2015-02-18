@@ -47,8 +47,6 @@ trap exit_handler SIGINT SIGTERM EXIT
 
 # ANDROID_SERIAL: The phone ID.
 [ -z ${NODE_NAME} ] || export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
-# The package version to test
-export VERSION=${VERSION:-1.2.51-0ubuntu3}
 
 BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
 if [ -f $BOOTTESTRC ]; then
