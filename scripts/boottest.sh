@@ -13,6 +13,9 @@ export NODE_NAME=$3
 # Default adt-run timeout
 export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 
+# rsync can be disabled for local testing by defining:
+# export RSYNC="echo rsync"
+export RSYNC=${RSYNC:-rsync}
 # XXX psivaa 20150130: This is to use /var/local/boottest
 # directory in tachash for rsyncing the results back.
 # This should be revisited and fixed when the actual directory
@@ -20,7 +23,6 @@ export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 # May need tweaking/ removing the boottest section of /etc/rsyncd.conf
 # in tachash
 export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
-
 
 # Create an exit handler so that we are sure to create a error file even
 # when the unexpected occurs.
@@ -31,7 +33,7 @@ exit_handler() {
     if [ -z ${errfile} ] && [ -z ${resultfile} ]; then
         errfile=${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
         echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-        [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+        [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     fi
 
     # Ensure we leave a usable phone
@@ -129,7 +131,7 @@ if [ $RET -ne 0 ]; then
     # Something went wrong with the testbed and/or adt-run itself
     errfile=${PKG_SRC_DIR}/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     # Ensure we leave a usable phone
     [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 
@@ -171,12 +173,12 @@ if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
     set +x  # quiet mode as it pollutes output
     echo "$RELEASE $ARCH $(cat results/testpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
     set -x
-    [ -f "$resultfile" ] && rsync -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
     # Something went wrong with the testbed
     errfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 fi
 
 exit $RET
