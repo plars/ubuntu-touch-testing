@@ -10,9 +10,20 @@ export RELEASE=${1:-vivid}
 export SRC_PKG_NAME=${2:-libpng}
 # The phone name.
 export NODE_NAME=$3
+
+# Default values can be provided via a local rc file (see
+# ../config/boottest.rc.example).
+BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
+if [ -f $BOOTTESTRC ]; then
+	source $BOOTTESTRC
+fi
+
 # Default adt-run timeout
 export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 
+# rsync can be disabled for local testing by defining:
+# export RSYNC="echo rsync"
+export RSYNC=${RSYNC:-rsync}
 # XXX psivaa 20150130: This is to use /var/local/boottest
 # directory in tachash for rsyncing the results back.
 # This should be revisited and fixed when the actual directory
@@ -20,7 +31,6 @@ export ADT_TIMEOUT=${ADT_TIMEOUT:-600}
 # May need tweaking/ removing the boottest section of /etc/rsyncd.conf
 # in tachash
 export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
-
 
 # Create an exit handler so that we are sure to create a error file even
 # when the unexpected occurs.
@@ -31,7 +41,7 @@ exit_handler() {
     if [ -z ${errfile} ] && [ -z ${resultfile} ]; then
         errfile=${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
         echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-        [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+        [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     fi
 
     # Ensure we leave a usable phone
@@ -47,13 +57,6 @@ trap exit_handler SIGINT SIGTERM EXIT
 
 # ANDROID_SERIAL: The phone ID.
 [ -z ${NODE_NAME} ] || export ANDROID_SERIAL=${ANDROID_SERIAL:-$(${BASEDIR}/scripts/get-adb-id ${NODE_NAME})}
-# The package version to test
-export VERSION=${VERSION:-1.2.51-0ubuntu3}
-
-BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
-if [ -f $BOOTTESTRC ]; then
-	source $BOOTTESTRC
-fi
 
 # FIXME: Should be provided -- vila 2015-01-26
 ARCH="${ARCH:-krillin}"
@@ -102,7 +105,7 @@ echo "(apt-get update || (sleep 15; apt-get update))" >> adt-commands
 # --no-built-binaries should come first
 # --debug helps while debugging, can be removed otherwise
 # 'timeout' returns 124 if ${ADT_TIMEOUT} is reached.
-ADT_CMD="timeout ${ADT_TIMEOUT} adt-run --debug --no-built-binaries"
+ADT_CMD=${ADT_CMD:-timeout ${ADT_TIMEOUT} adt-run --debug --no-built-binaries}
 # ADT_VIRT can be overridden for local tests, 
 # it defaults to ${ANDROID_SERIAL} phone via the adb/ssh combo
 ADT_VIRT=${ADT_VIRT:-adt-virt-ssh -s /usr/share/autopkgtest/ssh-setup/adb \
@@ -132,7 +135,7 @@ if [ $RET -ne 0 ]; then
     # Something went wrong with the testbed and/or adt-run itself
     errfile=${PKG_SRC_DIR}/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     # Ensure we leave a usable phone
     [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 
@@ -181,12 +184,12 @@ if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
     set +x  # quiet mode as it pollutes output
     echo "$RELEASE $ARCH $(cat results/testpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
     set -x
-    [ -f "$resultfile" ] && rsync -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
     # Something went wrong with the testbed
     errfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-    [ -f "$errfile" ] && rsync -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
+    [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 fi
 
 exit $RET

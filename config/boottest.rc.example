@@ -6,4 +6,5 @@
 # ARCH=krillin
 # PHABLET_PASSWORD=0000
 # ADT_TIMEOUT=600
-# VERSION=1.2.51-0ubuntu3
+# Disable rsync but echo the commands for feedback
+# RSYNC="echo rsync"
