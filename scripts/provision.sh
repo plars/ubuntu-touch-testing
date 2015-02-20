@@ -139,7 +139,7 @@ full_flash() {
 	# We need to distinguish between devices with no recovery images and
 	# failures to download existing recovery images. Only krillin has a
 	# recovery image for now.
-	if [ ${DEVICE_TYPE} == 'krillin' ]; do
+	if [ ${DEVICE_TYPE} == 'krillin' ] ; do
 		mkdir -p recovery
 		retry 10 3 download_recovery
 	fi
