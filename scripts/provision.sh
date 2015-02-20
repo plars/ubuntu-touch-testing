@@ -92,7 +92,7 @@ retry() {
 }
 
 reboot_bootloader() {
-	# In CI, we've seen cases whre 'adb reboot bootloader' will just
+	# In CI, we've seen cases where 'adb reboot bootloader' will just
 	# reboot the device and not enter the bootloader. Adding another
 	# reboot and retrying was found to be a successful workaround:
 	# https://bugs.launchpad.net/ubuntu/+source/android-tools/+bug/1359488
@@ -117,6 +117,17 @@ reboot_bootloader() {
 	return 0
 }
 
+download_recovery () {
+	# FIXME: ev mentioned on irc that we should add some cheksum for
+	# those images -- vila 2015-02-20
+        wget -P recovery ${RECOVERY_URL}/recovery-${DEVICE_TYPE}.img
+        if [ -f recovery/recovery-${DEVICE_TYPE}.img ]; then
+                RECOVERY="--recovery-image=recovery/recovery-${DEVICE_TYPE}.img"
+                return 0
+        fi
+        return 1
+}
+
 full_flash() {
 	log "FLASHING DEVICE"
 	DEVICE_TYPE=$(get-device-type)
@@ -124,17 +135,17 @@ full_flash() {
 	# If the attempt failed, it may take nearly 60 seconds to complete
 	# the reboot cycle to get the device back to a sane state.
 	retry 60 3 reboot_bootloader
+	RECOVERY=""
+	# We need to distinguish between devices with no recovery images and
+	# failures to download existing recovery images. Only krillin has a
+	# recovery image for now.
+	if [ ${DEVICE_TYPE} == 'krillin' ]; do
+		mkdir -p recovery
+		retry 10 3 download_recovery
+	fi
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	RECOVERY=""
-	mkdir -p recovery
-	log "The following wget is only needed for some devices. If it fails, it's probably safe to ignore"
-	wget -P recovery \
-		${RECOVERY_URL}/recovery-${DEVICE_TYPE}.img || /bin/true
-        if [ -f recovery/recovery-${DEVICE_TYPE}.img ]; then
-		RECOVERY="--recovery-image=recovery/recovery-${DEVICE_TYPE}.img"
-	fi
 	retry 10 3 timeout 1800 ubuntu-device-flash ${REVISION} touch ${RECOVERY} --password $PHABLET_PASSWORD $IMAGE_OPT
 	adb wait-for-device
 	sleep 60  #give the system a little time
