@@ -173,9 +173,9 @@ look at jenkins/testconfig.py.
 
 Finally, run the application tests::
 
-  ./scripts/run-autopilot-tests.sh -a dropping_letters_app
+  ./scripts/run-autopilot-tests.sh -a dialer_app
 
 The test results are available under::
 
-  clientlogs/dropping_letters_app/test_results.xml
+  clientlogs/dialer_app/test_results.xml
 
