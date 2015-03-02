@@ -156,21 +156,14 @@ First provision the device with the desired image using the instructions
 in the "Provisioning" section of this README.
 
 If the device is provisioned, and you have built the debian package
-you wish to test with locally, install it on the device::
+you wish to test with locally, install it on the device. For instance,
+if you are building and installing dialer-app::
 
-  adb push dialer-app.deb /tmp
-  adb shell sudo dpkg -i /tmp/dialer-app.deb
+  phablet-config writable-image -r 0000 --package-dir /path/to/packages -p dialer-app
 
-Alternatively, if you have not already provisioned, you can add options
-when you run provision.sh::
+Alternatively, if you have built the packages in a ppa, you could use::
 
-  provision.sh -w -P ppa:foo/myppa -p dialer-app
-
-For a more complete description of running provision.sh, see the
-"Provisioning" section above.
-
-This simply passes along the necessary args to phablet-config from
-phablet-tools to have it add your PPA and install the specified packages.
+  phablet-config writable-image -r 0000 --ppa ppa:ci-train-ppa-service/landing-004 -p dialer-app
 
 NOTE: If you have updates to the dependencies or tests in debian
 packages, make sure to also install packages for those if required for
