@@ -6,10 +6,11 @@ run tests from home in the exact same way test are run in the lab. The only
 things you need are:
 
  * This bzr branch
- * The phablet-tools_ package
+ * The phablet-tools_ and ubuntu-device-flash_ packages
  * An Ubuntu Touch supported_ device
 
 .. _phablet-tools: http://launchpad.net/phablet-tools
+.. _ubuntu-device-flash: http://launchpad.net/goget-ubuntu-touch
 .. _supported: http://wiki.ubuntu.com/Touch/Devices
 
 There are two pieces to touch testing, provisioning and test execution. These
@@ -27,9 +28,19 @@ scripts/provision.sh command. Running::
 
 will list supported options.
 
+Provisioning using this script requires that you start off with the
+device booted and accessible via ADB. The device will be rebooted
+automatically and completely reinstalled - ALL DATA WILL BE LOST.
+
 NOTE: provision.sh requires a path to a network-manager wifi connection that
 can be copied to the target device. By default this is set to
 ${HOME}/.ubuntu-ci/wifi.conf. This can be overridden with the -n parameter.
+
+By default, the latest devel-proposed image will be installed. If you
+wish to install the latest ubuntu-rtm image instead, use::
+
+  export IMAGE_OPT="--bootstrap --developer-mode --channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"
+  ./scripts/provision.sh -w
 
 Executing Tests
 ---------------
@@ -51,6 +62,10 @@ line options. By default the script will create a directory named
 *clientlogs* and then a subdirectory for each testsuite with result files.
 These sub-directories include a xUnit XML formatted file, *test_results.xml*,
 as well as several log files from the device to help with debugging failures.
+
+NOTE: run-autopilot-tests.sh will call a script that installs 
+unity8-autopilot if it is not already installed, to allow the device to
+be unlocked automatically.
 
 An example testing two applications::
 
@@ -100,14 +115,8 @@ Then execute the following script::
 Running Tests for a Modified Click Application
 ----------------------------------------------
 
-First privision the device with the desired image. To get the very latest::
-
-  ./scripts/provision.sh -w
-
-Alternatively, to install the latest ubuntu-rtm image::
-
-  export IMAGE_OPT="--bootstrap --developer-mode --channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"
-  ./scripts/provision.sh -w
+First provision the device with the desired image using the instructions
+in the "Provisioning" section of this README.
 
 Once the image has been provisioned, install the click app to test.
 The dropping-letters application is used in this example::
