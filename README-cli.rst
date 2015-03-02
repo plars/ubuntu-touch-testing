@@ -96,3 +96,47 @@ and set the variable::
 Then execute the following script::
 
   ./scripts/run-mp.sh
+
+Running Tests for a Modified Click Application
+----------------------------------------------
+
+First privision the device with the desired image. To get the very latest::
+
+  ./scripts/provision.sh -w
+
+Alternatively, to install the latest ubuntu-rtm image::
+
+  export IMAGE_OPT="--bootstrap --developer-mode --channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"
+  ./scripts/provision.sh -w
+
+Once the image has been provisioned, install the click app to test.
+The dropping-letters application is used in this example::
+
+  adb push com.ubuntu.dropping-letters_0.1.2.2.67_all.click /tmp
+  adb shell pkcon --allow-untrusted install-local \
+      /tmp/com.ubuntu.dropping-letters_0.1.2.2.67_all.click
+
+Now install the test sources ('--wipe' will remove any previously installed
+test sources)::
+
+  phablet-click-test-setup --wipe --click com.ubuntu.dropping-letters
+
+The above phablet-click-test-setup command will install the standard test
+dependencies and the click application's test sources as specified in the
+manifest. This is usually the application's trunk branch. To override the test
+sources with local changes, replace the test sources that were copied to the
+device. This example assumes the application code is checked out under the
+'dropping-letters' directory with the test sources under 'tests/autopilot'::
+
+  adb shell rm -rf /home/phablet/autopilot/dropping_letters_app
+  adb push dropping-letters/tests/autopilot \
+      /home/phablet/autopilot
+
+Finally, run the application tests::
+
+  ./scripts/run-autopilot-tests.sh -a dropping_letters_app
+
+The test results are available under::
+
+  clientlogs/dropping_letters_app/test_results.xml
+
