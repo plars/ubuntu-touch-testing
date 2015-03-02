@@ -63,6 +63,10 @@ line options. By default the script will create a directory named
 These sub-directories include a xUnit XML formatted file, *test_results.xml*,
 as well as several log files from the device to help with debugging failures.
 
+NOTE: run-autopilot-tests.sh will call a script that installs 
+unity8-autopilot if it is not already installed, to allow the device to
+be unlocked automatically.
+
 An example testing two applications::
 
  ./scripts/run-autopilot-tests.sh -a dropping_letters_app -a music_app
