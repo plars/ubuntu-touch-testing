@@ -149,3 +149,40 @@ The test results are available under::
 
   clientlogs/dropping_letters_app/test_results.xml
 
+Running Tests for a Modified Debian Package
+-------------------------------------------
+
+First provision the device with the desired image using the instructions
+in the "Provisioning" section of this README.
+
+If the device is provisioned, and you have built the debian package
+you wish to test with locally, install it on the device::
+
+  adb push dialer-app.deb /tmp
+  adb shell sudo dpkg -i /tmp/dialer-app.deb
+
+Alternatively, if you have not already provisioned, you can add options
+when you run provision.sh::
+
+  provision.sh -w -P ppa:foo/myppa -p dialer-app
+
+For a more complete description of running provision.sh, see the
+"Provisioning" section above.
+
+This simply passes along the necessary args to phablet-config from
+phablet-tools to have it add your PPA and install the specified packages.
+
+NOTE: If you have updates to the dependencies or tests in debian
+packages, make sure to also install packages for those if required for
+the change you are making. Some tests need a few extra dependencies 
+installed for the tests to function correctly.  To see a list of them, 
+look at jenkins/testconfig.py.
+
+Finally, run the application tests::
+
+  ./scripts/run-autopilot-tests.sh -a dropping_letters_app
+
+The test results are available under::
+
+  clientlogs/dropping_letters_app/test_results.xml
+
