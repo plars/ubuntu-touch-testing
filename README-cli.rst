@@ -149,3 +149,33 @@ The test results are available under::
 
   clientlogs/dropping_letters_app/test_results.xml
 
+Running Tests for a Modified Debian Package
+-------------------------------------------
+
+First provision the device with the desired image using the instructions
+in the "Provisioning" section of this README.
+
+If the device is provisioned, and you have built the debian package
+you wish to test with locally, install it on the device. For instance,
+if you are building and installing dialer-app::
+
+  phablet-config writable-image -r 0000 --package-dir /path/to/packages -p dialer-app
+
+Alternatively, if you have built the packages in a ppa, you could use::
+
+  phablet-config writable-image -r 0000 --ppa ppa:ci-train-ppa-service/landing-004 -p dialer-app
+
+NOTE: If you have updates to the dependencies or tests in debian
+packages, make sure to also install packages for those if required for
+the change you are making. Some tests need a few extra dependencies 
+installed for the tests to function correctly.  To see a list of them, 
+look at jenkins/testconfig.py.
+
+Finally, run the application tests::
+
+  ./scripts/run-autopilot-tests.sh -a dialer_app
+
+The test results are available under::
+
+  clientlogs/dialer_app/test_results.xml
+
