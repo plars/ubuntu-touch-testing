@@ -9,38 +9,58 @@ things you need are:
  * The phablet-tools_ and ubuntu-device-flash_ packages
  * An Ubuntu Touch supported_ device
 
+Optionally, these tools may be of assistance:
+
+ * trv_ - Test Result Viewer for subunit streams
+
 .. _phablet-tools: http://launchpad.net/phablet-tools
 .. _ubuntu-device-flash: http://launchpad.net/goget-ubuntu-touch
 .. _supported: http://wiki.ubuntu.com/Touch/Devices
+.. _trv: https://launchpad.net/trv
 
 There are two pieces to touch testing, provisioning and test execution. These
 functions are independent of one another. i.e., if your device already
 has the proper image/configuration, you can simply use the test-runner.
 
+.. note::
+  Re-creating test results to match those on http://ci.ubuntu.com/ is not
+  always possible. The Ubuntu touch images are created using the Ubuntu
+  archive which changes over time as packages are constantly being updated.
+  Even when using identical images, test dependencies may change making it
+  impossible to recreate an identical test environment.
+
 Provisioning
 ------------
+
+.. warning::
+  This provisioning step will completely erase your device. Be sure to
+  backup any data before proceeding.
 
 The provisioning script is a simple wrapper to commands from phablet-tools
 to get a device ready for testing. Provisioning is performed with the
 scripts/provision.sh command. Running::
 
-  ./scripts/provision.sh -h
+  ./scripts/provision.sh -w
 
-will list supported options.
-
-Provisioning using this script requires that you start off with the
-device booted and accessible via ADB. The device will be rebooted
-automatically and completely reinstalled - ALL DATA WILL BE LOST.
-
-NOTE: provision.sh requires a path to a network-manager wifi connection that
-can be copied to the target device. By default this is set to
-${HOME}/.ubuntu-ci/wifi.conf. This can be overridden with the -n parameter.
-
-By default, the latest devel-proposed image will be installed. If you
+will install the latest ubuntu-touch/devel-proposed image.  If you
 wish to install the latest ubuntu-rtm image instead, use::
 
   export IMAGE_OPT="--bootstrap --developer-mode --channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"
   ./scripts/provision.sh -w
+
+Provisioning using this script requires that you start off with the
+device booted and accessible via ADB. The device will be rebooted
+automatically and completely reinstalled - **ALL DATA WILL BE LOST**.
+
+.. note::
+  provision.sh requires a path to a network-manager wifi connection that
+  can be copied to the target device. By default this is set to
+  ${HOME}/.ubuntu-ci/wifi.conf. This can be overridden with the -n parameter.
+
+Other customizations can be performed during provisioning, for a full list
+of options, use::
+
+  ./scripts/provision.sh -h
 
 Executing Tests
 ---------------
@@ -61,11 +81,13 @@ device between each test and ensure the device is settled using the
 line options. By default the script will create a directory named
 *clientlogs* and then a subdirectory for each testsuite with result files.
 These sub-directories include a xUnit XML formatted file, *test_results.xml*,
-as well as several log files from the device to help with debugging failures.
+a subunit result stream, *test_results.subunit*, as well as several log files
+from the device to help with debugging failures.
 
-NOTE: run-autopilot-tests.sh will call a script that installs 
-unity8-autopilot if it is not already installed, to allow the device to
-be unlocked automatically.
+.. note::
+  run-autopilot-tests.sh will call a script that installs 
+  unity8-autopilot if it is not already installed, to allow the device to
+  be unlocked automatically.
 
 An example testing two applications::
 
@@ -147,6 +169,7 @@ Finally, run the application tests::
 
 The test results are available under::
 
+  clientlogs/dropping_letters_app/test_results.subunit
   clientlogs/dropping_letters_app/test_results.xml
 
 Running Tests for a Modified Debian Package
@@ -165,11 +188,12 @@ Alternatively, if you have built the packages in a ppa, you could use::
 
   phablet-config writable-image -r 0000 --ppa ppa:ci-train-ppa-service/landing-004 -p dialer-app
 
-NOTE: If you have updates to the dependencies or tests in debian
-packages, make sure to also install packages for those if required for
-the change you are making. Some tests need a few extra dependencies 
-installed for the tests to function correctly.  To see a list of them, 
-look at jenkins/testconfig.py.
+.. note::
+  If you have updates to the dependencies or tests in debian
+  packages, make sure to also install packages for those if required for
+  the change you are making. Some tests need a few extra dependencies 
+  installed for the tests to function correctly.  To see a list of them, 
+  look at jenkins/testconfig.py.
 
 Finally, run the application tests::
 
@@ -177,5 +201,12 @@ Finally, run the application tests::
 
 The test results are available under::
 
+  clientlogs/dialer_app/test_results.subunit
   clientlogs/dialer_app/test_results.xml
 
+Viewing subunit files
+---------------------
+
+The subunit result files provide richer content and potentially more test
+artifacts over the xml result files. To view the contents of these files,
+use the trv_ viewer application or your favorite subunit viewer.
