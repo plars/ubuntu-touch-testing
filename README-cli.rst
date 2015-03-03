@@ -6,10 +6,11 @@ run tests from home in the exact same way test are run in the lab. The only
 things you need are:
 
  * This bzr branch
- * The phablet-tools_ package
+ * The phablet-tools_ and ubuntu-device-flash_ packages
  * An Ubuntu Touch supported_ device
 
 .. _phablet-tools: http://launchpad.net/phablet-tools
+.. _ubuntu-device-flash: http://launchpad.net/goget-ubuntu-touch
 .. _supported: http://wiki.ubuntu.com/Touch/Devices
 
 There are two pieces to touch testing, provisioning and test execution. These
@@ -27,9 +28,19 @@ scripts/provision.sh command. Running::
 
 will list supported options.
 
+Provisioning using this script requires that you start off with the
+device booted and accessible via ADB. The device will be rebooted
+automatically and completely reinstalled - ALL DATA WILL BE LOST.
+
 NOTE: provision.sh requires a path to a network-manager wifi connection that
 can be copied to the target device. By default this is set to
 ${HOME}/.ubuntu-ci/wifi.conf. This can be overridden with the -n parameter.
+
+By default, the latest devel-proposed image will be installed. If you
+wish to install the latest ubuntu-rtm image instead, use::
+
+  export IMAGE_OPT="--bootstrap --developer-mode --channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"
+  ./scripts/provision.sh -w
 
 Executing Tests
 ---------------
@@ -51,6 +62,10 @@ line options. By default the script will create a directory named
 *clientlogs* and then a subdirectory for each testsuite with result files.
 These sub-directories include a xUnit XML formatted file, *test_results.xml*,
 as well as several log files from the device to help with debugging failures.
+
+NOTE: run-autopilot-tests.sh will call a script that installs 
+unity8-autopilot if it is not already installed, to allow the device to
+be unlocked automatically.
 
 An example testing two applications::
 
@@ -96,3 +111,71 @@ and set the variable::
 Then execute the following script::
 
   ./scripts/run-mp.sh
+
+Running Tests for a Modified Click Application
+----------------------------------------------
+
+First provision the device with the desired image using the instructions
+in the "Provisioning" section of this README.
+
+Once the image has been provisioned, install the click app to test.
+The dropping-letters application is used in this example::
+
+  adb push com.ubuntu.dropping-letters_0.1.2.2.67_all.click /tmp
+  adb shell pkcon --allow-untrusted install-local \
+      /tmp/com.ubuntu.dropping-letters_0.1.2.2.67_all.click
+
+Now install the test sources ('--wipe' will remove any previously installed
+test sources)::
+
+  phablet-click-test-setup --wipe --click com.ubuntu.dropping-letters
+
+The above phablet-click-test-setup command will install the standard test
+dependencies and the click application's test sources as specified in the
+manifest. This is usually the application's trunk branch. To override the test
+sources with local changes, replace the test sources that were copied to the
+device. This example assumes the application code is checked out under the
+'dropping-letters' directory with the test sources under 'tests/autopilot'::
+
+  adb shell rm -rf /home/phablet/autopilot/dropping_letters_app
+  adb push dropping-letters/tests/autopilot \
+      /home/phablet/autopilot
+
+Finally, run the application tests::
+
+  ./scripts/run-autopilot-tests.sh -a dropping_letters_app
+
+The test results are available under::
+
+  clientlogs/dropping_letters_app/test_results.xml
+
+Running Tests for a Modified Debian Package
+-------------------------------------------
+
+First provision the device with the desired image using the instructions
+in the "Provisioning" section of this README.
+
+If the device is provisioned, and you have built the debian package
+you wish to test with locally, install it on the device. For instance,
+if you are building and installing dialer-app::
+
+  phablet-config writable-image -r 0000 --package-dir /path/to/packages -p dialer-app
+
+Alternatively, if you have built the packages in a ppa, you could use::
+
+  phablet-config writable-image -r 0000 --ppa ppa:ci-train-ppa-service/landing-004 -p dialer-app
+
+NOTE: If you have updates to the dependencies or tests in debian
+packages, make sure to also install packages for those if required for
+the change you are making. Some tests need a few extra dependencies 
+installed for the tests to function correctly.  To see a list of them, 
+look at jenkins/testconfig.py.
+
+Finally, run the application tests::
+
+  ./scripts/run-autopilot-tests.sh -a dialer_app
+
+The test results are available under::
+
+  clientlogs/dialer_app/test_results.xml
+
