@@ -5,18 +5,13 @@ The touch testing execution framework was written so that its very easy to
 run tests from home in the exact same way test are run in the lab. The only
 things you need are:
 
- * This bzr branch
+ * This bzr branch: `lp:ubuntu-test-cases/touch <https://code.launchpad.net/~ubuntu-test-case-dev/ubuntu-test-cases/touch>`_
  * The phablet-tools_ and ubuntu-device-flash_ packages
  * An Ubuntu Touch supported_ device
-
-Optionally, these tools may be of assistance:
-
- * trv_ - Test Result Viewer for subunit streams
 
 .. _phablet-tools: http://launchpad.net/phablet-tools
 .. _ubuntu-device-flash: http://launchpad.net/goget-ubuntu-touch
 .. _supported: http://wiki.ubuntu.com/Touch/Devices
-.. _trv: https://launchpad.net/trv
 
 There are two pieces to touch testing, provisioning and test execution. These
 functions are independent of one another. i.e., if your device already
@@ -28,6 +23,8 @@ has the proper image/configuration, you can simply use the test-runner.
   archive which changes over time as packages are constantly being updated.
   Even when using identical images, test dependencies may change making it
   impossible to recreate an identical test environment.
+
+  For best results, it's recommended to always use the most recent image.
 
 Provisioning
 ------------
@@ -210,3 +207,5 @@ Viewing subunit files
 The subunit result files provide richer content and potentially more test
 artifacts over the xml result files. To view the contents of these files,
 use the trv_ viewer application or your favorite subunit viewer.
+
+.. _trv: https://launchpad.net/trv
