@@ -64,6 +64,10 @@ Executing Tests
 
 The touch testing repository supports both autopilot and UTAH test definitions.
 
+.. note::
+  These tools will *only* work on a device that has been provisioned using the
+  methods described above.
+
 Executing Autopilot Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
