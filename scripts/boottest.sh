@@ -39,7 +39,7 @@ export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
 # and prevents adt-run from accepting the testbed
 check_for_lp1421009() {
 	SYMPTOM="ERROR: timed out waiting for Unity greeter"
-	LINK="https://bugs.launchpad.net/ubuntu/+source/unity8/+bug/1421009"
+	LINK="https://code.launchpad.net/bugs/1421009"
 	if [ $1 -eq 16 ] && grep -q "${SYMPTOM}" ${2}/log; then
 		END_MESSAGE="Test failed due to ${LINK}"
 	fi
