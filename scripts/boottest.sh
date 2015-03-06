@@ -4,6 +4,9 @@ set -ex
 # Where am I ?
 BASEDIR=$(dirname $(readlink -f $0))/..
 
+# Provide a message to report special information
+END_MESSAGE=""
+
 # The release to test the package on.
 export RELEASE=${1:-vivid}
 # The source package under test.
@@ -32,6 +35,16 @@ export RSYNC=${RSYNC:-rsync}
 # in tachash
 export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
 
+# Look for a known bug, lp1421009, that results in unity8 not starting
+# and prevents adt-run from accepting the testbed
+check_for_lp1421009() {
+	SYMPTOM="ERROR: timed out waiting for Unity greeter"
+	LINK="https://bugs.launchpad.net/ubuntu/+source/unity8/+bug/1421009"
+	if [ $1 -eq 16 ] && grep -q "${SYMPTOM}" ${2}/log; then
+		END_MESSAGE="Test failed due to ${LINK}"
+	fi
+}
+
 # Create an exit handler so that we are sure to create a error file even
 # when the unexpected occurs.
 exit_handler() {
@@ -46,6 +59,9 @@ exit_handler() {
 
     # Ensure we leave a usable phone
     [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+
+    # Leave a parting message
+    [ -z "${END_MESSAGE}" ] || echo -e "\n\n${END_MESSAGE}\n\n"
 }
 trap exit_handler SIGINT SIGTERM EXIT
 
@@ -131,6 +147,9 @@ set +e
 ${ADT_CMD} --unbuilt-tree ${TESTS}/getpkgsrc -o ${PKG_SRC_DIR} ${ADT_OPTS}
 RET=$?
 set -e
+
+check_for_lp1421009 $RET ${PKG_SRC_DIR}
+
 if [ $RET -ne 0 ]; then
     # Something went wrong with the testbed and/or adt-run itself
     errfile=${PKG_SRC_DIR}/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
@@ -173,6 +192,8 @@ else
 	RET=$?
 	set -e
 fi
+
+check_for_lp1421009 $RET results
 
 # Return Skipped as Passed
 [ $RET -eq 2 ] && RET=0
