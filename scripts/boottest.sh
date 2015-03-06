@@ -61,7 +61,10 @@ exit_handler() {
     [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
 
     # Leave a parting message
+    # (disable command tracing as it confuses the output)
+    set +x
     [ -z "${END_MESSAGE}" ] || echo -e "\n\n${END_MESSAGE}\n\n"
+    set -x
 }
 trap exit_handler SIGINT SIGTERM EXIT
 
