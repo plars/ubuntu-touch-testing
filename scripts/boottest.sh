@@ -104,10 +104,18 @@ if [ -n "${NODE_NAME}" ]; then
     while [ ${RETRY} -gt 0 ]; do
         echo "Provisioning device"
         ${PROV_CMD} && break
-        RETRY=$((${RETRY}-1))
-        echo "Provisioning failed, retrying up to ${RETRY} more times..."
+        PROV_ERR=$?
         # Make sure the device doesn't need to be recovered first
         ${BASEDIR}/scripts/recover.py ${NODE_NAME}
+        if [ ${PROV_ERR} -eq 124 ]; then
+            # The provisioning fails with a timeout, the image is not
+            # flashable/bootable
+            echo ERROR: Device provisioning failed!
+            END_MESSAGE="Test failed because the image couldn't be flashed/booted"
+            exit 1
+        fi
+        RETRY=$((${RETRY}-1))
+        echo "Provisioning failed, retrying up to ${RETRY} more times..."
     done
     if [ ${RETRY} -eq 0 ]; then
         echo ERROR: Device provisioning failed!
