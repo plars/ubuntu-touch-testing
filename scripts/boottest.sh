@@ -110,7 +110,8 @@ if [ -n "${NODE_NAME}" ]; then
         if [ ${PROV_ERR} -eq 124 ]; then
             # The provisioning fails with a timeout, the image is not
             # flashable/bootable
-            break
+            echo ERROR: Device provisioning failed!
+            exit 1
         fi
         RETRY=$((${RETRY}-1))
         echo "Provisioning failed, retrying up to ${RETRY} more times..."
