@@ -111,6 +111,7 @@ if [ -n "${NODE_NAME}" ]; then
             # The provisioning fails with a timeout, the image is not
             # flashable/bootable
             echo ERROR: Device provisioning failed!
+            END_MESSAGE="Test failed because the image couldn't be flashed/booted"
             exit 1
         fi
         RETRY=$((${RETRY}-1))
