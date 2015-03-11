@@ -147,7 +147,9 @@ full_flash() {
 	# Most failures appear to be transient and work with an immediate
 	# retry.
 	retry 10 3 timeout 1800 ubuntu-device-flash ${REVISION} touch ${RECOVERY} --password $PHABLET_PASSWORD $IMAGE_OPT
-	adb wait-for-device
+	# If the flashed image fails to install and reboots, wait-for-device
+	# will timeout
+	timeout 600 adb wait-for-device
 	sleep 60  #give the system a little time
 }
 
