@@ -1,9 +1,9 @@
 Touch Testing From the CLI
 ==========================
 
-The touch testing execution framework was written so that its very easy to
-run tests from home in the exact same way test are run in the lab. The only
-things you need are:
+The CI touch testing execution framework was written so that it's very easy to
+run tests from home in the exact same way tests are run for the CI dashboard
+and CI MP testing. The only things you need are:
 
  * This bzr branch: `lp:ubuntu-test-cases/touch <https://code.launchpad.net/~ubuntu-test-case-dev/ubuntu-test-cases/touch>`_
  * The phablet-tools_ and ubuntu-device-flash_ packages
@@ -13,9 +13,9 @@ things you need are:
 .. _ubuntu-device-flash: http://launchpad.net/goget-ubuntu-touch
 .. _supported: http://wiki.ubuntu.com/Touch/Devices
 
-There are two pieces to touch testing, provisioning and test execution. These
-functions are independent of one another. i.e., if your device already
-has the proper image/configuration, you can simply use the test-runner.
+There are two pieces to touch testing, provisioning and test execution.
+The provisioning step is required, but once provisioned, you can proceed with
+any of the test methods described in this document.
 
 .. note::
   Re-creating test results to match those on http://ci.ubuntu.com/ is not
@@ -26,16 +26,43 @@ has the proper image/configuration, you can simply use the test-runner.
 
   For best results, it's recommended to always use the most recent image.
 
+Prerequisites
+-------------
+
+Before proceeding, a network configuration file is required. This is a one time
+setup and can be used for all future provisioning and testing as long as your
+wifi network does not change. This file is the same network configuration file
+used by *phablet-network* and can be found by running *phablet-network* with no
+options. For example::
+
+  $ phablet-network
+  Network file is /etc/NetworkManager/system-connections/my-network-ssid
+  Provisioning network on device
+  
+  Network setup complete
+  PING launchpad.net (91.189.89.222) 56(84) bytes of data.
+
+Once the network configuration file is identified, it can be copied into the
+default location to be used by the provisioning scripts::
+
+  mkdir ~/.ubuntu-ci
+  sudo cp /etc/NetworkManager/system-connections/my-network-ssid ~/.ubuntu-ci/wifi.conf
+  sudo chown $USER:$USER ~/.ubuntu-ci/wifi.conf
+
 Provisioning
 ------------
+
+Provisioning is a required step before performing CI dashboard or MP testing.
+It is necessary to configure the device into a known state so that the tests
+can run in a predictible manner.
 
 .. warning::
   This provisioning step will completely erase your device. Be sure to
   backup any data before proceeding.
 
 The provisioning script is a simple wrapper to commands from phablet-tools
-to get a device ready for testing. Provisioning is performed with the
-scripts/provision.sh command. Running::
+and some additional device setup to get it ready for testing. Provisioning
+is performed with the scripts/provision.sh command. Running::
 
   ./scripts/provision.sh -w
 
@@ -50,8 +77,9 @@ device booted and accessible via ADB. The device will be rebooted
 automatically and completely reinstalled - **ALL DATA WILL BE LOST**.
 
 .. note::
-  provision.sh requires a path to a network-manager wifi connection that
-  can be copied to the target device. By default this is set to
+  provision.sh requires a path to a network-manager wifi configuration file
+  that can be copied to the target device as described above in the
+  Prerequisites section. By default this is set to
   ${HOME}/.ubuntu-ci/wifi.conf. This can be overridden with the -n parameter.
 
 Other customizations can be performed during provisioning, for a full list
@@ -90,9 +118,18 @@ from the device to help with debugging failures.
   unity8-autopilot if it is not already installed, to allow the device to
   be unlocked automatically.
 
+Examples
+========
+
 An example testing two applications::
 
- ./scripts/run-autopilot-tests.sh -a dropping_letters_app -a music_app
+  ./scripts/provision.sh -w
+  ./scripts/run-autopilot-tests.sh -a dropping_letters_app -a music_app
+
+And an example for running all dashboard autopilot tests::
+
+  ./scripts/provision.sh -w
+  ./scripts/run-autopilot-tests.sh
 
 Executing UTAH Tests
 ~~~~~~~~~~~~~~~~~~~~
@@ -120,7 +157,10 @@ Provisioning and Executing tests for an MP
 ------------------------------------------
 
 These scripts are used by jenkins for the testing of MPs that generate Debian
-packages. To re-create the testing performed by jenkins, set the following
+packages. The *run-mp.sh* script used below includes provisioning, so for this
+one case, it is not necessary to call provision.sh separately.
+
+To re-create the testing performed by jenkins, set the following
 environment variables based on the jenkins build parameters::
 
   export package_archive=<from jenkins build parameter>
