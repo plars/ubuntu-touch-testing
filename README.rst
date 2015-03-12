@@ -119,7 +119,7 @@ from the device to help with debugging failures.
   be unlocked automatically.
 
 Examples
-========
+^^^^^^^^
 
 An example testing two applications::
 
