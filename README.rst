@@ -90,11 +90,24 @@ of options, use::
 Executing Tests
 ---------------
 
-The touch testing repository supports both autopilot and UTAH test definitions.
+The touch testing tools are intended to provide CI Dashboard and CI MP testing
+for specific applications. The supported applications and test suites are
+visible in the `CI Dashboard <http://ci.ubuntu.com/>`_.  These tests include
+both autopilot and UTAH test definitions. The following sections describe how
+to use these tools for testing on a local device.
 
 .. note::
   These tools will *only* work on a device that has been provisioned using the
   methods described above.
+
+.. note::
+
+  Some of the tests generate subunit result files. These subunit result files
+  provide richer content and potentially more test artifacts over the xml
+  result files. To view the contents of these files, use the trv_ viewer
+  application or your favorite subunit viewer.
+
+.. _trv: https://launchpad.net/trv
 
 Executing Autopilot Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,8 +166,8 @@ An example of running the sdk test suite::
 
   ./scripts/jenkins.sh -a sdk
 
-Provisioning and Executing tests for an MP
-------------------------------------------
+Provisioning and Executing Autopilot Tests for an MP
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These scripts are used by jenkins for the testing of MPs that generate Debian
 packages. The *run-mp.sh* script used below includes provisioning, so for this
@@ -175,8 +188,8 @@ Then execute the following script::
 
   ./scripts/run-mp.sh
 
-Running Tests for a Modified Click Application
-----------------------------------------------
+Running Autopilot Tests for a Modified Click Application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First provision the device with the desired image using the instructions
 in the "Provisioning" section of this README.
@@ -213,8 +226,8 @@ The test results are available under::
   clientlogs/dropping_letters_app/test_results.subunit
   clientlogs/dropping_letters_app/test_results.xml
 
-Running Tests for a Modified Debian Package
--------------------------------------------
+Running Autopilot Tests for a Modified Debian Package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First provision the device with the desired image using the instructions
 in the "Provisioning" section of this README.
@@ -244,12 +257,3 @@ The test results are available under::
 
   clientlogs/dialer_app/test_results.subunit
   clientlogs/dialer_app/test_results.xml
-
-Viewing subunit files
----------------------
-
-The subunit result files provide richer content and potentially more test
-artifacts over the xml result files. To view the contents of these files,
-use the trv_ viewer application or your favorite subunit viewer.
-
-.. _trv: https://launchpad.net/trv
