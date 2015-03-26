@@ -10,27 +10,38 @@ import urllib2
 
 
 def set_button(urlbase, button, on):
+    '''Set the desired button to on for any non-false value of "on"'''
     state = 'on' if on else 'off'
     data = {
         'state': state,
     }
     url = '{}/button/{}'.format(urlbase, button)
     try:
-        resp = urllib2.urlopen(url, data=urllib.urlencode(data))
-    except urllib2.URLError:
-        print('ERROR: URL connection or read error: {}'.format(url))
+        url_resp = urllib2.urlopen(url, data=urllib.urlencode(data))
+    except urllib2.URLError as e:
+        print('ERROR: URL connection or read error on {}: {}'.format(url, e))
         return -1
 
     try:
-        resp = resp.read()
-        json_resp = json.loads(resp)
-    except (urllib2.URLError, ValueError):
-        print('ERROR: bad response: {}'.format(resp))
+        content = url_resp.read()
+    except urllib2.URLError as e:
+        print('ERROR: URL read error on {}: {}'.format(url_resp, e))
+        return -1
+
+    try:
+        json_resp = json.loads(content)
+    except (urllib2.URLError, ValueError) as e:
+        print('ERROR: json conversion failed on {}: {}'.format(content, e))
         return -1
 
     if not json_resp.get('button_states', None) == state:
-        print('ERROR: unexpected response: {}'.format(resp))
+        # This is a fail safe to make sure the controller attempted to set
+        # the button to what was requested. If it fails, dump the original
+        # content.
+        print('ERROR: unexpected response: {}'.format(content))
         return -1
+
+    return 0
 
 
 def _get_parser():
