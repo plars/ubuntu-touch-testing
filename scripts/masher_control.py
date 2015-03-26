@@ -30,7 +30,7 @@ def set_button(urlbase, button, on):
 
     try:
         json_resp = json.loads(content)
-    except (urllib2.URLError, ValueError) as e:
+    except ValueError as e:
         print('ERROR: json conversion failed on {}: {}'.format(content, e))
         return -1
 
