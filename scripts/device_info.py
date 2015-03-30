@@ -9,6 +9,7 @@ import sys
 import time
 import urlparse
 
+from masher_control import set_button
 from ncd_usb import set_relay
 
 log = logging.getLogger()
@@ -135,6 +136,18 @@ class TouchDevice(object):
         else:
             raise DeviceError("Full recovery not possible with this device")
 
+    def _arale_to_bootloader(self):
+        log.info("Forcing the device to enter the bootloader")
+        # XXX fginther - 2015-03-29
+        # Refine the power off and fastboot sequence
+        set_button(self.relay_url, self.volume_down_pin, 1)
+        set_button(self.relay_url, self.power_pin, 1)
+        time.sleep(10)
+        set_button(self.relay_url, self.power_pin, 0)
+        time.sleep(10)
+        set_button(self.relay_url, self.volume_down_pin, 0)
+
+
     def _krillin_to_bootloader(self):
         log.info("Forcing the device to enter the bootloader")
         #Power off the device from any state
@@ -179,6 +192,12 @@ class TouchDevice(object):
 # When looking at the relay webUI for the mapping, we consider all
 # ports and banks to start numbering from 0
 DEVICES = {
+    # XXX fginther - 2015-03-29
+    # Update arale devices with proper URLs and pinouts
+    "arale-01": TouchDevice("arale", "75UABKPUK9EW"),
+    "arale-02": TouchDevice("arale", "75UABKPN2CND"),
+    "arale-03": TouchDevice("arale", "75UABKP44J83"),
+    "arale-04": TouchDevice("arale", "75UABKPUFHL9"),
     "krillin-01": TouchDevice("krillin", "JB011018"),
     "krillin-02": TouchDevice("krillin", "JB010894"),
     "krillin-03": TouchDevice("krillin", "JB015156",
