@@ -98,7 +98,9 @@ assert_image() {
 	if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
 		echo "UUIDs $REQUIRED_UUID != $ACTUAL_UUID, reprovisioning device..."
 		ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-utah-args | tr -d '\r\n')
-		UUID=$REQUIRED_UUID IMAGE_OPT=$ARGS ${BASEDIR}/scripts/provision.sh
+		SERVER=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-server | tr -d '\r\n')
+		UUID=$REQUIRED_UUID IMAGE_SERVER=$SERVER IMAGE_OPT=$ARGS \
+			${BASEDIR}/scripts/provision.sh
 	else
 		echo "UUIDS match"
 	fi

@@ -49,6 +49,7 @@ export DEVICE_TYPE={{device_type}}
 ${BZRDIR}/scripts/recover.py ${NODE_NAME}
 
 {{image_opt}}
+{{image_server}}
 ${BZRDIR}/scripts/run-smoke -t {{test}}
 
 # move results to base directory as expected by dashboard:

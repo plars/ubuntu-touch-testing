@@ -50,6 +50,10 @@ image_info() {
 $IMAGE_OPT
 EOF
 	adb push $RESDIR/.ci-flash-args /home/phablet/.ci-flash-args
+	cat > $RESDIR/.ci-flash-server <<EOF
+$IMAGE_SERVER
+EOF
+	adb push $RESDIR/.ci-flash-args /home/phablet/.ci-flash-server
 	echo $CUSTOMIZE > $RESDIR/.ci-customizations
 	adb push $RESDIR/.ci-customizations /home/phablet/.ci-customizations
 }
@@ -146,7 +150,7 @@ full_flash() {
 	# Use a 10 second retry loop for ubuntu-device-flash.
 	# Most failures appear to be transient and work with an immediate
 	# retry.
-	retry 10 3 timeout 1800 ubuntu-device-flash ${REVISION} touch ${RECOVERY} --password $PHABLET_PASSWORD $IMAGE_OPT
+	retry 10 3 timeout 1800 ubuntu-device-flash ${IMAGE_SERVER} ${REVISION} touch ${RECOVERY} --password $PHABLET_PASSWORD $IMAGE_OPT
 	# If the flashed image fails to install and reboots, wait-for-device
 	# will timeout
 	timeout 600 adb wait-for-device
