@@ -133,7 +133,8 @@ def _merge_env(args):
 
 def _assert_args(args):
     if args.install_url:
-        # this means you shouldn't specify packages, ppas, or image options
+        # this means you shouldn't specify packages, ppas, image server,
+        # or image options
         if args.package or args.ppa or args.image_opt or args.image_server:
             msg = 'ERROR: --install-url can\'t be used with ' \
                   '--package, -ppa, --image_server, or --image_opt'
