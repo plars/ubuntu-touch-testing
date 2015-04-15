@@ -118,7 +118,10 @@ test_app() {
 
 reboot_wait() {
 	if [ -z $QUICK ] ; then
-		reboot-and-unlock.sh
+		if ! reboot-and-unlock.sh; then
+                    log_error "Failed to unlock screen, retrying..."
+                    reboot-and-unlock.sh || log_error "Screen unlock still fails, continuing anyway"
+                fi
 		FILES="/var/crash/* /home/phablet/.cache/upstart/*.log*"
 		if ! adb shell "sudo rm -rf $FILES" ; then
 			log_error "unable to remove crash and log files, retrying"
