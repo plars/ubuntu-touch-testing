@@ -24,7 +24,8 @@ class TouchDevice(object):
     def __init__(self, devtype, serial, relay_url=None, bank=None,
                  power_pin=None, volume_down_pin=None, volume_up_pin=None,
                  image_server='https://system-image.ubuntu.com',
-                 image_channel='ubuntu-touch/stable'):
+                 image_channel='ubuntu-touch/stable',
+                 extra_args=None):
         self.devtype = devtype
         self.serial = serial
         self.relay_url = relay_url
@@ -34,6 +35,7 @@ class TouchDevice(object):
         self.volume_up_pin = volume_up_pin
         self.image_server = image_server
         self.image_channel = image_channel
+        self.extra_args = extra_args
 
     def get_serial(self):
         return self.serial
@@ -84,6 +86,8 @@ class TouchDevice(object):
                        '--channel', self.image_channel,
                        '--bootstrap', '--developer-mode',
                        '--password', '0000']
+        if self.extra_args:
+            udf_command.extend(self.extra_args)
         if os.path.exists(os.path.join('recovery', recovery_img)):
             udf_command.extend(['--recovery-image',
                                 os.path.join('recovery', recovery_img)])
@@ -204,25 +208,29 @@ DEVICES = {
                             power_pin=0, volume_down_pin=1,
                             image_server=
                             "https://sis.capomastro.canonical.com",
-                            image_channel="ubuntu-touch/tangxi-vivid"),
+                            image_channel="ubuntu-touch/tangxi-vivid",
+                            extra_args=['--device', 'arale']),
     "arale-02": TouchDevice("arale", "75UABKPN2CND",
                             relay_url="http://10.74.120.150:8000",
                             power_pin=2, volume_down_pin=3,
                             image_server=
                             "https://sis.capomastro.canonical.com",
-                            image_channel="ubuntu-touch/tangxi-vivid"),
+                            image_channel="ubuntu-touch/tangxi-vivid",
+                            extra_args=['--device', 'arale']),
     "arale-03": TouchDevice("arale", "75UABKP44J83",
                             relay_url="http://10.74.120.150:8000",
                             power_pin=4, volume_down_pin=5,
                             image_server=
                             "https://sis.capomastro.canonical.com",
-                            image_channel="ubuntu-touch/tangxi-vivid"),
+                            image_channel="ubuntu-touch/tangxi-vivid",
+                            extra_args=['--device', 'arale']),
     "arale-04": TouchDevice("arale", "75UABKPUFHL9",
                             relay_url="http://10.74.120.150:8000",
                             power_pin=6, volume_down_pin=7,
                             image_server=
                             "https://sis.capomastro.canonical.com",
-                            image_channel="ubuntu-touch/tangxi-vivid"),
+                            image_channel="ubuntu-touch/tangxi-vivid",
+                            extra_args=['--device', 'arale']),
     "krillin-01": TouchDevice("krillin", "JB011018"),
     "krillin-02": TouchDevice("krillin", "JB010894"),
     "krillin-03": TouchDevice("krillin", "JB015156",
