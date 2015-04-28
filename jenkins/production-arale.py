@@ -14,13 +14,17 @@ VIVID_MATRIX = [
             {
                 'name': 'arale',
                 'slave-label': 'arale',
-                'trigger_url': 'https://sis.capomastro.canonical.com/ubuntu-touch/tangxi-vivid-proposed/arale/index.json',
-                'num-workers': 4,
+                'trigger_url': 'https://sis.capomastro.canonical.com/'
+                               'ubuntu-touch/tangxi-vivid-proposed/'
+                               'arale/index.json',
+                'num-workers': 2,
             }
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-                     '--channel=ubuntu-touch/vivid-proposed --device=m75"',
-        'IMAGE_SERVER': 'export IMAGE_SERVER="--server https://sis.capomastro.canonical.com"'
+                     '--channel=ubuntu-touch/tangxi-vivid-proposed '
+                     '--device=arale"',
+        'IMAGE_SERVER': 'export IMAGE_SERVER='
+                        '"--server https://sis.capomastro.canonical.com"'
     },
 ]
 
