@@ -194,10 +194,18 @@ class TouchDevice(object):
 DEVICES = {
     # XXX fginther - 2015-03-29
     # Update arale devices with proper URLs and pinouts
-    "arale-01": TouchDevice("arale", "75UABKPUK9EW"),
-    "arale-02": TouchDevice("arale", "75UABKPN2CND"),
-    "arale-03": TouchDevice("arale", "75UABKP44J83"),
-    "arale-04": TouchDevice("arale", "75UABKPUFHL9"),
+    "arale-01": TouchDevice("arale", "75UABKPUK9EW",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=0, volume_down_pin=1),
+    "arale-02": TouchDevice("arale", "75UABKPN2CND",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=2, volume_down_pin=3),
+    "arale-03": TouchDevice("arale", "75UABKP44J83",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=4, volume_down_pin=5),
+    "arale-04": TouchDevice("arale", "75UABKPUFHL9",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=6, volume_down_pin=7),
     "krillin-01": TouchDevice("krillin", "JB011018"),
     "krillin-02": TouchDevice("krillin", "JB010894"),
     "krillin-03": TouchDevice("krillin", "JB015156",
