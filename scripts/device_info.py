@@ -201,8 +201,6 @@ class TouchDevice(object):
 # When looking at the relay webUI for the mapping, we consider all
 # ports and banks to start numbering from 0
 DEVICES = {
-    # XXX fginther - 2015-03-29
-    # Update arale devices with proper URLs and pinouts
     "arale-01": TouchDevice("arale", "75UABKPUK9EW",
                             relay_url="http://10.74.120.150:8000",
                             power_pin=0, volume_down_pin=1,
