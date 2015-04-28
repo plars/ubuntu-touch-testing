@@ -201,16 +201,28 @@ DEVICES = {
     # Update arale devices with proper URLs and pinouts
     "arale-01": TouchDevice("arale", "75UABKPUK9EW",
                             relay_url="http://10.74.120.150:8000",
-                            power_pin=0, volume_down_pin=1),
+                            power_pin=0, volume_down_pin=1,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid"),
     "arale-02": TouchDevice("arale", "75UABKPN2CND",
                             relay_url="http://10.74.120.150:8000",
-                            power_pin=2, volume_down_pin=3),
+                            power_pin=2, volume_down_pin=3,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid"),
     "arale-03": TouchDevice("arale", "75UABKP44J83",
                             relay_url="http://10.74.120.150:8000",
-                            power_pin=4, volume_down_pin=5),
+                            power_pin=4, volume_down_pin=5,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid"),
     "arale-04": TouchDevice("arale", "75UABKPUFHL9",
                             relay_url="http://10.74.120.150:8000",
-                            power_pin=6, volume_down_pin=7),
+                            power_pin=6, volume_down_pin=7,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid"),
     "krillin-01": TouchDevice("krillin", "JB011018"),
     "krillin-02": TouchDevice("krillin", "JB010894"),
     "krillin-03": TouchDevice("krillin", "JB015156",
