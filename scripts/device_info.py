@@ -22,7 +22,9 @@ class DeviceError(Exception):
 
 class TouchDevice(object):
     def __init__(self, devtype, serial, relay_url=None, bank=None,
-                 power_pin=None, volume_down_pin=None, volume_up_pin=None):
+                 power_pin=None, volume_down_pin=None, volume_up_pin=None,
+                 image_server='https://system-image.ubuntu.com',
+                 image_channel='ubuntu-touch/stable'):
         self.devtype = devtype
         self.serial = serial
         self.relay_url = relay_url
@@ -30,6 +32,8 @@ class TouchDevice(object):
         self.power_pin = power_pin
         self.volume_down_pin = volume_down_pin
         self.volume_up_pin = volume_up_pin
+        self.image_server = image_server
+        self.image_channel = image_channel
 
     def get_serial(self):
         return self.serial
@@ -74,8 +78,10 @@ class TouchDevice(object):
             except:
                 # Don't fail for any reason, if attempt to flash without
                 pass
-        udf_command = ['ubuntu-device-flash', 'touch', '--serial',
-                       self.serial, '--channel', 'ubuntu-touch/stable',
+        udf_command = ['ubuntu-device-flash',
+                       '--server', self.image_server,
+                       'touch', '--serial', self.serial,
+                       '--channel', self.image_channel,
                        '--bootstrap', '--developer-mode',
                        '--password', '0000']
         if os.path.exists(os.path.join('recovery', recovery_img)):
@@ -146,7 +152,6 @@ class TouchDevice(object):
         set_button(self.relay_url, self.power_pin, 0)
         time.sleep(10)
         set_button(self.relay_url, self.volume_down_pin, 0)
-
 
     def _krillin_to_bootloader(self):
         log.info("Forcing the device to enter the bootloader")
