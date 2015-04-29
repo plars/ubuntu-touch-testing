@@ -22,7 +22,10 @@ class DeviceError(Exception):
 
 class TouchDevice(object):
     def __init__(self, devtype, serial, relay_url=None, bank=None,
-                 power_pin=None, volume_down_pin=None, volume_up_pin=None):
+                 power_pin=None, volume_down_pin=None, volume_up_pin=None,
+                 image_server='https://system-image.ubuntu.com',
+                 image_channel='ubuntu-touch/stable',
+                 extra_args=None):
         self.devtype = devtype
         self.serial = serial
         self.relay_url = relay_url
@@ -30,6 +33,9 @@ class TouchDevice(object):
         self.power_pin = power_pin
         self.volume_down_pin = volume_down_pin
         self.volume_up_pin = volume_up_pin
+        self.image_server = image_server
+        self.image_channel = image_channel
+        self.extra_args = extra_args
 
     def get_serial(self):
         return self.serial
@@ -74,10 +80,14 @@ class TouchDevice(object):
             except:
                 # Don't fail for any reason, if attempt to flash without
                 pass
-        udf_command = ['ubuntu-device-flash', 'touch', '--serial',
-                       self.serial, '--channel', 'ubuntu-touch/stable',
+        udf_command = ['ubuntu-device-flash',
+                       '--server', self.image_server,
+                       'touch', '--serial', self.serial,
+                       '--channel', self.image_channel,
                        '--bootstrap', '--developer-mode',
                        '--password', '0000']
+        if self.extra_args:
+            udf_command.extend(self.extra_args)
         if os.path.exists(os.path.join('recovery', recovery_img)):
             udf_command.extend(['--recovery-image',
                                 os.path.join('recovery', recovery_img)])
@@ -147,7 +157,6 @@ class TouchDevice(object):
         time.sleep(10)
         set_button(self.relay_url, self.volume_down_pin, 0)
 
-
     def _krillin_to_bootloader(self):
         log.info("Forcing the device to enter the bootloader")
         #Power off the device from any state
@@ -192,12 +201,34 @@ class TouchDevice(object):
 # When looking at the relay webUI for the mapping, we consider all
 # ports and banks to start numbering from 0
 DEVICES = {
-    # XXX fginther - 2015-03-29
-    # Update arale devices with proper URLs and pinouts
-    "arale-01": TouchDevice("arale", "75UABKPUK9EW"),
-    "arale-02": TouchDevice("arale", "75UABKPN2CND"),
-    "arale-03": TouchDevice("arale", "75UABKP44J83"),
-    "arale-04": TouchDevice("arale", "75UABKPUFHL9"),
+    "arale-01": TouchDevice("arale", "75UABKPUK9EW",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=0, volume_down_pin=1,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
+    "arale-02": TouchDevice("arale", "75UABKPN2CND",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=2, volume_down_pin=3,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
+    "arale-03": TouchDevice("arale", "75UABKP44J83",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=4, volume_down_pin=5,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
+    "arale-04": TouchDevice("arale", "75UABKPUFHL9",
+                            relay_url="http://10.74.120.150:8000",
+                            power_pin=6, volume_down_pin=7,
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
     "krillin-01": TouchDevice("krillin", "JB011018"),
     "krillin-02": TouchDevice("krillin", "JB010894"),
     "krillin-03": TouchDevice("krillin", "JB015156",
