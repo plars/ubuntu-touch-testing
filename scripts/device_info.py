@@ -229,6 +229,26 @@ DEVICES = {
                             "https://sis.capomastro.canonical.com",
                             image_channel="ubuntu-touch/tangxi-vivid-proposed",
                             extra_args=['--device', 'arale']),
+    "arale-05": TouchDevice("arale", "75UABL662MQ3",
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
+    "arale-06": TouchDevice("arale", "75UABL6NEYKR",
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
+    "arale-07": TouchDevice("arale", "75UABL6K4KPD",
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
+    "arale-08": TouchDevice("arale", "75UABL65U7BB",
+                            image_server=
+                            "https://sis.capomastro.canonical.com",
+                            image_channel="ubuntu-touch/tangxi-vivid-proposed",
+                            extra_args=['--device', 'arale']),
     "krillin-01": TouchDevice("krillin", "JB011018"),
     "krillin-02": TouchDevice("krillin", "JB010894"),
     "krillin-03": TouchDevice("krillin", "JB015156",
