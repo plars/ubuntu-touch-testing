@@ -299,7 +299,7 @@ DEVICES = {
     "mako-03": TouchDevice("mako", "04c6714ed7c863f2"),
     "mako-04": TouchDevice("mako", "04df89cf0f9d0933",
                            relay_url="http://bos01-a-04-shelf01-relay.power",
-                           bank=2, power_pin=0, volume_down_pin=1),
+                           bank=2, power_pin=2, volume_down_pin=3),
     "mako-05": TouchDevice("mako", "01b22f82dc5cec63",
                            relay_url="http://bos01-a-04-shelf02-relay.power",
                            bank=0, power_pin=0, volume_down_pin=1),
@@ -314,7 +314,7 @@ DEVICES = {
                            bank=0, power_pin=6, volume_down_pin=7),
     "mako-09": TouchDevice("mako", "04fda12ea08fe3c7",
                            relay_url="http://bos01-a-04-shelf01-relay.power",
-                           bank=2, power_pin=2, volume_down_pin=3),
+                           bank=2, power_pin=0, volume_down_pin=1),
     "mako-10": TouchDevice("mako", "01ce848e48dfa6a2"),
     "mako-11": TouchDevice("mako", "04ed727c929709ba"),
     #If looking at the LAB wiki page, subtract 1 from the bank and pin numbers
