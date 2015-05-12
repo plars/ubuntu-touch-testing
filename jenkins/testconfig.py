@@ -170,11 +170,11 @@ def get_tests_touch_custom(common_tests, device_type):
 
 def get_tests_touch(common_tests, device_type):
     if device_type in ('krillin', 'arale'):
-        remove_for_krillin = ['filemanager', 'ubuntu-terminal-app-autopilot',
-                              'dropping-letters-app-autopilot',
-                              'shorts-app-autopilot', 'sudoku-app-autopilot',
-                              'click_image_tests']
-        tests = [t for t in common_tests if t.name not in remove_for_krillin]
+        filter_tests = ['filemanager', 'ubuntu-terminal-app-autopilot',
+                        'dropping-letters-app-autopilot',
+                        'shorts-app-autopilot', 'sudoku-app-autopilot',
+                        'click_image_tests']
+        tests = [t for t in common_tests if t.name not in filter_tests]
     else:
         tests = common_tests
     return tests
@@ -182,11 +182,11 @@ def get_tests_touch(common_tests, device_type):
 
 def get_tests_touch_stable(common_tests, device_type):
     if device_type in ('krillin', 'arale'):
-        remove_for_krillin = ['filemanager', 'ubuntu-terminal-app-autopilot',
-                              'dropping-letters-app-autopilot',
-                              'shorts-app-autopilot', 'sudoku-app-autopilot',
-                              'click_image_tests']
-        tests = [t for t in common_tests if t.name not in remove_for_krillin]
+        filter_tests = ['filemanager', 'ubuntu-terminal-app-autopilot',
+                        'dropping-letters-app-autopilot',
+                        'shorts-app-autopilot', 'sudoku-app-autopilot',
+                        'click_image_tests']
+        tests = [t for t in common_tests if t.name not in filter_tests]
     else:
         tests = common_tests
     return tests
