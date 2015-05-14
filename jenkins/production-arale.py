@@ -15,13 +15,13 @@ VIVID_MATRIX = [
                 'name': 'arale',
                 'slave-label': 'arale',
                 'trigger_url': 'https://sis.capomastro.canonical.com/'
-                               'ubuntu-touch/tangxi-vivid-proposed/'
+                               'ubuntu-touch/tangxi/devel-proposed/'
                                'arale/index.json',
-                'num-workers': 2,
+                'num-workers': 4,
             }
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-                     '--channel=ubuntu-touch/tangxi-vivid-proposed '
+                     '--channel=ubuntu-touch/tangxi/devel-proposed '
                      '--device=arale"',
         'IMAGE_SERVER': 'export IMAGE_SERVER='
                         '"--server https://sis.capomastro.canonical.com"'
