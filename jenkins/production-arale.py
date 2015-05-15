@@ -2,7 +2,7 @@
 
 JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 
-VIVID_MATRIX = [
+WILY_MATRIX = [
     {
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
@@ -29,5 +29,5 @@ VIVID_MATRIX = [
 ]
 
 MATRIX = {
-    'vivid': VIVID_MATRIX,
+    'wily': WILY_MATRIX,
 }
