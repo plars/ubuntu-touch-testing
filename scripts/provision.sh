@@ -12,7 +12,7 @@ RECOVERY_URL="http://people.canonical.com/~plars/touch"
 
 NETWORK_FILE="${NETWORK_FILE-${HOME}/.ubuntu-ci/wifi.conf}"
 
-IMAGE_OPT="${IMAGE_OPT---bootstrap --developer-mode --channel ubuntu-touch/devel-proposed}"
+IMAGE_OPT="${IMAGE_OPT---bootstrap --developer-mode --channel ubuntu-touch/devel-proposed/ubuntu}"
 UUID="${UUID-$(uuidgen -r)}"
 PHABLET_PASSWORD="${PHABLET_PASSWORD-0000}"
 

@@ -8,7 +8,7 @@ def _url(channel, device):
            % (channel, device)
 
 
-VIVID_MATRIX = [
+WILY_MATRIX = [
     {
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.production',
@@ -20,26 +20,26 @@ VIVID_MATRIX = [
             {
                 'name': 'mako',
                 'slave-label': 'daily-mako',
-                'trigger_url': _url('devel-proposed', 'mako'),
+                'trigger_url': _url('devel-proposed/ubuntu', 'mako'),
                 'num-workers': 3,
             },
             {
                 'name': 'flo',
                 'slave-label': 'daily-flo',
-                'trigger_url': _url('devel-proposed', 'flo'),
+                'trigger_url': _url('devel-proposed/ubuntu', 'flo'),
                 'num-workers': 2,
             },
             {
                 'name': 'manta',
                 'slave-label': 'daily-manta',
-                'trigger_url': _url('devel-proposed', 'manta'),
+                'trigger_url': _url('devel-proposed/ubuntu', 'manta'),
                 'num-workers': 2,
             },
         ],
     },
 ]
 
-UTOPIC_MATRIX = [
+VIVID_MATRIX = [
     {
         'image-type': 'touch_stable',
         'statsd-key': 'ubuntu-ci.daily-image.production',
@@ -51,24 +51,24 @@ UTOPIC_MATRIX = [
             {
                 'name': 'mako',
                 'slave-label': 'daily-mako',
-                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'mako'),
+                'trigger_url': _url('rc-proposed/ubuntu', 'mako'),
                 'num-workers': 3,
             },
             {
                 'name': 'flo',
                 'slave-label': 'daily-flo',
-                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'flo'),
+                'trigger_url': _url('rc-proposed/ubuntu', 'flo'),
                 'num-workers': 2,
             },
             {
                 'name': 'manta',
                 'slave-label': 'daily-manta',
-                'trigger_url': _url('ubuntu-rtm/14.09-proposed', 'manta'),
+                'trigger_url': _url('rc-proposed/ubuntu', 'manta'),
                 'num-workers': 2,
             },
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-                     '--channel ubuntu-touch/ubuntu-rtm/14.09-proposed"'
+                     '--channel ubuntu-touch/rc-proposed/ubuntu"'
     },
     {
         'image-type': 'touch_custom',
@@ -91,6 +91,6 @@ UTOPIC_MATRIX = [
 
 
 MATRIX = {
-    'utopic': UTOPIC_MATRIX,
     'vivid': VIVID_MATRIX,
+    'wily': WILY_MATRIX,
 }
