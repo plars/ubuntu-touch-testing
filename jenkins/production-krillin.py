@@ -2,7 +2,7 @@
 
 JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 
-UTOPIC_MATRIX = [
+VIVID_MATRIX = [
     {
         'image-type': 'touch_stable',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
@@ -14,16 +14,16 @@ UTOPIC_MATRIX = [
             {
                 'name': 'krillin',
                 'slave-label': 'krillin',
-                'trigger_url': 'http://system-image.ubuntu.com/ubuntu-touch/ubuntu-rtm/14.09-proposed/krillin/index.json',
+                'trigger_url': 'http://system-image.ubuntu.com/ubuntu-touch/rc-proposed/bq-aquaris.en/krillin/index.json',
                 'num-workers': 4,
             }
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-            '--channel=ubuntu-touch/ubuntu-rtm/14.09-proposed"'
+            '--channel=ubuntu-touch/rc-proposed/bq-aquaris.en"'
     },
 ]
 
-VIVID_MATRIX = [
+WILY_MATRIX = [
     {
         'image-type': 'touch',
         'statsd-key': 'ubuntu-ci.daily-image.staging',
@@ -35,7 +35,7 @@ VIVID_MATRIX = [
             {
                 'name': 'krillin',
                 'slave-label': 'krillin',
-                'trigger_url': 'http://system-image.ubuntu.com/ubuntu-touch/devel-proposed/krillin/index.json',
+                'trigger_url': 'http://system-image.ubuntu.com/ubuntu-touch/devel-proposed/krillin.en/index.json',
                 'num-workers': 4,
             }
         ],
@@ -43,6 +43,6 @@ VIVID_MATRIX = [
 ]
 
 MATRIX = {
-    'utopic': UTOPIC_MATRIX,
     'vivid': VIVID_MATRIX,
+    'wily': WILY_MATRIX,
 }
