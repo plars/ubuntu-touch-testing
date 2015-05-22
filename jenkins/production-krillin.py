@@ -39,6 +39,8 @@ WILY_MATRIX = [
                 'num-workers': 4,
             }
         ],
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
+            '--channel=ubuntu-touch/devel-proposed/krillin.en"'
     },
 ]
 
