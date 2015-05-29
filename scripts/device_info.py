@@ -116,6 +116,12 @@ class TouchDevice(object):
             raise DeviceError("Device in state: {0}, still not available "
                               "after {1} seconds".format(state, timeout))
 
+    def reboot(self):
+        dev_state = self.get_state()
+        if dev_state not in ('device', 'recovery'):
+            raise DeviceError('Unable to reboot device from this state')
+        subprocess.check_call(['adb', '-s', self.serial, 'reboot'])
+
     def wait_for_device(self, timeout=120):
         # Wait for the device to come up to a good/booted state
         log.info("Waiting for the device to become available")
