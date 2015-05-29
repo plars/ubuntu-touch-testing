@@ -84,7 +84,7 @@ def recover(device_name):
         log.error("No device found for '{}'".format(device_name))
         raise
     state = device.get_state()
-    if state in ('device', 'recovery'):
+    if state in ('device'):
         try:
             device.check_adb_shell()
         except:
@@ -92,6 +92,14 @@ def recover(device_name):
             return _full_recovery(device)
         #The device can proceed with testing
         return 0
+    if state == 'recovery':
+        try:
+            device.reboot()
+            device.wait_for_device()
+            device.check_adb_shell()
+            return 0
+        except:
+            return _full_recovery(device)
     if state == 'fastboot':
         #The device is in fastboot right now, we need it booted first
         try:
