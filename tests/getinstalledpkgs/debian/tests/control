@@ -1,0 +1,2 @@
+Tests: getpkgsrc
+Depends: dpkg-dev, dctrl-tools

@@ -146,16 +146,16 @@ ADT_OPTS="--apt-pocket=proposed\
     --- ${ADT_VIRT}"
 
 
-# Inject the package name into getpkgsrc DEP8 test
-FROM=${TESTS}/getpkgsrc/debian/tests/getpkgsrc.template
-TARGET=${TESTS}/getpkgsrc/debian/tests/getpkgsrc
+# Inject the package name into getinstalledpkgs DEP8 test
+FROM=${TESTS}/getinstalledpkgs/debian/tests/getinstalledpkgs.template
+TARGET=${TESTS}/getinstalledpkgs/debian/tests/getinstalledpkgs
 sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" ${FROM} > ${TARGET}
 
 # Execute a first test to get the package source tree from the testbed.
 PKG_SRC_DIR=pkgsrc
 rm -fr ${PKG_SRC_DIR} || true
 set +e
-${ADT_CMD} --unbuilt-tree ${TESTS}/getpkgsrc -o ${PKG_SRC_DIR} ${ADT_OPTS}
+${ADT_CMD} --unbuilt-tree ${TESTS}/getinstalledpkgs -o ${PKG_SRC_DIR} ${ADT_OPTS}
 RET=$?
 set -e
 
@@ -179,13 +179,13 @@ if [ -n "${FORCE_FAILURE}" ]; then
 	RET=$?
 	set -e
 else
-	SOURCE_DIR=$(ls -d ${PKG_SRC_DIR}/artifacts/${SRC_PKG_NAME}-*/debian)
-        # Get the debian dir from the source package (involving the whole
-        # source tree can fail with 'No space left on device' on the phone).
+        # Get the debian dir *only* from the archive. orig tarballs can be too
+        # big for the target system.
         TARGET_BASE=work
         rm -fr ${TARGET_BASE}
         mkdir -p ${TARGET_BASE}
-        cp -rd ${SOURCE_DIR} ${TARGET_BASE}
+        apt-get source --diff-only oxide-qt
+        tar xf *
 	# Inject the boot DEP8 test into the debian dir from the package
 	# source tree
 	FROM=${TESTS}/boottest/debian/tests
