@@ -184,8 +184,24 @@ else
         TARGET_BASE=work
         rm -fr ${TARGET_BASE}
         mkdir -p ${TARGET_BASE}
-        apt-get source --diff-only oxide-qt
-        tar xf *
+        apt-get source --diff-only ${SRC_PKG_NAME}
+
+        shopt -s nullglob
+        allfiles=(*)
+
+        # If this is a 3.0 (native) package then that wouldn't have downloaded
+        # anything, so try the whole thing.
+        if [ ${#allfiles[@]} -eq 0 ]; then
+            apt-get source --tar-only ${SRC_PKG_NAME}
+            # Extract debian/ but not */debian/
+            tar --strip-components=1 --no-anchored --exclude "*/*/debian" --extract --file * "debian"
+        elif [ ! -z *.diff.gz ]; then # this is a source format 1.0 package
+            zcat * | patch -p1
+        else # 3.0 (quilt)
+            tar xf *
+        fi
+        shopt -u nullglob
+
 	# Inject the boot DEP8 test into the debian dir from the package
 	# source tree
 	FROM=${TESTS}/boottest/debian/tests
