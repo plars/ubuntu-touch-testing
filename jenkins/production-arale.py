@@ -2,6 +2,30 @@
 
 JENKINS = 'http://dev-jenkins.ubuntu-ci:8080/'
 
+VIVID_MATRIX = [
+    {
+        'image-type': 'touch_stable',
+        'statsd-key': 'ubuntu-ci.daily-image.staging',
+        'include-qa': True,
+        'dashboard-host': 'dashboard.ubuntu-ci',
+        'dashboard-port': '8080',
+        'dashboard-user': 'ci-bot',
+        'devices': [
+            {
+                'name': 'arale',
+                'slave-label': 'arale',
+                'trigger_url': 'http://system-image.ubuntu.com/'
+                               'ubuntu-touch/rc-proposed/meizu.en/'
+                               'arale/index.json',
+                'num-workers': 4,
+            }
+        ],
+        'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
+                     '--channel=ubuntu-touch/rc-proposed/meizu.en '
+                     '--device=arale"',
+    },
+]
+
 WILY_MATRIX = [
     {
         'image-type': 'touch',
@@ -14,20 +38,19 @@ WILY_MATRIX = [
             {
                 'name': 'arale',
                 'slave-label': 'arale',
-                'trigger_url': 'https://sis.capomastro.canonical.com/'
-                               'ubuntu-touch/tangxi/devel-proposed/'
+                'trigger_url': 'http://system-image.ubuntu.com/'
+                               'ubuntu-touch/devel-proposed/meizu.en/'
                                'arale/index.json',
                 'num-workers': 4,
             }
         ],
         'IMAGE_OPT': 'export IMAGE_OPT="--bootstrap --developer-mode '
-                     '--channel=ubuntu-touch/tangxi/devel-proposed '
+                     '--channel=ubuntu-touch/devel-proposed/meizu.en '
                      '--device=arale"',
-        'IMAGE_SERVER': 'export IMAGE_SERVER='
-                        '"--server https://sis.capomastro.canonical.com"'
     },
 ]
 
 MATRIX = {
     'wily': WILY_MATRIX,
+    'vivid': VIVID_MATRIX,
 }
