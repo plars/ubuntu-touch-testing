@@ -194,7 +194,7 @@ else
         if [ ${#allfiles[@]} -eq 0 ]; then
             apt-get source --tar-only ${SRC_PKG_NAME}
             # Extract debian/ but not */debian/
-            tar --strip-components=1 --no-anchored --exclude "*/*/debian" --extract --file * "debian"
+            tar --strip-components=1 --no-anchored --exclude "*/**/debian" --extract --file * "debian"
         elif [ ! -z *.diff.gz ]; then # this is a source format 1.0 package
             zcat * | patch -p1
         else # 3.0 (quilt)
