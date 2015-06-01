@@ -58,7 +58,7 @@ exit_handler() {
     fi
 
     # Ensure we leave a usable phone
-    [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+    [ -z ${NODE_NAME} ] || ${BASEDIR}/scripts/recover.py ${NODE_NAME}
 
     # Leave a parting message
     # (disable command tracing as it confuses the output)
@@ -167,7 +167,7 @@ if [ $RET -ne 0 ]; then
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
     [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     # Ensure we leave a usable phone
-    [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+    [ -z ${NODE_NAME} ] || ${BASEDIR}/scripts/recover.py ${NODE_NAME}
 
     exit $RET
 fi
@@ -179,43 +179,16 @@ if [ -n "${FORCE_FAILURE}" ]; then
 	RET=$?
 	set -e
 else
-        # Get the debian dir *only* from the archive. orig tarballs can be too
-        # big for the target system.
-        TARGET_BASE=work
-        rm -fr ${TARGET_BASE}
-        mkdir -p ${TARGET_BASE}
-        apt-get source --diff-only ${SRC_PKG_NAME}
+	FROM=${TESTS}/boottest/debian/tests/control.template
+	TARGET=${TESTS}/boottest/debian/tests/control
 
-        shopt -s nullglob
-        allfiles=(*)
-
-        # If this is a 3.0 (native) package then that wouldn't have downloaded
-        # anything, so try the whole thing.
-        if [ ${#allfiles[@]} -eq 0 ]; then
-            apt-get source --tar-only ${SRC_PKG_NAME}
-            # Extract debian/ but not */debian/
-            tar --strip-components=1 --no-anchored --exclude "*/**/debian" --extract --file * "debian"
-        elif [ ! -z *.diff.gz ]; then # this is a source format 1.0 package
-            zcat * | patch -p1
-        else # 3.0 (quilt)
-            tar xf *
-        fi
-        shopt -u nullglob
-
-	# Inject the boot DEP8 test into the debian dir from the package
-	# source tree
-	FROM=${TESTS}/boottest/debian/tests
-	TARGET="${TARGET_BASE}/debian/tests"
-	mkdir -p ${TARGET} # For packages that don't define DEP8 tests
         # Inject the binary packages built previously
         BIN_PACKAGES=$(tr '\n' ',' < ${PKG_SRC_DIR}/artifacts/needs_install.packages | sed -e s/,$//)
-        sed -e "s/{{ bin_packages }}/${BIN_PACKAGES}/" \
-            ${FROM}/control.template > ${TARGET}/control
-	cp ${FROM}/boottest ${TARGET}
+        sed -e "s/{{ bin_packages }}/${BIN_PACKAGES}/"  ${FROM} > ${TARGET}
 
-	# Now execute the boot test from inside the (reduced) pkg source tree
+	# Now execute the boot test
 	set +e
-	${ADT_CMD} --unbuilt-tree ${TARGET_BASE} -o results ${ADT_OPTS}
+	${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
 	RET=$?
 	set -e
 fi
