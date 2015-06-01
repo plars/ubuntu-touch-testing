@@ -74,12 +74,11 @@ class TouchDevice(object):
         # For certain devices, we need to first pull an alternate
         # recovery image that has adb enabled. If it's needed, it will
         # be at that url, otherwise we don't even try to use it.
-        if not os.path.exists(os.path.join('recovery', recovery_img)):
-            try:
-                _download(recovery_url, 'recovery')
-            except:
-                # Don't fail for any reason, if attempt to flash without
-                pass
+        try:
+            _download(recovery_url, 'recovery')
+        except:
+            # Don't fail for any reason, if attempt to flash without
+            pass
         udf_command = ['ubuntu-device-flash',
                        '--server', self.image_server,
                        'touch', '--serial', self.serial,
@@ -358,10 +357,17 @@ def get_device(name):
 
 
 def _download(url, path):
-    os.makedirs(path)
+    try:
+        os.makedirs(path)
+    except OSError:
+        # Don't fail if the directory already exists
+        pass
     urlpath = urlparse.urlsplit(url).path
     filename = os.path.basename(urlpath)
     filename = os.path.join(path, filename)
+    if os.path.exists(filename):
+        # Don't re-download if it's already there
+        return filename
 
     response = requests.get(url, stream=True)
     response.raise_for_status()
