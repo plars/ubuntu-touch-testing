@@ -141,9 +141,10 @@ full_flash() {
 	retry 60 3 reboot_bootloader
 	RECOVERY=""
 	# We need to distinguish between devices with no recovery images and
-	# failures to download existing recovery images. Only krillin has a
-	# recovery image for now.
-	if [ ${DEVICE_TYPE} == 'krillin' ] ; then
+	# failures to download existing recovery images. Only krillin
+        # and arale have a recovery image for now.
+	if [ '${DEVICE_TYPE}' == 'krillin' ] || 
+           [ '${DEVICE_TYPE}' == 'arale' ]; then
 		mkdir -p recovery
 		retry 10 3 download_recovery
 	fi
