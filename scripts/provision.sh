@@ -143,8 +143,8 @@ full_flash() {
 	# We need to distinguish between devices with no recovery images and
 	# failures to download existing recovery images. Only krillin
         # and arale have a recovery image for now.
-	if [ '${DEVICE_TYPE}' == 'krillin' ] || 
-           [ '${DEVICE_TYPE}' == 'arale' ]; then
+	if [ "${DEVICE_TYPE}" == 'krillin' ] || 
+	   [ "${DEVICE_TYPE}" == 'arale' ]; then
 		mkdir -p recovery
 		retry 10 3 download_recovery
 	fi
