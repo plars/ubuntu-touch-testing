@@ -24,7 +24,7 @@ def main():
     global RETRY_CODES
 
     arguments = sys.argv[1:]
-    for try_num in MAX_RUN_COUNT:
+    for try_num in range(MAX_RUN_COUNT):
         with NamedTemporaryFile() as stdout, NamedTemporaryFile() as stderr:
             process = subprocess.Popen(
                 arguments,
@@ -33,7 +33,8 @@ def main():
             )
             returncode = process.wait()
             if returncode not in RETRY_CODES:
-                sys.exit(returncode)
+                break
+    sys.exit(returncode)
 
 
 if __name__ == '__main__':
