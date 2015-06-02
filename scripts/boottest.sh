@@ -199,7 +199,7 @@ else
 
 	# Now execute the boot test from inside the (reduced) pkg source tree
 	set +e
-	${ADT_CMD} --unbuilt-tree ${TARGET_BASE} -o results ${ADT_OPTS}
+	${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TARGET_BASE} -o results ${ADT_OPTS}
 	RET=$?
 	set -e
 fi
