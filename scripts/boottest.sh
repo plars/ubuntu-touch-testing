@@ -58,7 +58,7 @@ exit_handler() {
     fi
 
     # Ensure we leave a usable phone
-    [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+    [ -z ${NODE_NAME} ] || ${BASEDIR}/scripts/recover.py ${NODE_NAME}
 
     # Leave a parting message
     # (disable command tracing as it confuses the output)
@@ -146,16 +146,16 @@ ADT_OPTS="--apt-pocket=proposed\
     --- ${ADT_VIRT}"
 
 
-# Inject the package name into getpkgsrc DEP8 test
-FROM=${TESTS}/getpkgsrc/debian/tests/getpkgsrc.template
-TARGET=${TESTS}/getpkgsrc/debian/tests/getpkgsrc
+# Inject the package name into getinstalledpkgs DEP8 test
+FROM=${TESTS}/getinstalledpkgs/debian/tests/getinstalledpkgs.template
+TARGET=${TESTS}/getinstalledpkgs/debian/tests/getinstalledpkgs
 sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" ${FROM} > ${TARGET}
 
 # Execute a first test to get the package source tree from the testbed.
 PKG_SRC_DIR=pkgsrc
 rm -fr ${PKG_SRC_DIR} || true
 set +e
-${ADT_CMD} --unbuilt-tree ${TESTS}/getpkgsrc -o ${PKG_SRC_DIR} ${ADT_OPTS}
+${ADT_CMD} --unbuilt-tree ${TESTS}/getinstalledpkgs -o ${PKG_SRC_DIR} ${ADT_OPTS}
 RET=$?
 set -e
 
@@ -167,7 +167,7 @@ if [ $RET -ne 0 ]; then
     echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
     [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
     # Ensure we leave a usable phone
-    [ -z ${NODE_NAME} ] || test-runner/scripts/recover.py ${NODE_NAME}
+    [ -z ${NODE_NAME} ] || ${BASEDIR}/scripts/recover.py ${NODE_NAME}
 
     exit $RET
 fi
@@ -179,25 +179,7 @@ if [ -n "${FORCE_FAILURE}" ]; then
 	RET=$?
 	set -e
 else
-	SOURCE_DIR=$(ls -d ${PKG_SRC_DIR}/artifacts/${SRC_PKG_NAME}-*/debian)
-        # Get the debian dir from the source package (involving the whole
-        # source tree can fail with 'No space left on device' on the phone).
-        TARGET_BASE=work
-        rm -fr ${TARGET_BASE}
-        mkdir -p ${TARGET_BASE}
-        cp -rd ${SOURCE_DIR} ${TARGET_BASE}
-	# Inject the boot DEP8 test into the debian dir from the package
-	# source tree
-	FROM=${TESTS}/boottest/debian/tests
-	TARGET="${TARGET_BASE}/debian/tests"
-	mkdir -p ${TARGET} # For packages that don't define DEP8 tests
-        # Inject the binary packages built previously
-        BIN_PACKAGES=$(tr '\n' ',' < ${PKG_SRC_DIR}/artifacts/needs_install.packages | sed -e s/,$//)
-        sed -e "s/{{ bin_packages }}/${BIN_PACKAGES}/" \
-            ${FROM}/control.template > ${TARGET}/control
-	cp ${FROM}/boottest ${TARGET}
-
-	# Now execute the boot test from inside the (reduced) pkg source tree
+	# Now execute the boot test
 	set +e
 	${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TARGET_BASE} -o results ${ADT_OPTS}
 	RET=$?

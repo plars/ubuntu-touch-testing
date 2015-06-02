@@ -1,0 +1,3 @@
+Tests: getinstalledpkgs
+Depends: dpkg-dev, dctrl-tools
+Restrictions: needs-root

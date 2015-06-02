@@ -1,4 +1,0 @@
-Tests: boottest
-# Make adt-run install the binary packages by declaring a dep
-Depends: {{ bin_packages }}
-Restrictions: needs-root
