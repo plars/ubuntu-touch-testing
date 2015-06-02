@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 # Where am I ?
 BASEDIR=$(dirname $(readlink -f $0))/..
@@ -62,9 +62,7 @@ exit_handler() {
 
     # Leave a parting message
     # (disable command tracing as it confuses the output)
-    set +x
     [ -z "${END_MESSAGE}" ] || echo -e "\n\n${END_MESSAGE}\n\n"
-    set -x
 }
 trap exit_handler SIGINT SIGTERM EXIT
 
@@ -177,9 +175,7 @@ if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
     result='PASS'
     resultfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).result
     [ $RET -gt 0 ] && result="FAIL"
-    set +x  # quiet mode as it pollutes output
     echo "$RELEASE $ARCH $(cat results/testpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
-    set -x
     [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
     # Something went wrong with the testbed
