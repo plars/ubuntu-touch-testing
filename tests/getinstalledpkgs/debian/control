@@ -1,9 +1,0 @@
-Source: getinstalledpkgs
-Section: misc
-Maintainer: Canonical CI Engineering <canonical-ci-engineering@lists.launchpad.net>
-Build-Depends: debhelper (>= 9),
-Standards-Version: 3.9.4
-
-Package: getinstalledpkgs
-Architecture: all
-Description: A dep8 test providing a package source from inside the testbed.

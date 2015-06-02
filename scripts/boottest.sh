@@ -127,6 +127,14 @@ fi
 rm -f adt-commands || true
 # apt-get update like adt-run does it
 echo "(apt-get update || (sleep 15; apt-get update))" >> adt-commands
+# We need dctrl-tools installed so we can use grep-aptavail below
+echo "apt-get install -f dctrl-tools" >> adt-commands
+echo 'dpkg-query -f "\${binary:Package}\n" -W | sed -e "s/:.*$//" > installed.packages' >> adt-commands
+echo "grep-aptavail -X -n -S -sPackage ${SRC_PKG_NAME}| sort | uniq > binary.packages" >> adt-commands
+echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
+echo 'release=$(lsb_release -s -c)' >> adt-commands
+echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
+
 
 
 # --no-built-binaries should come first
@@ -145,32 +153,6 @@ ADT_OPTS="--apt-pocket=proposed\
     --setup-commands=adt-commands \
     --- ${ADT_VIRT}"
 
-
-# Inject the package name into getinstalledpkgs DEP8 test
-FROM=${TESTS}/getinstalledpkgs/debian/tests/getinstalledpkgs.template
-TARGET=${TESTS}/getinstalledpkgs/debian/tests/getinstalledpkgs
-sed -e "s/{{ source_package }}/${SRC_PKG_NAME}/" ${FROM} > ${TARGET}
-
-# Execute a first test to get the package source tree from the testbed.
-PKG_SRC_DIR=pkgsrc
-rm -fr ${PKG_SRC_DIR} || true
-set +e
-${ADT_CMD} --unbuilt-tree ${TESTS}/getinstalledpkgs -o ${PKG_SRC_DIR} ${ADT_OPTS}
-RET=$?
-set -e
-
-check_for_lp1421009 $RET ${PKG_SRC_DIR}
-
-if [ $RET -ne 0 ]; then
-    # Something went wrong with the testbed and/or adt-run itself
-    errfile=${PKG_SRC_DIR}/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).error
-    echo "$RELEASE $ARCH $SRC_PKG_NAME" > $errfile
-    [ -f "$errfile" ] && ${RSYNC} -a $errfile $RSYNC_DEST/${RELEASE}/tmp/ || true
-    # Ensure we leave a usable phone
-    [ -z ${NODE_NAME} ] || ${BASEDIR}/scripts/recover.py ${NODE_NAME}
-
-    exit $RET
-fi
 
 if [ -n "${FORCE_FAILURE}" ]; then
 	# Force a boottest failure by running an alternate DEP8 test
