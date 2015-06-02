@@ -163,7 +163,7 @@ if [ -n "${FORCE_FAILURE}" ]; then
 else
 	# Now execute the boot test
 	set +e
-	${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
+	${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
 	RET=$?
 	set -e
 fi
