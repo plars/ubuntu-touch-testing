@@ -179,13 +179,6 @@ if [ -n "${FORCE_FAILURE}" ]; then
 	RET=$?
 	set -e
 else
-	FROM=${TESTS}/boottest/debian/tests/control.template
-	TARGET=${TESTS}/boottest/debian/tests/control
-
-        # Inject the binary packages built previously
-        BIN_PACKAGES=$(tr '\n' ',' < ${PKG_SRC_DIR}/artifacts/needs_install.packages | sed -e s/,$//)
-        sed -e "s/{{ bin_packages }}/${BIN_PACKAGES}/"  ${FROM} > ${TARGET}
-
 	# Now execute the boot test
 	set +e
 	${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}

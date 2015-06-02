@@ -8,3 +8,12 @@ dpkg-query -f '${binary:Package}\n' -W | sed -e 's/:.*$//' > installed.packages
 grep-aptavail -X -n -S -sPackage {{ source_package }} | sort | uniq > binary.packages
 # Get the binary packages already installed
 comm  -1 -2 binary.packages installed.packages > needs_install.packages
+
+# Now install the set of needs_install.packages
+# This are further pinned to proposed via the apt-get '-t' option
+release=$(lsb_release -s -c)
+package_list=""
+while read package; do
+    package_list="${package_list} ${package}"
+done < needs_install.packages
+apt-get install -t ${release}-proposed $package_list 2> apt-get-install.stderr

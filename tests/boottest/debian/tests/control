@@ -1,0 +1,6 @@
+Tests: boottest
+# Depends has to contain something, otherwise it defaults to the 'boottest'
+# binary package, which does not exist.  The package 'coreutils' is specified
+# because the test uses 'ls', which comes from 'coreutils'.
+Depends: coreutils
+Restrictions: needs-root
