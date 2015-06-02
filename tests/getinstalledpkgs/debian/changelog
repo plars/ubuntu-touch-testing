@@ -1,4 +1,4 @@
-getpkgsrc (0.1) vivid; urgency=medium
+getinstalledpkgs (0.1) vivid; urgency=medium
 
   * Initial release.
 

@@ -1,0 +1,2 @@
+Tests: getinstalledpkgs
+Depends: dpkg-dev, dctrl-tools
