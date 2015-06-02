@@ -8,7 +8,6 @@
 #
 # ./scripts/run-adt.py adt-run --unbuilt-tree foo -o results .....
 
-import io
 import subprocess
 import sys
 
@@ -20,25 +19,18 @@ RETRY_CODES = (16, 20)
 
 
 def main():
-    global MAX_RUN_COUNT
-    global RETRY_CODES
-
     arguments = sys.argv[1:]
-    for try_num in range(MAX_RUN_COUNT):
-        stdout = io.BytesIO()
-        stderr = io.BytesIO()
-        process = subprocess.Popen(
-            arguments,
-            stdout=stdout,
-            stderr=stderr,
-        )
-        returncode = process.wait()
-        if returncode not in RETRY_CODES:
-            break
-    with open('adt-run-stdout', 'wb') as stdout_file:
-        stdout_file.write(stdout.getvalue())
-    with open('adt-run-stderr', 'wb') as stderr_file:
-        stderr_file.write(stderr.getvalue())
+    for _ in range(MAX_RUN_COUNT):
+        with open('adt-run-stdout', 'wb') as stdout_file, \
+        open('adt-run-stderr', 'wb') as stderr_file:
+            process = subprocess.Popen(
+                arguments,
+                stdout=stdout_file,
+                stderr=stderr_file,
+            )
+            returncode = process.wait()
+            if returncode not in RETRY_CODES:
+                break
     sys.exit(returncode)
 
 
