@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 # Where am I ?
 BASEDIR=$(dirname $(readlink -f $0))/..
@@ -62,9 +62,7 @@ exit_handler() {
 
     # Leave a parting message
     # (disable command tracing as it confuses the output)
-    set +x
     [ -z "${END_MESSAGE}" ] || echo -e "\n\n${END_MESSAGE}\n\n"
-    set -x
 }
 trap exit_handler SIGINT SIGTERM EXIT
 
@@ -165,12 +163,14 @@ ADT_OPTS="--apt-pocket=proposed\
 if [ -n "${FORCE_FAILURE}" ]; then
     # Force a boottest failure by running an alternate DEP8 test
     set +e
+    echo "Running bootfail test suite."
     ${ADT_CMD} --unbuilt-tree ${TESTS}/bootfail -o results ${ADT_OPTS}
     RET=$?
     set -e
 else
     # Now execute the boot test
     set +e
+    echo "Running boottest test suite."
     ${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
     RET=$?
     # Fetch the sourcepkg-version file that contains the version data
@@ -190,9 +190,7 @@ if [ -e "results/sourcepkg-version" -a -e "results/testbed-packages" ]; then
     result='PASS'
     resultfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).result
     [ $RET -gt 0 ] && result="FAIL"
-    set +x  # quiet mode as it pollutes output
     echo "$RELEASE $ARCH ${SRC_PKG_NAME} $(cat results/sourcepkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
-    set -x
     [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
     # Something went wrong with the testbed
