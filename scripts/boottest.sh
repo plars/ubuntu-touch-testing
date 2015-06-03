@@ -134,7 +134,15 @@ echo "grep-aptavail -X -n -S -sPackage ${SRC_PKG_NAME}| sort | uniq > binary.pac
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
 echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
-echo 'head -n 1 needs_install.packages | xargs dpkg-query --show --showformat=\${Version} > /home/phablet/boottest-source-package-version' >> adt-commands
+# The sourcepkg-version file contains the version of the first binary in the
+# list of binaries to install. This version data is passed back to britney
+# via the final .result file. Britney uses this to determine if the package
+# that was tested matches the version requested.
+# An assumption is made that this binary package version matches the other
+# packages installed for this test. This works because the 'apt-get install'
+# command is all or nothing. So all packages have either been updated to the
+# new version or are all stuck at the original version.
+echo 'head -n 1 needs_install.packages | xargs dpkg-query --show --showformat=\${Version} > /home/phablet/sourcepkg-version' >> adt-commands
 
 
 # --no-built-binaries should come first
@@ -165,7 +173,11 @@ else
 	set +e
 	${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
 	RET=$?
-	adb pull /home/phablet/boottest-source-package-version results/sourcepkg-version
+	# Fetch the sourcepkg-version file that contains the version data
+	# for the package under test. We can't use the testpkg-version file
+	# that adt-run generates because it provides the version of the
+	# fake boottest package, not the package we're actually testing.
+	adb pull /home/phablet/sourcepkg-version results/sourcepkg-version
 	set -e
 fi
 
