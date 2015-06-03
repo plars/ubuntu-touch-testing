@@ -26,9 +26,9 @@ export ANDROID_SERIAL=$ANDROID_SERIAL
 
 set +e
 sudo NETWORK_FILE=$NETWORK_FILE \
-	$UTAH_PHABLET_CMD -s $ANDROID_SERIAL \
-	--from-host --skip-install --skip-utah --skip-network  -l $RUNLIST \
-	--results-dir=$RESDIR
+    $UTAH_PHABLET_CMD -s $ANDROID_SERIAL \
+    --from-host --skip-install --skip-utah --skip-network  -l $RUNLIST \
+    --results-dir=$RESDIR
 EXITCODE=$?
 
 UTAHFILE=$RESDIR/utah.yaml
