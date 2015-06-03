@@ -132,7 +132,15 @@ echo "grep-aptavail -X -n -S -sPackage ${SRC_PKG_NAME}| sort | uniq > binary.pac
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
 echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
-
+# The sourcepkg-version file contains the version of the first binary in the
+# list of binaries to install. This version data is passed back to britney
+# via the final .result file. Britney uses this to determine if the package
+# that was tested matches the version requested.
+# An assumption is made that this binary package version matches the other
+# packages installed for this test. This works because the 'apt-get install'
+# command is all or nothing. So all packages have either been updated to the
+# new version or are all stuck at the original version.
+echo 'head -n 1 needs_install.packages | xargs dpkg-query --show --showformat=\${Version} > /home/phablet/sourcepkg-version' >> adt-commands
 
 
 # --no-built-binaries should come first
@@ -165,6 +173,11 @@ else
     echo "Running boottest test suite."
     ${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
     RET=$?
+    # Fetch the sourcepkg-version file that contains the version data
+    # for the package under test. We can't use the testpkg-version file
+    # that adt-run generates because it provides the version of the
+    # fake boottest package, not the package we're actually testing.
+    adb pull /home/phablet/sourcepkg-version results/sourcepkg-version
     set -e
 fi
 
@@ -173,11 +186,11 @@ check_for_lp1421009 $RET results
 # Return Skipped as Passed
 [ $RET -eq 2 ] && RET=0
 
-if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
+if [ -e "results/sourcepkg-version" -a -e "results/testbed-packages" ]; then
     result='PASS'
     resultfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).result
     [ $RET -gt 0 ] && result="FAIL"
-    echo "$RELEASE $ARCH $(cat results/testpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
+    echo "$RELEASE $ARCH ${SRC_PKG_NAME} $(cat results/sourcepkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
     [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
     # Something went wrong with the testbed

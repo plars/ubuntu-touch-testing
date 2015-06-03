@@ -12,20 +12,20 @@ echo "Ensuring target has proper image..."
 REQUIRED_UUID=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-uuid)
 ACTUAL_UUID=$(adb shell "cat /home/phablet/.ci-uuid | tr -d '\r\n'")
 if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
-	echo "= UUIDs $REQUIRED_UUID != $ACTUAL_UUID"
-	SERVER=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-server | tr -d '\r\n')
-	ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-args | tr -d '\r\n')
-	CUST=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations | tr -d '\r\n')
-	echo "reprovisioning device with: $ARGS"
-	echo "customizing device with: $CUST"
-        #Make the image writable if we reprovision by adding a space
-        #after to CUSTOMIZE so it is never empty
-	UUID=$REQUIRED_UUID IMAGE_SERVER=$SERVER IMAGE_OPT=$ARGS \
-		CUSTOMIZE="$CUST " ${BASEDIR}/scripts/provision.sh
+    echo "= UUIDs $REQUIRED_UUID != $ACTUAL_UUID"
+    SERVER=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-server | tr -d '\r\n')
+    ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-args | tr -d '\r\n')
+    CUST=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations | tr -d '\r\n')
+    echo "reprovisioning device with: $ARGS"
+    echo "customizing device with: $CUST"
+    #Make the image writable if we reprovision by adding a space
+    #after to CUSTOMIZE so it is never empty
+    UUID=$REQUIRED_UUID IMAGE_SERVER=$SERVER IMAGE_OPT=$ARGS \
+        CUSTOMIZE="$CUST " ${BASEDIR}/scripts/provision.sh
 else
-	echo "= UUIDS match, reusing image on target"
-	echo $REQUIRED_UUID > clientlogs/.ci-uuid
-	curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-args > clientlogs/.ci-flash-args
-	curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations > clientlogs/.ci-customizations
+    echo "= UUIDS match, reusing image on target"
+    echo $REQUIRED_UUID > clientlogs/.ci-uuid
+    curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-args > clientlogs/.ci-flash-args
+    curl ${INSTALL_URL}/artifact/clientlogs/.ci-customizations > clientlogs/.ci-customizations
 fi
 
