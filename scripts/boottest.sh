@@ -134,7 +134,7 @@ echo "grep-aptavail -X -n -S -sPackage ${SRC_PKG_NAME}| sort | uniq > binary.pac
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
 echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
-
+echo 'head -n 1 needs_install.packages | xargs dpkg-query --show --showformat=\${Version} > /home/phablet/boottest-source-package-version'
 
 
 # --no-built-binaries should come first
@@ -175,11 +175,11 @@ check_for_lp1421009 $RET results
 
 if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
     result='PASS'
-    adb shell "dpkg-query --show ${SRC_PKG_NAME}" > showpkg-version
+    adb pull /home/phablet/boottest-source-package-version showpkg-version
     resultfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).result
     [ $RET -gt 0 ] && result="FAIL"
     set +x  # quiet mode as it pollutes output
-    echo "$RELEASE $ARCH $(cat showpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
+    echo "$RELEASE $ARCH ${SRC_PKG_NAME} $(cat showpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
     set -x
     [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
