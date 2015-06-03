@@ -18,7 +18,7 @@ export NODE_NAME=$3
 # ../config/boottest.rc.example).
 BOOTTESTRC=${HOME}/.ubuntu-ci/boottest.rc
 if [ -f $BOOTTESTRC ]; then
-	source $BOOTTESTRC
+    source $BOOTTESTRC
 fi
 
 # Default adt-run timeout
@@ -38,11 +38,11 @@ export RSYNC_DEST=${RSYNC_DEST:-rsync://tachash.ubuntu-ci/boottest/}
 # Look for a known bug, lp1421009, that results in unity8 not starting
 # and prevents adt-run from accepting the testbed
 check_for_lp1421009() {
-	SYMPTOM="ERROR: timed out waiting for Unity greeter"
-	LINK="http://launchpad.net/bugs/1421009"
-	if [ $1 -eq 16 ] && grep -q "${SYMPTOM}" ${2}/log; then
-		END_MESSAGE="Test failed due to ${LINK}"
-	fi
+    SYMPTOM="ERROR: timed out waiting for Unity greeter"
+    LINK="http://launchpad.net/bugs/1421009"
+    if [ $1 -eq 16 ] && grep -q "${SYMPTOM}" ${2}/log; then
+        END_MESSAGE="Test failed due to ${LINK}"
+    fi
 }
 
 # Create an exit handler so that we are sure to create a error file even
@@ -163,22 +163,22 @@ ADT_OPTS="--apt-pocket=proposed\
 
 
 if [ -n "${FORCE_FAILURE}" ]; then
-	# Force a boottest failure by running an alternate DEP8 test
-	set +e
-	${ADT_CMD} --unbuilt-tree ${TESTS}/bootfail -o results ${ADT_OPTS}
-	RET=$?
-	set -e
+    # Force a boottest failure by running an alternate DEP8 test
+    set +e
+    ${ADT_CMD} --unbuilt-tree ${TESTS}/bootfail -o results ${ADT_OPTS}
+    RET=$?
+    set -e
 else
-	# Now execute the boot test
-	set +e
-	${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
-	RET=$?
-	# Fetch the sourcepkg-version file that contains the version data
-	# for the package under test. We can't use the testpkg-version file
-	# that adt-run generates because it provides the version of the
-	# fake boottest package, not the package we're actually testing.
-	adb pull /home/phablet/sourcepkg-version results/sourcepkg-version
-	set -e
+    # Now execute the boot test
+    set +e
+    ${BASEDIR}/scripts/run-adt.py ${ADT_CMD} --unbuilt-tree ${TESTS}/boottest -o results ${ADT_OPTS}
+    RET=$?
+    # Fetch the sourcepkg-version file that contains the version data
+    # for the package under test. We can't use the testpkg-version file
+    # that adt-run generates because it provides the version of the
+    # fake boottest package, not the package we're actually testing.
+    adb pull /home/phablet/sourcepkg-version results/sourcepkg-version
+    set -e
 fi
 
 check_for_lp1421009 $RET results

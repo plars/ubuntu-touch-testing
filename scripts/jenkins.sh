@@ -12,13 +12,13 @@ UTAH_PHABLET_CMD="${UTAH_PHABLET_CMD-/usr/share/utah/examples/run_utah_phablet.p
 
 
 usage() {
-	cat <<EOF
+    cat <<EOF
 usage: $0 -a APP [-s ANDROID_SERIAL] [-p FILE -p FILE ...] [-Q]
 
 Provisions the given device with the latest build
 
 OPTIONS:
-  -h	Show this message
+  -h    Show this message
   -s    Specify the serial of the device to install
   -a    The application under the "tests" directory to test
   -p    Extra file to pull from target (absolute path or relative to /home/phablet)
@@ -30,134 +30,134 @@ EOF
 PIDS=""
 
 cleanup() {
-	set +e
-	echo "killing child pids: $PIDS"
-	for p in $PIDS ; do
-		kill $p
-	done
+    set +e
+    echo "killing child pids: $PIDS"
+    for p in $PIDS ; do
+        kill $p
+    done
 }
 
 test_from_host() {
-	export PATH=${BASEDIR}/utils/host:${PATH}
+    export PATH=${BASEDIR}/utils/host:${PATH}
 
-	# allow for certain commands to run from host/target
-	# see unity8-autopilot/ts_control for example
-	export TARGET_PREFIX=adb-shell
+    # allow for certain commands to run from host/target
+    # see unity8-autopilot/ts_control for example
+    export TARGET_PREFIX=adb-shell
 
-	[ -z $ANDROID_SERIAL ] || ADBOPTS="-s $ANDROID_SERIAL"
+    [ -z $ANDROID_SERIAL ] || ADBOPTS="-s $ANDROID_SERIAL"
 
-	# If we are not in the utah group, then we don't have permissions
-	# for /var/lib/utah, so run under sudo
-	if ! groups |grep -q utah ; then
-		SUDO="sudo"
-		sudo TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
-			${UTAH_PHABLET_CMD} \
-			${ADBOPTS} \
-			--from-host \
-			--whoopsie \
-			--results-dir "${RESDIR}" \
-			--skip-install --skip-network --skip-utah \
-			--pull /var/crash \
-			--pull /home/phablet/.cache/upstart \
-			--pull /tmp/xmlresults \
-                	--pull /var/log/syslog \
-                	--pull /var/log/kern.log \
-                	--pull /var/log/upstart/whoopsie.log \
-			$EXTRA_PULL \
-			-l "${TESTSUITE_HOST}/master.run"
-	else
-		TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
-			${UTAH_PHABLET_CMD} \
-			${ADBOPTS} \
-			--from-host \
-			--whoopsie \
-			--results-dir "${RESDIR}" \
-			--skip-install --skip-network --skip-utah \
-			--pull /var/crash \
-			--pull /home/phablet/.cache/upstart \
-			--pull /tmp/xmlresults \
-                	--pull /var/log/syslog \
-                	--pull /var/log/kern.log \
-                	--pull /var/log/upstart/whoopsie.log \
-			$EXTRA_PULL \
-			-l "${TESTSUITE_HOST}/master.run"
-	fi
+    # If we are not in the utah group, then we don't have permissions
+    # for /var/lib/utah, so run under sudo
+    if ! groups |grep -q utah ; then
+        SUDO="sudo"
+        sudo TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
+            ${UTAH_PHABLET_CMD} \
+            ${ADBOPTS} \
+            --from-host \
+            --whoopsie \
+            --results-dir "${RESDIR}" \
+            --skip-install --skip-network --skip-utah \
+            --pull /var/crash \
+            --pull /home/phablet/.cache/upstart \
+            --pull /tmp/xmlresults \
+                    --pull /var/log/syslog \
+                    --pull /var/log/kern.log \
+                    --pull /var/log/upstart/whoopsie.log \
+            $EXTRA_PULL \
+            -l "${TESTSUITE_HOST}/master.run"
+    else
+        TARGET_PREFIX="${TARGET_PREFIX}" PATH="${PATH}" \
+            ${UTAH_PHABLET_CMD} \
+            ${ADBOPTS} \
+            --from-host \
+            --whoopsie \
+            --results-dir "${RESDIR}" \
+            --skip-install --skip-network --skip-utah \
+            --pull /var/crash \
+            --pull /home/phablet/.cache/upstart \
+            --pull /tmp/xmlresults \
+                    --pull /var/log/syslog \
+                    --pull /var/log/kern.log \
+                    --pull /var/log/upstart/whoopsie.log \
+            $EXTRA_PULL \
+            -l "${TESTSUITE_HOST}/master.run"
+    fi
 
-	# make sure the user running this script can remove its artifacts.
-	# only run this if we had to run under sudo
-	if [ "${SUDO}" = "sudo" ] ; then
-		sudo chown -R "${USER}" ${RESDIR}
-	fi
+    # make sure the user running this script can remove its artifacts.
+    # only run this if we had to run under sudo
+    if [ "${SUDO}" = "sudo" ] ; then
+        sudo chown -R "${USER}" ${RESDIR}
+    fi
 }
 
 assert_image() {
-	[ -z $INSTALL_URL ] && return
-	echo "Ensuring target has proper image..."
-	REQUIRED_UUID=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-uuid)
-	ACTUAL_UUID=$(adb shell "cat /home/phablet/.ci-uuid | tr -d '\r\n'")
-	if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
-		echo "UUIDs $REQUIRED_UUID != $ACTUAL_UUID, reprovisioning device..."
-		ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-utah-args | tr -d '\r\n')
-		SERVER=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-server | tr -d '\r\n')
-		UUID=$REQUIRED_UUID IMAGE_SERVER=$SERVER IMAGE_OPT=$ARGS \
-			${BASEDIR}/scripts/provision.sh
-	else
-		echo "UUIDS match"
-	fi
+    [ -z $INSTALL_URL ] && return
+    echo "Ensuring target has proper image..."
+    REQUIRED_UUID=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-uuid)
+    ACTUAL_UUID=$(adb shell "cat /home/phablet/.ci-uuid | tr -d '\r\n'")
+    if [ "$REQUIRED_UUID" != "$ACTUAL_UUID" ] ; then
+        echo "UUIDs $REQUIRED_UUID != $ACTUAL_UUID, reprovisioning device..."
+        ARGS=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-utah-args | tr -d '\r\n')
+        SERVER=$(curl ${INSTALL_URL}/artifact/clientlogs/.ci-flash-server | tr -d '\r\n')
+        UUID=$REQUIRED_UUID IMAGE_SERVER=$SERVER IMAGE_OPT=$ARGS \
+            ${BASEDIR}/scripts/provision.sh
+    else
+        echo "UUIDS match"
+    fi
 }
 
 main() {
-	rm -rf $RESDIR
-	mkdir $RESDIR
+    rm -rf $RESDIR
+    mkdir $RESDIR
 
-	assert_image
+    assert_image
 
-	# print the build date so the jenkins job can use it as the
-	# build description
-	adb pull /var/log/installer/media-info ${RESDIR}
-	BUILDID=$(adb shell cat /home/phablet/.ci-version)
-	echo "= TOUCH IMAGE VERSION:$BUILDID"
+    # print the build date so the jenkins job can use it as the
+    # build description
+    adb pull /var/log/installer/media-info ${RESDIR}
+    BUILDID=$(adb shell cat /home/phablet/.ci-version)
+    echo "= TOUCH IMAGE VERSION:$BUILDID"
 
-	adb shell "top -n1 -b" > ${RESDIR}/top.log
+    adb shell "top -n1 -b" > ${RESDIR}/top.log
 
-	set -x
-	adb shell 'sudo rm -f /var/crash/*'
-	if [ -z $QUICK ] ; then
-		# get the phone in sane place
-		adb reboot
-		# sometimes reboot doesn't happen fast enough, so add a little
-		# delay to help ensure its actually rebooted and we didn't just
-		# connect back to the device before it rebooted
-		adb wait-for-device
-		sleep 5
-		adb wait-for-device
-		phablet-network --skip-setup -t 90s
-		adb shell sudo powerd-cli active &
-		PIDS="$PIDS $!"
-		adb shell sudo powerd-cli display on &
-		PIDS="$PIDS $!"
-	else
-		echo "SKIPPING phone reboot..."
-	fi
+    set -x
+    adb shell 'sudo rm -f /var/crash/*'
+    if [ -z $QUICK ] ; then
+        # get the phone in sane place
+        adb reboot
+        # sometimes reboot doesn't happen fast enough, so add a little
+        # delay to help ensure its actually rebooted and we didn't just
+        # connect back to the device before it rebooted
+        adb wait-for-device
+        sleep 5
+        adb wait-for-device
+        phablet-network --skip-setup -t 90s
+        adb shell sudo powerd-cli active &
+        PIDS="$PIDS $!"
+        adb shell sudo powerd-cli display on &
+        PIDS="$PIDS $!"
+    else
+        echo "SKIPPING phone reboot..."
+    fi
 
-	${BASEDIR}/utils/host/adb-shell "sudo aa-clickhook -f --include=/usr/share/autopilot-touch/apparmor/click.rules"
+    ${BASEDIR}/utils/host/adb-shell "sudo aa-clickhook -f --include=/usr/share/autopilot-touch/apparmor/click.rules"
 
-	echo "launching test from the host...."
-	test_from_host
-	adb shell 'sudo rm -f /var/crash/*'
+    echo "launching test from the host...."
+    test_from_host
+    adb shell 'sudo rm -f /var/crash/*'
 
-	if ! `grep "^errors: [!0]" < $UTAHFILE >/dev/null` ; then
-		echo "errors found"
-		EXITCODE=1
-	fi
-	if ! `grep "^failures: [!0]" < $UTAHFILE >/dev/null` ; then
-		echo "failures found"
-		EXITCODE=2
-	fi
-	echo "Results Summary"
-	echo "---------------"
-	egrep '^(errors|failures|passes|fetch_errors):' $UTAHFILE
-	exit $EXITCODE
+    if ! `grep "^errors: [!0]" < $UTAHFILE >/dev/null` ; then
+        echo "errors found"
+        EXITCODE=1
+    fi
+    if ! `grep "^failures: [!0]" < $UTAHFILE >/dev/null` ; then
+        echo "failures found"
+        EXITCODE=2
+    fi
+    echo "Results Summary"
+    echo "---------------"
+    egrep '^(errors|failures|passes|fetch_errors):' $UTAHFILE
+    exit $EXITCODE
 }
 
 while getopts p:s:a:Qh opt; do
@@ -172,20 +172,20 @@ while getopts p:s:a:Qh opt; do
     a)
         APP=$OPTARG
         ;;
-	p)
-		EXTRA_PULL_FILE=$OPTARG
+    p)
+        EXTRA_PULL_FILE=$OPTARG
 
-		if [ ! -z $EXTRA_PULL_FILE ]; then
-			# relative paths are assumed to be relative to /home/phablet
-			E_P_START=`echo $EXTRA_PULL_FILE | cut -c1`
+        if [ ! -z $EXTRA_PULL_FILE ]; then
+            # relative paths are assumed to be relative to /home/phablet
+            E_P_START=`echo $EXTRA_PULL_FILE | cut -c1`
 
-			if [ $E_P_START = '/' ]; then
-				EXTRA_PULL="$EXTRA_PULL --pull $EXTRA_PULL_FILE"
-			else
-				EXTRA_PULL="$EXTRA_PULL --pull /home/phablet/$EXTRA_PULL_FILE"
-			fi
-		fi
-		;;
+            if [ $E_P_START = '/' ]; then
+                EXTRA_PULL="$EXTRA_PULL --pull $EXTRA_PULL_FILE"
+            else
+                EXTRA_PULL="$EXTRA_PULL --pull /home/phablet/$EXTRA_PULL_FILE"
+            fi
+        fi
+        ;;
     Q)
         QUICK=1
         ;;
@@ -197,7 +197,7 @@ if [ -z $ANDROID_SERIAL ] ; then
     lines=$(adb devices | wc -l)
     if [ $lines -gt 3 ] ; then
         echo "ERROR: More than one device attached, please use -s option"
-	echo
+    echo
         usage
         exit 1
     fi
