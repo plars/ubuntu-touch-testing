@@ -23,7 +23,7 @@ usage: $0 [-s ANDROID_SERIAL] [-n NETWORK_FILE] [-P ppa] [-p package] [-r revisi
 Provisions the given device with the latest build
 
 OPTIONS:
-  -h	Show this message
+  -h    Show this message
   -s    Specify the serial of the device to install
   -n    Select network file
   -P    add the ppa to the target (can be repeated)
