@@ -209,7 +209,6 @@ if [ ! -f $NETWORK_FILE ] && [ -z $USE_EMULATOR ] ; then
 	exit 1
 fi
 
-set -x
 [ -d $RESDIR ] && rm -rf $RESDIR
 mkdir -p $RESDIR
 
