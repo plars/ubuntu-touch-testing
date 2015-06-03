@@ -59,7 +59,7 @@ EOF
 }
 
 log() {
-	echo = $(date): $*
+	echo $*
 }
 
 set_hwclock() {
@@ -124,12 +124,12 @@ reboot_bootloader() {
 download_recovery () {
 	# FIXME: ev mentioned on irc that we should add some cheksum for
 	# those images -- vila 2015-02-20
-        wget -P recovery ${RECOVERY_URL}/recovery-${DEVICE_TYPE}.img
-        if [ -f recovery/recovery-${DEVICE_TYPE}.img ]; then
-                RECOVERY="--recovery-image=recovery/recovery-${DEVICE_TYPE}.img"
-                return 0
-        fi
-        return 1
+    wget -nv -P recovery ${RECOVERY_URL}/recovery-${DEVICE_TYPE}.img
+    if [ -f recovery/recovery-${DEVICE_TYPE}.img ]; then
+            RECOVERY="--recovery-image=recovery/recovery-${DEVICE_TYPE}.img"
+            return 0
+    fi
+    return 1
 }
 
 full_flash() {
