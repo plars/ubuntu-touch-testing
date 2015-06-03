@@ -179,7 +179,7 @@ if [ -e "results/testpkg-version" -a -e "results/testbed-packages" ]; then
     resultfile=results/${RELEASE}_${ARCH}_${SRC_PKG_NAME}_$(date +%Y%m%d-%H%M%S).result
     [ $RET -gt 0 ] && result="FAIL"
     set +x  # quiet mode as it pollutes output
-    echo "$RELEASE $ARCH $(cat results/showpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
+    echo "$RELEASE $ARCH $(cat showpkg-version) $result $(sort -u results/*-packages|tr -s '[\n\t]' ' ')" > $resultfile
     set -x
     [ -f "$resultfile" ] && ${RSYNC} -a $resultfile $RSYNC_DEST/${RELEASE}/tmp/ || true
 else
