@@ -107,7 +107,7 @@ reboot_bootloader() {
     log "Attempting adb reboot bootloader"
     adb reboot bootloader
     if [ -n "${ANDROID_SERIAL}" ] ; then
-            # Entering the bootloader should take < 10 seconds, add some
+        # Entering the bootloader should take < 10 seconds, add some
         # padding for device variance.
         sleep 30
         if ! fastboot devices | grep -q "${ANDROID_SERIAL}"; then
