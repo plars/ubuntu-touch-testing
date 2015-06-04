@@ -136,7 +136,7 @@ SANITIZED_SRC_PKG_NAME=${SRC_PKG_NAME/+/\\+}
 echo "grep-aptavail -e -n -S -sPackage \"^${SANITIZED_SRC_PKG_NAME}( \\(.*\\))?\$\"| sort | uniq > binary.packages" >> adt-commands
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
-echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
+echo 'cat needs_install.packages | xargs apt-get install -f -y -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
 # The sourcepkg-version file contains the version of the first binary in the
 # list of binaries to install. This version data is passed back to britney
 # via the final .result file. Britney uses this to determine if the package
