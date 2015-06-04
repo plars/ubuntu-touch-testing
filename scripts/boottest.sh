@@ -131,11 +131,14 @@ echo 'dpkg-query -f "\${binary:Package}\n" -W | sed -e "s/:.*$//" > installed.pa
 # Source can be "Source: ${SRC_PKG_NAME} (${version})" so use a regex to grep
 # for all packages that exactly match the SRC_PKG_NAME with or without the
 # extra version bit.
-# Also, because we're using a regex, we need to sanitize certain characters
+# Also, because we're using a regex, we need to sanitize certain characters.
+# For example: 'gtk+3.0' needs to become 'gtk/+3.0'.
 SANITIZED_SRC_PKG_NAME=${SRC_PKG_NAME/+/\\+}
 echo "grep-aptavail -e -n -S -sPackage \"^${SANITIZED_SRC_PKG_NAME}( \\(.*\\))?\$\"| sort | uniq > binary.packages" >> adt-commands
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
+# Include '-y' in the list of apt-get options because the updated package
+# under test could pull in new dependencies.
 echo 'cat needs_install.packages | xargs apt-get install -f -y -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
 # The sourcepkg-version file contains the version of the first binary in the
 # list of binaries to install. This version data is passed back to britney
