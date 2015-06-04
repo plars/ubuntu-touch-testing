@@ -131,7 +131,9 @@ echo 'dpkg-query -f "\${binary:Package}\n" -W | sed -e "s/:.*$//" > installed.pa
 # Source can be "Source: ${SRC_PKG_NAME} (${version})" so use a regex to grep
 # for all packages that exactly match the SRC_PKG_NAME with or without the
 # extra version bit.
-echo "grep-aptavail -e -n -S -sPackage \"^${SRC_PKG_NAME}( \\(.*\\))?\$\"| sort | uniq > binary.packages" >> adt-commands
+# Also, because we're using a regex, we need to sanitize certain characters
+SANITIZED_SRC_PKG_NAME=${SRC_PKG_NAME/+/\\+}
+echo "grep-aptavail -e -n -S -sPackage \"^${SANITIZED_SRC_PKG_NAME}( \\(.*\\))?\$\"| sort | uniq > binary.packages" >> adt-commands
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
 echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
