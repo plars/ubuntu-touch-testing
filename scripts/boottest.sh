@@ -128,7 +128,10 @@ echo "(apt-get update || (sleep 15; apt-get update))" >> adt-commands
 # We need dctrl-tools installed so we can use grep-aptavail below
 echo "apt-get install -f dctrl-tools" >> adt-commands
 echo 'dpkg-query -f "\${binary:Package}\n" -W | sed -e "s/:.*$//" > installed.packages' >> adt-commands
-echo "grep-aptavail -X -n -S -sPackage ${SRC_PKG_NAME}| sort | uniq > binary.packages" >> adt-commands
+# Source can be "Source: ${SRC_PKG_NAME} (${version})" so use a regex to grep
+# for all packages that exactly match the SRC_PKG_NAME with or without the
+# extra version bit.
+echo "grep-aptavail -e -n -S -sPackage \"^${SRC_PKG_NAME}( \\(.*\\))?\$\"| sort | uniq > binary.packages" >> adt-commands
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
 echo 'release=$(lsb_release -s -c)' >> adt-commands
 echo 'cat needs_install.packages | xargs apt-get install -f -t ${release}-proposed 2> apt-get-install.stderr' >> adt-commands
