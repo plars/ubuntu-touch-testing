@@ -132,7 +132,7 @@ echo 'dpkg-query -f "\${binary:Package}\n" -W | sed -e "s/:.*$//" > installed.pa
 # for all packages that exactly match the SRC_PKG_NAME with or without the
 # extra version bit.
 # Also, because we're using a regex, we need to sanitize certain characters.
-# For example: 'gtk+3.0' needs to become 'gtk/+3.0'.
+# For example: 'gtk+3.0' needs to become 'gtk\+3.0'.
 SANITIZED_SRC_PKG_NAME=${SRC_PKG_NAME/+/\\+}
 echo "grep-aptavail -e -n -S -sPackage \"^${SANITIZED_SRC_PKG_NAME}( \\(.*\\))?\$\"| sort | uniq > binary.packages" >> adt-commands
 echo "comm  -1 -2 binary.packages installed.packages > needs_install.packages" >> adt-commands
