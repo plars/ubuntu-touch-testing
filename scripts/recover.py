@@ -95,8 +95,8 @@ def recover(device_name):
     if state in ('device'):
         try:
             device.check_adb_shell()
-            # XXX psivaa 10/09/2015 We've seen instances when detect_device throwing
-            # detect_device throwing exceptions even when adb_shell works OK
+            # XXX psivaa 10/09/2015 We've seen instances when
+            # detect_device throwing exceptions even when adb_shell working OK
             # recover it fully in such a situation
             get_device_type()
         except:
