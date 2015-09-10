@@ -116,7 +116,7 @@ reboot_bootloader() {
                 # After a failed 'reboot bootloader' attempt, a reboot
                 # is used to get the device back to a saner state.
                 adb reboot bootloader
-            elif
+            else
                 log "=========== Device in fastboot =========="
                 break
             fi
