@@ -110,13 +110,17 @@ reboot_bootloader() {
         # Entering the bootloader should take < 10 seconds, add some
         # padding for device variance.
         sleep 30
-        if ! fastboot devices | grep -q "${ANDROID_SERIAL}"; then
-            log "Device not in fastboot after adb reboot bootloader"
-            # After a failed 'reboot bootloader' attempt, a reboot
-            # is used to get the device back to a saner state.
-            adb reboot
-            return 1
-        fi
+        while true; do
+            if ! fastboot devices | grep -q "${ANDROID_SERIAL}"; then
+                log "Device not in fastboot after adb reboot bootloader"
+                # After a failed 'reboot bootloader' attempt, a reboot
+                # is used to get the device back to a saner state.
+                adb reboot bootloader
+            elif
+                log "=========== Device in fastboot =========="
+                break
+            fi
+       done
     fi
     return 0
 }

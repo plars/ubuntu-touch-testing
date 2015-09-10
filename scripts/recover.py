@@ -8,6 +8,8 @@ import sys
 import time
 import yaml
 
+from phabletutils.environment import detect_device
+
 log = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
 
@@ -77,6 +79,12 @@ def _offline_device():
     log.error("Fatal error marking {} offline".format(node))
 
 
+def get_device_type():
+    device_type = os.environ.get('DEVICE_TYPE')
+    if device_type is None:
+        device_type = detect_device(None)
+
+
 def recover(device_name):
     try:
         device = device_info.get_device(device_name)
@@ -87,6 +95,10 @@ def recover(device_name):
     if state in ('device'):
         try:
             device.check_adb_shell()
+            # XXX psivaa 10/09/2015 We've seen instances when detect_device throwing
+            # detect_device throwing exceptions even when adb_shell works OK
+            # recover it fully in such a situation
+            get_device_type()
         except:
             # The device looks like it's available, but not responding
             return _full_recovery(device)
