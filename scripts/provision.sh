@@ -114,8 +114,11 @@ reboot_bootloader() {
             if ! fastboot devices | grep -q "${ANDROID_SERIAL}"; then
                 log "Device not in fastboot after `adb reboot bootloader`"
                 # XXX psivaa: 20150910: No point in continuing
-                # if `adb reboot bootloader` fails.
-                # This appears to cause issues during testing
+                # if `adb reboot bootloader` fails,
+                # which appears to cause issues during testing.
+                # This fix is to improve from
+                # `adb reboot && return 1` to carry out infinite
+                # `adb reboot bootloader`
                 adb reboot bootloader
             else
                 log "=========== Device in fastboot =========="
@@ -140,10 +143,7 @@ download_recovery () {
 full_flash() {
     log "FLASHING DEVICE"
     DEVICE_TYPE=$(get-device-type)
-    # Use a 60 second retry loop for reboot_bootloader.
-    # If the attempt failed, it may take nearly 60 seconds to complete
-    # the reboot cycle to get the device back to a sane state.
-    retry 60 3 reboot_bootloader
+    reboot_bootloader
     RECOVERY=""
     # We need to distinguish between devices with no recovery images and
     # failures to download existing recovery images. Only krillin
