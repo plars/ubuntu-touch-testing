@@ -184,7 +184,7 @@ class TouchDevice(object):
         set_relay(self.relay_url,
                   self.volume_down_pin.bank, self.volume_down_pin.pin, 0)
         set_relay(self.relay_url,
-                  self.volume_up_pin.bank, self.volume_up_pin, 0)
+                  self.volume_up_pin.bank, self.volume_up_pin.pin, 0)
 
     def _flo_to_bootloader(self):
         log.info("Forcing the device to enter the bootloader")
