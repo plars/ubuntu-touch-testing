@@ -88,6 +88,11 @@ retry() {
                 echo "Retry [$loopcnt/$loops] after $timeout seconds..."
                 sleep $timeout
             else
+                rebooted_once = false
+	        if ([[ $cmd  == "phablet-network -n $NETWORK_FILE" && $rebooted_once != true ]]) ; then
+                   ${BASEDIR}/reboot-and-wait
+                   rebooted_once = true
+                fi
                 echo Failed on \'$cmd\' after $loops retries
                 exit 1
             fi
