@@ -89,6 +89,9 @@ retry() {
                 sleep $timeout
             elif ([[ $cmd  == "phablet-network -n $NETWORK_FILE" && $rebooted_once != true ]]) ; then
 		echo "Network setup failed, Device rebooting"
+                # reboot-and-wait will wait for network setup to complete.
+                # By default reboot will be retried 3 times if network setup
+                # is not successful.
                 ${BASEDIR}/reboot-and-wait
                 rebooted_once=true
             else
