@@ -87,6 +87,7 @@ retry() {
                 loopcnt=$[$loopcnt+1]
                 echo "Retry [$loopcnt/$loops] after $timeout seconds..."
                 sleep $timeout
+            # Network setup fails intermittently. Rebooting the device is needed to fix this.
             elif ([[ $cmd  == "phablet-network -n $NETWORK_FILE" && $rebooted_once != true ]]) ; then
 		echo "Network setup failed, Device rebooting"
                 # reboot-and-wait will wait for network setup to complete.
