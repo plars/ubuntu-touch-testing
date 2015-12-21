@@ -93,7 +93,11 @@ test_app() {
         # Use --timeout-profile=long only if we are using the emulator
     [ -z $USE_EMULATOR ] || EXTRA="-A '--timeout-profile=long'"
 
-    phablet-test-run \
+    FORCE_TEST_TIMEOUT=""
+    if [ -n "${TEST_TIMEOUT}" ] ; then
+        FORCE_TEST_TIMEOUT="timeout ${TEST_TIMEOUT}"
+    fi
+    ${FORCE_TEST_TIMEOUT} phablet-test-run \
         $NOSHELL $EXTRA \
         -o ${odir} -f subunit \
         -a /var/crash -a /home/phablet/.cache/upstart \
