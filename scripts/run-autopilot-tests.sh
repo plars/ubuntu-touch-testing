@@ -98,7 +98,7 @@ test_app() {
         # This is to help collect logs during cases where tests hang forever
         # causing the job to timeout without collecting logs
         # Forcing a timeout before the big-hammer job timeout will allow the
-        # consecutive log collections steps to complete.  
+        # consecutive log collection steps to complete.  
         FORCE_TEST_SUITE_TIMEOUT="timeout ${TEST_SUITE_TIMEOUT}"
     fi
     set +e
@@ -111,7 +111,7 @@ test_app() {
         -A --timeout-profile=long \
         -v $app
     RET=$?
-    if [ "$RET" == 124 ];then
+    if [ "$RET" = "124" ];then
         echo "========================================================"
         echo "== Test suite $app timed out =="
         echo "========================================================"    
