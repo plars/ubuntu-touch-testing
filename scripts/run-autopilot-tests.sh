@@ -93,13 +93,30 @@ test_app() {
         # Use --timeout-profile=long only if we are using the emulator
     [ -z $USE_EMULATOR ] || EXTRA="-A '--timeout-profile=long'"
 
-    phablet-test-run \
+    FORCE_TEST_SUITE_TIMEOUT=""
+    if [ -n "${TEST_SUITE_TIMEOUT}" ] ; then
+        # This is to help collect logs during cases where tests hang forever
+        # causing the job to timeout without collecting logs
+        # Forcing a timeout before the big-hammer job timeout will allow the
+        # consecutive log collection steps to complete.  
+        FORCE_TEST_SUITE_TIMEOUT="timeout ${TEST_SUITE_TIMEOUT}"
+    fi
+    set +e
+    RET=0
+    ${FORCE_TEST_SUITE_TIMEOUT} phablet-test-run \
         $NOSHELL $EXTRA \
         -o ${odir} -f subunit \
         -a /var/crash -a /home/phablet/.cache/upstart \
         -a /var/log/syslog \
         -A --timeout-profile=long \
-        -v $app || true
+        -v $app
+    RET=$?
+    if [ "$RET" = "124" ];then
+        echo "========================================================"
+        echo "== Test suite $app timed out =="
+        echo "========================================================"    
+    fi
+    set -e
     adb shell rm -rf /tmp/ci-logs
     adb shell mkdir /tmp/ci-logs
     adb shell sudo install -o phablet \
