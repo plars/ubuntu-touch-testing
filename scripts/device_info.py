@@ -98,6 +98,11 @@ class TouchDevice(object):
                                 os.path.join('recovery', recovery_img)])
         log.info("Flashing the last stable image")
         subprocess.check_output(udf_command)
+        # FIXME: workaround for recovery failure with new recovery images
+        #        that do not add the .adb_onlock file on old install images
+        time.sleep(30)
+        subprocess.check_output(
+            ['adb', '-s', self.serial, 'shell', 'touch /data/.adb_onlock'])
         return self.wait_for_device(600)
 
     def wait_for_fastboot(self, timeout=120):
