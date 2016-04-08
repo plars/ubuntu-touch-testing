@@ -121,7 +121,7 @@ def recover(device_name):
         except:
             # The device looks like it's available, but not responding
             return _full_recovery(device)
-    if state in ('offline', 'unknown', 'disconnected'):
+    if state in ('offline', 'unknown', 'disconnected', 'unauthorized'):
         #The device is in an unknown state, we need full recovery
         return _full_recovery(device)
     #In theory, we should never get here, but....
